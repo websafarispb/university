@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Teacher extends Person{
 
-	public Teacher(String firstName, String lastName, Date birthday, String email, String gender, String addres,
+	public Teacher(String firstName, String lastName, Date birthday, String email, Gender gender, String addres,
 			List<Course> courses) {
 		
 		this.firstName = firstName;

@@ -1,41 +1,43 @@
 package ru.stepev.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class Univercity {
+public class University {
 
-	private DailySchedule dailySchedules;
+	private List<DailySchedule> dailySchedules;
 	private List<Group> groups;
 	private List<Course> courses;
 	private List<Teacher> teachers;
 	private List<Student> students;
 	private List<ClassRoom> classRooms;
 
-	public DailySchedule getTimeTableForStudent(String firstName, String lastName, List<Date> periodOfTime) {
-		DailySchedule studentDailySchedules = new DailySchedule();
-		Map<Date, List<Lecture>> studentTable = new HashMap<>();
+	public List<DailySchedule> getTimeTableForStudent(String firstName, String lastName, List<LocalDate> periodOfTime) {
+		List<DailySchedule> studentDailySchedules = new ArrayList<>();
 		Group groupOfStudent = getGroupOfStudent(firstName, lastName);
-		for(Date day : periodOfTime) {
-			List <Lecture> lectureOfStudent = new ArrayList<>();
-			for(Lecture lecture : dailySchedules.getSchedule().get(day)) {
-				if(lecture.getGroup().getName().equals(groupOfStudent.getName()))
-					lectureOfStudent.add(lecture);
+		for (LocalDate day : periodOfTime) {
+			List<Lecture> lecturesOfStudent = new ArrayList<>();
+			for (DailySchedule schedule : dailySchedules) {
+
+				if (schedule.getDate().equals(day)) {
+					for (Lecture lecture : schedule.getLectures()) {
+						if (lecture.getGroup().getName().equals(groupOfStudent.getName()))
+							lecturesOfStudent.add(lecture);
+					}
+					studentDailySchedules.add(new DailySchedule(day, lecturesOfStudent));
+				}
 			}
-			studentTable.put(day, lectureOfStudent);
 		}
-		studentDailySchedules.setSchedule(studentTable);
 		return studentDailySchedules;
 	}
-	
+
 	public Group getGroupOfStudent(String firstName, String lastName) {
 		Group groupOfStudent = null;
-		for(Group group : groups) {
-			for(Student student : group.getStudents()) {
-				if(student.firstName.equals(firstName)&&student.lastName.equals(lastName)) {
+		for (Group group : groups) {
+			for (Student student : group.getStudents()) {
+				if (student.firstName.equals(firstName) && student.lastName.equals(lastName)) {
 					groupOfStudent = group;
 					break;
 				}
@@ -44,18 +46,21 @@ public class Univercity {
 		return groupOfStudent;
 	}
 
-	public DailySchedule getTimeTableForTeacher(String firstName, String lastName, List<Date> periodOfTime) {
-		DailySchedule teacherDailySchedules = new DailySchedule();
-		Map<Date, List<Lecture>> teacherTable = new HashMap<>();
-		for(Date day : periodOfTime) {
-			List <Lecture> lectureOfTeacher = new ArrayList<>();
-			for(Lecture lecture : dailySchedules.getSchedule().get(day)) {
-				if(lecture.getTeacher().firstName.equals(firstName)&&lecture.getTeacher().lastName.equals(lastName))
-					lectureOfTeacher.add(lecture);
+	public List<DailySchedule> getTimeTableForTeacher(String firstName, String lastName, List<LocalDate> periodOfTime) {
+		List<DailySchedule> teacherDailySchedules = new ArrayList<>();
+		for (LocalDate day : periodOfTime) {
+			List<Lecture> lectureOfTeacher = new ArrayList<>();
+			for (DailySchedule schedule : dailySchedules) {
+				if (schedule.getDate().equals(day)) {
+					for (Lecture lecture : schedule.getLectures()) {
+						if (lecture.getTeacher().firstName.equals(firstName)
+								&& lecture.getTeacher().lastName.equals(lastName))
+							lectureOfTeacher.add(lecture);
+					}
+					teacherDailySchedules.add(new DailySchedule(day, lectureOfTeacher));
+				}
 			}
-			teacherTable.put(day, lectureOfTeacher);
 		}
-		teacherDailySchedules.setSchedule(teacherTable);
 		return teacherDailySchedules;
 	}
 
@@ -66,29 +71,29 @@ public class Univercity {
 	public void addTeacher(Teacher teacher) {
 		teachers.add(teacher);
 	}
-	
+
 	public void addGroup(Group group) {
 		groups.add(group);
 	}
-	
+
 	public void addCourse(Course course) {
 		courses.add(course);
 	}
-	
+
 	public void addDailySchedule(DailySchedule dailySchedule) {
-		this.dailySchedules = dailySchedule;
-	}
-	
-	public void assignStudentToGroup(Student student, Group group) {
-		group.addStudent(student);
-	
+		this.dailySchedules.add(dailySchedule);
 	}
 
-	public DailySchedule getDailySchedules() {
+	public void assignStudentToGroup(Student student, Group group) {
+		group.addStudent(student);
+
+	}
+
+	public List<DailySchedule> getDailySchedules() {
 		return dailySchedules;
 	}
 
-	public void setDailySchedules(DailySchedule dailySchedules) {
+	public void setDailySchedules(List<DailySchedule> dailySchedules) {
 		this.dailySchedules = dailySchedules;
 	}
 
@@ -131,6 +136,5 @@ public class Univercity {
 	public void setClassRooms(List<ClassRoom> classRooms) {
 		this.classRooms = classRooms;
 	}
-	
-	
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Student extends Person{
 
-	public Student(String firstName, String lastName, Date birthday, String email, String gender, String addres,
+	public Student(String firstName, String lastName, Date birthday, String email, Gender gender, String addres,
 			List<Course> courses) {
 		
 		this.firstName = firstName;
@@ -19,7 +19,7 @@ public class Student extends Person{
 
 	@Override
 	public String toString() {
-		return "Student [firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
+		return "Student " + firstName + " " + lastName + ", email=" + email;
 	}
 	
 }

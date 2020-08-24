@@ -60,8 +60,8 @@ public class Lecture {
 
 	@Override
 	public String toString() {
-		return "Lecture [time=" + time + ", course=" + course + ", classRoom=" + classRoom + ", group=" + group.getName()
-				+ ", teacher=" + teacher + "]";
+		return time + " " + course + ", classroom=" + classRoom.getAddress() + ", group=" + group.getName()
+				+ ", teacher=" + teacher.getFirstName() + " " + teacher.getLastName() + System.lineSeparator();
 	}
 	
 	

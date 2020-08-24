@@ -2,20 +2,20 @@ package ru.stepev.model;
 
 public class ClassRoom {
 
-	private String addres;
+	private String address;
 	private int capacity;
 	
-	public ClassRoom(String addres, int capacity) {
-		this.addres = addres;
+	public ClassRoom(String address, int capacity) {
+		this.address = address;
 		this.capacity = capacity;
 	}
 	
-	public String getAddres() {
-		return addres;
+	public String getAddress() {
+		return address;
 	}
 
-	public void setAddres(String addres) {
-		this.addres = addres;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public int getCapacity() {
@@ -28,6 +28,6 @@ public class ClassRoom {
 
 	@Override
 	public String toString() {
-		return "ClassRoom [addres=" + addres + ", capacity=" + capacity + "]";
+		return "ClassRoom [address=" + address + ", capacity=" + capacity + "]";
 	}
 }

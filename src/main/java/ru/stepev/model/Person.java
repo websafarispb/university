@@ -8,7 +8,7 @@ public class Person {
 	protected String lastName;
 	protected Date birthday;
 	protected String email;
-	protected String gender;
+	protected Gender gender;
 	protected String addres;
 	protected List<Course> courses;
 
@@ -44,11 +44,11 @@ public class Person {
 		this.email = email;
 	}
 
-	public String getGender() {
+	public Gender getGender() {
 		return gender;
 	}
 
-	public void setGender(String gender) {
+	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
 
