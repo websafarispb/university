@@ -2,6 +2,7 @@ package ru.stepev.model;
 
 public class ClassRoom {
 
+	private int id;
 	private String address;
 	private int capacity;
 	
@@ -10,6 +11,12 @@ public class ClassRoom {
 		this.capacity = capacity;
 	}
 	
+	public ClassRoom(int id, String address, int capacity) {
+		this.id = id;
+		this.address = address;
+		this.capacity = capacity;
+	}
+
 	public String getAddress() {
 		return address;
 	}
@@ -24,6 +31,14 @@ public class ClassRoom {
 
 	public void setCapacity(int capacity) {
 		this.capacity = capacity;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

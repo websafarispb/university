@@ -1,23 +1,28 @@
 package ru.stepev.model;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class University {
 
-	private List<DailySchedule> dailySchedules;
+	private List<DailySchedule> dailySchedules = new ArrayList<>();
 	private List<Group> groups;
 	private List<Course> courses;
 	private List<Teacher> teachers;
 	private List<Student> students;
 	private List<ClassRoom> classRooms;
+	private Random random = new Random();
 
 	public List<DailySchedule> getTimeTableForStudent(String firstName, String lastName, List<LocalDate> periodOfTime) {
 		List<DailySchedule> studentDailySchedules = new ArrayList<>();
 		Group groupOfStudent = getGroupOfStudent(firstName, lastName);
 		for (LocalDate day : periodOfTime) {
+			System.out.println(day);
 			List<Lecture> lecturesOfStudent = new ArrayList<>();
 			for (DailySchedule schedule : dailySchedules) {
 
@@ -63,6 +68,30 @@ public class University {
 		}
 		return teacherDailySchedules;
 	}
+	
+	public List<Lecture> createLectures(LocalDate date) {
+		List<Lecture> lectures = new ArrayList<>();
+		for (int i = 0; i < 10; i++) {
+			List<Integer> freeRooms = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
+			List<Integer> freeTeachers = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
+			int timeOfStartLecture = 9 + i;
+			for (int j = 0; j < groups.size(); j++) {
+				Lecture lecture = new Lecture(date,LocalTime.of(timeOfStartLecture, 0, 0), courses.get(i),
+						classRooms.get(freeRooms.get(j)), groups.get(j), teachers.get(freeTeachers.get(j)));
+				lectures.add(lecture);
+			}
+		}
+		return lectures;
+	}
+
+	public List<DailySchedule> createDailySchedules() {
+		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 19), createLectures(LocalDate.of(2020, 8, 19))));
+		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 20), createLectures(LocalDate.of(2020, 8, 20))));
+		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 21), createLectures(LocalDate.of(2020, 8, 21))));
+		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 22), createLectures(LocalDate.of(2020, 8, 22))));
+		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 23), createLectures(LocalDate.of(2020, 8, 23))));
+		return dailySchedules;
+	}
 
 	public void addStudent(Student student) {
 		students.add(student);
@@ -95,6 +124,15 @@ public class University {
 
 	public void setDailySchedules(List<DailySchedule> dailySchedules) {
 		this.dailySchedules = dailySchedules;
+	}
+	
+	public Group getGroup(String name) {
+		Group group = null;
+		for(Group g : groups) {
+			if(g.getName().equals(name))
+				group = g;
+		}
+		return group;
 	}
 
 	public List<Group> getGroups() {

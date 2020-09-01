@@ -1,19 +1,41 @@
 package ru.stepev.model;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Lecture {
 	
+	private int id;
+	private LocalDate date;
 	private LocalTime time;
 	private Course course;
 	private ClassRoom classRoom;
 	private Group group;
 	private Teacher teacher;
 	
-	public Lecture(LocalTime time, Course course, ClassRoom classRoom, Group group, Teacher teacher) {
+	public Lecture(LocalDate date, LocalTime time, Course course, ClassRoom classRoom, Group group, Teacher teacher) {
+		this.date = date;
 		this.time = time;
 		this.course = course;
 		this.classRoom = classRoom;
+		this.group = group;
+		this.teacher = teacher;
+	}
+	
+	public Lecture(int id, LocalDate date, LocalTime time, Course course, ClassRoom classRoom, Group group, Teacher teacher) {
+		this.id = id;
+		this.date = date;
+
+		this.time = time;
+		this.course = course;
+		this.classRoom = classRoom;
+		this.group = group;
+		this.teacher = teacher;
+	}
+
+	public Lecture(Course course, ClassRoom classroom, Group group, Teacher teacher) {
+		this.course = course;
+		this.classRoom = classroom;
 		this.group = group;
 		this.teacher = teacher;
 	}
@@ -56,6 +78,22 @@ public class Lecture {
 
 	public void setTeacher(Teacher teacher) {
 		this.teacher = teacher;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 	@Override

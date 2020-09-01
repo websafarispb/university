@@ -7,6 +7,7 @@ import java.util.*;
 
 public class DailySchedule {
 
+	private int id;
 	private LocalDate date;
 	private List<Lecture> lectures;
 	
@@ -14,6 +15,11 @@ public class DailySchedule {
 		this.date = date;
 		this.lectures = lectures;
 	}
+	
+	public DailySchedule(int id, LocalDate date) {
+		this.id = id;
+		this.date = date;
+		}
 
 	public LocalDate getDate() {
 		return date;
@@ -33,6 +39,14 @@ public class DailySchedule {
 	
 	public String showAllLectures() {
 		return  lectures.stream().map(Lecture::toString).collect(joining(System.lineSeparator()));
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

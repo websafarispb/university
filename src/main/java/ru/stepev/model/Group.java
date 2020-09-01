@@ -4,10 +4,17 @@ import java.util.*;
 
 public class Group {
 
+	private int id;
 	private String name;
 	private List<Student> students;
 	
 	public Group(String name) {
+		this.name = name;
+		this.students = new ArrayList<>();
+	}
+	
+	public Group(int id, String name) {
+		this.id = id;
 		this.name = name;
 		this.students = new ArrayList<>();
 	}
@@ -34,6 +41,14 @@ public class Group {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	@Override

@@ -1,13 +1,11 @@
 package ru.stepev.utils;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ru.stepev.model.*;
-
-import static java.util.stream.Collectors.toList;
 
 public class DataHelper {
 
@@ -17,51 +15,6 @@ public class DataHelper {
 	private List<Teacher> teachers = new ArrayList<>();
 	private List<Course> courses = new ArrayList<>();
 	private List<ClassRoom> classRooms = new ArrayList<>();
-	private List<DailySchedule> dailySchedules = new ArrayList<>();
-
-	public List<Lecture> createLectures3(LocalDate date) {
-		List<Lecture> lectures = new ArrayList<>();
-		for (int j = 0; j < groups.size(); j++) {
-			List<Integer> freeRooms = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
-			List<Integer> freeTeachers = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
-			freeRooms.stream().forEach(System.out::print);
-			System.out.println();
-			freeTeachers.stream().forEach(System.out::print);
-			System.out.println();
-
-			for (int i = 0; i < 10; i++) {
-				int timeOfStartLecture = 9 + i;
-				lectures.add(new Lecture(LocalTime.of(timeOfStartLecture, 0, 0), courses.get(i),
-						classRooms.get(freeRooms.get(i)), groups.get(j), teachers.get(freeTeachers.get(i))));
-			}
-		}
-		return lectures;
-	}
-
-	public List<Lecture> createLectures(LocalDate date) {
-		List<Lecture> lectures = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			List<Integer> freeRooms = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
-			List<Integer> freeTeachers = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
-			int timeOfStartLecture = 9 + i;
-			for (int j = 0; j < groups.size(); j++) {
-				Lecture lecture = new Lecture(LocalTime.of(timeOfStartLecture, 0, 0), courses.get(i),
-						classRooms.get(freeRooms.get(i)), groups.get(j), teachers.get(freeTeachers.get(j)));
-				lectures.add(lecture);
-				// System.out.println(lecture);
-			}
-		}
-		return lectures;
-	}
-
-	public List<DailySchedule> createDailySchedules() {
-		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 19), createLectures(LocalDate.of(2020, 8, 19))));
-		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 20), createLectures(LocalDate.of(2020, 8, 20))));
-		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 21), createLectures(LocalDate.of(2020, 8, 21))));
-		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 22), createLectures(LocalDate.of(2020, 8, 22))));
-		dailySchedules.add(new DailySchedule(LocalDate.of(2020, 8, 23), createLectures(LocalDate.of(2020, 8, 23))));
-		return dailySchedules;
-	}
 
 	public List<ClassRoom> createClassRooms() {
 		classRooms.add(new ClassRoom("100", 40));
@@ -87,7 +40,7 @@ public class DataHelper {
 					alphabet[random.nextInt(sizeAlphabet)], random.nextInt(10), i);
 			groups.add(new Group(nameGroup));
 		}
-		assignStudentsToGroup();
+	//	assignStudentsToGroup();
 		return groups;
 	}
 
@@ -105,11 +58,11 @@ public class DataHelper {
 				"Wilson", "Moore", "Anderson", "Thomas", "Jackson", "Harris", "Martin", "Robinson", "Clark",
 				"Rodriguez", "Lewis", "Parker", "Foster");
 
-		for (int i = 1; i <= 200; i++) {
+		for (int i = 1; i <= 100; i++) {
 			String firstName = firstNames.get(random.nextInt(firstNames.size()));
 			String lastName = lastNames.get(random.nextInt(firstNames.size()));
-			students.add(new Student(firstName, lastName, new Date(),
-					String.format("%s%s@university.com", firstName, lastName), Gender.MALE, "addres", createCourses()));
+			students.add(new Student(firstName, lastName, LocalDate.parse("2020-08-28"),
+					String.format("%s%s@university.com", firstName, lastName), Gender.MALE, "address", courses));
 		}
 		return students;
 	}
@@ -125,13 +78,14 @@ public class DataHelper {
 
 		for (int i = 1; i <= 10; i++) {
 			teachers.add(new Teacher(firstNames.get(random.nextInt(firstNames.size())),
-					lastNames.get(random.nextInt(firstNames.size())), new Date(), "email", Gender.MALE, "addres",
-					createCourses()));
+					lastNames.get(random.nextInt(firstNames.size())), LocalDate.parse("2020-08-28"), "email", Gender.MALE, "address",
+					courses));
 		}
 		return teachers;
 	}
 
 	public List<Course> createCourses() {
+		//List<Course> courses2 = new ArrayList<>();
 		courses.add(new Course("Mathematics",
 				"Includes the study of such topics as quantity (number theory),structure (algebra), space (geometry), and change (mathematical analysis). It has no generally accepted definition."));
 		courses.add(new Course("Biology",
