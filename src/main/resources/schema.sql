@@ -17,6 +17,7 @@ CREATE TABLE groups(
 
 CREATE TABLE teachers (
 	teacher_id serial PRIMARY KEY,
+	personal_number INT NOT NULL,
     first_name varchar(15) NOT NULL,
     last_name varchar(15) NOT NULL,
     birthday text NOT NULL,
@@ -27,6 +28,7 @@ CREATE TABLE teachers (
 
 CREATE TABLE students (
 	student_id serial PRIMARY KEY,
+	personal_number INT NOT NULL,
     first_name varchar(15) NOT NULL,
     last_name varchar(15) NOT NULL,
     birthday text NOT NULL,
@@ -56,10 +58,10 @@ CREATE TABLE lectures (
     classroom_id INT NOT NULL,
     group_id INT NOT NULL,
     teacher_id INT NOT NULL,
-    CONSTRAINT fk_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_classroom_id FOREIGN KEY (classroom_id) REFERENCES classrooms(classroom_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_group_id FOREIGN KEY (group_id) REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_teacher_id FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON UPDATE CASCADE ON DELETE CASCADE
+    CONSTRAINT fkl_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fkl_classroom_id FOREIGN KEY (classroom_id) REFERENCES classrooms(classroom_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fkl_group_id FOREIGN KEY (group_id) REFERENCES groups(group_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fkl_teacher_id FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE dailyschedule(
@@ -70,31 +72,31 @@ CREATE TABLE dailyschedule(
 CREATE TABLE dailyschedules_lectures(
 dailyschedule_id INT NOT NULL, 
 lecture_id INT NOT NULL,
-CONSTRAINT fk_dailyschedule_id FOREIGN KEY (dailyschedule_id) REFERENCES dailyschedule(dailyschedule_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT fk_lecture_id FOREIGN KEY (lecture_id) REFERENCES lectures(lecture_id ) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fkd_dailyschedule_id FOREIGN KEY (dailyschedule_id) REFERENCES dailyschedule(dailyschedule_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fkd_lecture_id FOREIGN KEY (lecture_id) REFERENCES lectures(lecture_id ) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT dailyschedule_lectures UNIQUE (dailyschedule_id, lecture_id)
 );
 
 CREATE TABLE students_courses(
 student_id INT NOT NULL, 
 course_id INT NOT NULL,
-CONSTRAINT fk_student_id FOREIGN KEY (student_id) REFERENCES students(student_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT fk_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id ) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fks_student_id FOREIGN KEY (student_id) REFERENCES students(student_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fks_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id ) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT student_course UNIQUE (student_id, course_id)
 );
 
 CREATE TABLE teachers_courses(
 teacher_id INT NOT NULL, 
 course_id INT NOT NULL,
-CONSTRAINT fk_teacher_id FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT fk_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id ) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fkt_teacher_id FOREIGN KEY (teacher_id) REFERENCES teachers(teacher_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fkt_course_id FOREIGN KEY (course_id) REFERENCES courses(course_id ) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT teacher_course UNIQUE (teacher_id, course_id)
 );
 
 CREATE TABLE students_groups(
 student_id INT NOT NULL, 
 group_id INT NOT NULL,
-CONSTRAINT fk_student_id FOREIGN KEY (student_id) REFERENCES students(student_id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT fk_group_id FOREIGN KEY (group_id) REFERENCES groups(group_id ) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fksg_student_id FOREIGN KEY (student_id) REFERENCES students(student_id) ON UPDATE CASCADE ON DELETE CASCADE,
+CONSTRAINT fksg_group_id FOREIGN KEY (group_id) REFERENCES groups(group_id ) ON UPDATE CASCADE ON DELETE CASCADE,
 CONSTRAINT student_group UNIQUE (student_id, group_id)
 );

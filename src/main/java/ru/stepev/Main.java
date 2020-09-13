@@ -16,10 +16,9 @@ public class Main {
 			String item = scanner.nextLine();
 			if(item.toLowerCase().equals("exit"))
 				break;
-			System.out.println(userInterface.choseMenuItem(item));
-			
+			System.out.println(userInterface.choseMenuItem(item));		
 		}
-		scanner.close();
-		
+		scanner.close();	
 	}
 }
+ 

@@ -4,8 +4,9 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class Person {
-	
+
 	protected int id;
+	protected int personalNumber;
 	protected String firstName;
 	protected String lastName;
 	protected LocalDate birthday;
@@ -58,6 +59,10 @@ public class Person {
 		return address;
 	}
 
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	public void setAddres(String address) {
 		this.address = address;
 	}
@@ -77,6 +82,18 @@ public class Person {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
-	
+
+	public int getPersonalNumber() {
+		return personalNumber;
+	}
+
+	public void setPersonalNumber(int personalNumber) {
+		this.personalNumber = personalNumber;
+	}
+
+	public Object[] getFilds() {
+		Object[] filds = { firstName, lastName, birthday, email, gender, address };
+		return filds;
+	}
+
 }

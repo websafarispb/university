@@ -51,8 +51,42 @@ public class DailySchedule {
 
 	@Override
 	public String toString() {
-		return "DailySchedule for date = " + date + System.lineSeparator() + " Lectures: " + System.lineSeparator() 
+		return "DailySchedule ID"+ id + " for date = " + date + System.lineSeparator() + " Lectures: " + System.lineSeparator() 
 										 +  lectures + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + id;
+		result = prime * result + ((lectures == null) ? 0 : lectures.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DailySchedule other = (DailySchedule) obj;
+		if (date == null) {
+			if (other.date != null)
+				return false;
+		} else if (!date.equals(other.date))
+			return false;
+		if (id != other.id)
+			return false;
+		if (lectures == null) {
+			if (other.lectures != null)
+				return false;
+		} else if (!lectures.equals(other.lectures))
+			return false;
+		return true;
 	}
 	
 	

@@ -1,5 +1,7 @@
 package ru.stepev.utils;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDate;
 
 import java.util.*;
@@ -14,20 +16,20 @@ public class DataHelper {
 	private List<Student> students = new ArrayList<>();
 	private List<Teacher> teachers = new ArrayList<>();
 	private List<Course> courses = new ArrayList<>();
-	private List<ClassRoom> classRooms = new ArrayList<>();
+	private List<Classroom> classRooms = new ArrayList<>();
 
-	public List<ClassRoom> createClassRooms() {
-		classRooms.add(new ClassRoom("100", 40));
-		classRooms.add(new ClassRoom("101", 50));
-		classRooms.add(new ClassRoom("102", 60));
-		classRooms.add(new ClassRoom("103", 30));
-		classRooms.add(new ClassRoom("200", 20));
-		classRooms.add(new ClassRoom("201", 70));
-		classRooms.add(new ClassRoom("202", 60));
-		classRooms.add(new ClassRoom("203", 50));
-		classRooms.add(new ClassRoom("300", 20));
-		classRooms.add(new ClassRoom("301", 40));
-		classRooms.add(new ClassRoom("302", 80));
+	public List<Classroom> createClassRooms() {
+		classRooms.add(new Classroom("100", 40));
+		classRooms.add(new Classroom("101", 50));
+		classRooms.add(new Classroom("102", 60));
+		classRooms.add(new Classroom("103", 30));
+		classRooms.add(new Classroom("200", 20));
+		classRooms.add(new Classroom("201", 70));
+		classRooms.add(new Classroom("202", 60));
+		classRooms.add(new Classroom("203", 50));
+		classRooms.add(new Classroom("300", 20));
+		classRooms.add(new Classroom("301", 40));
+		classRooms.add(new Classroom("302", 80));
 		return classRooms;
 	}
 
@@ -40,7 +42,6 @@ public class DataHelper {
 					alphabet[random.nextInt(sizeAlphabet)], random.nextInt(10), i);
 			groups.add(new Group(nameGroup));
 		}
-	//	assignStudentsToGroup();
 		return groups;
 	}
 
@@ -58,10 +59,11 @@ public class DataHelper {
 				"Wilson", "Moore", "Anderson", "Thomas", "Jackson", "Harris", "Martin", "Robinson", "Clark",
 				"Rodriguez", "Lewis", "Parker", "Foster");
 
-		for (int i = 1; i <= 100; i++) {
+		List<Integer> personalNumbers = random.ints(1, 101).distinct().limit(100).boxed().collect(toList());
+		for (int i = 0; i < 20; i++) {
 			String firstName = firstNames.get(random.nextInt(firstNames.size()));
 			String lastName = lastNames.get(random.nextInt(firstNames.size()));
-			students.add(new Student(firstName, lastName, LocalDate.parse("2020-08-28"),
+			students.add(new Student(personalNumbers.get(i),firstName, lastName, LocalDate.parse("2020-08-28"),
 					String.format("%s%s@university.com", firstName, lastName), Gender.MALE, "address", courses));
 		}
 		return students;
@@ -75,9 +77,9 @@ public class DataHelper {
 		List<String> lastNames = Arrays.asList("Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller",
 				"Wilson", "Moore", "Anderson", "Thomas", "Jackson", "Harris", "Martin", "Robinson", "Clark",
 				"Rodriguez", "Lewis", "Parker", "Foster");
-
-		for (int i = 1; i <= 10; i++) {
-			teachers.add(new Teacher(firstNames.get(random.nextInt(firstNames.size())),
+		List<Integer> personalNumbers = random.ints(1, 11).distinct().limit(10).boxed().collect(toList());
+		for (int i = 0; i < 10; i++) {
+			teachers.add(new Teacher(personalNumbers.get(i),firstNames.get(random.nextInt(firstNames.size())),
 					lastNames.get(random.nextInt(firstNames.size())), LocalDate.parse("2020-08-28"), "email", Gender.MALE, "address",
 					courses));
 		}
@@ -85,7 +87,6 @@ public class DataHelper {
 	}
 
 	public List<Course> createCourses() {
-		//List<Course> courses2 = new ArrayList<>();
 		courses.add(new Course("Mathematics",
 				"Includes the study of such topics as quantity (number theory),structure (algebra), space (geometry), and change (mathematical analysis). It has no generally accepted definition."));
 		courses.add(new Course("Biology",

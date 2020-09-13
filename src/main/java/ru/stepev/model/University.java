@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import ru.stepev.utils.DataHelper;
+
 public class University {
 
 	private List<DailySchedule> dailySchedules = new ArrayList<>();
@@ -15,8 +17,17 @@ public class University {
 	private List<Course> courses;
 	private List<Teacher> teachers;
 	private List<Student> students;
-	private List<ClassRoom> classRooms;
+	private List<Classroom> classRooms;
 	private Random random = new Random();
+
+	public University(DataHelper dataHelper) {
+		this.courses = dataHelper.createCourses();
+		this.classRooms = dataHelper.createClassRooms();
+		this.groups = dataHelper.createGroups();
+		this.teachers = dataHelper.createTeachers();
+		this.students = dataHelper.createStudents();
+		createDailySchedules();
+	}
 
 	public List<DailySchedule> getTimeTableForStudent(String firstName, String lastName, List<LocalDate> periodOfTime) {
 		List<DailySchedule> studentDailySchedules = new ArrayList<>();
@@ -167,11 +178,11 @@ public class University {
 		this.students = students;
 	}
 
-	public List<ClassRoom> getClassRooms() {
+	public List<Classroom> getClassRooms() {
 		return classRooms;
 	}
 
-	public void setClassRooms(List<ClassRoom> classRooms) {
+	public void setClassRooms(List<Classroom> classRooms) {
 		this.classRooms = classRooms;
 	}
 
