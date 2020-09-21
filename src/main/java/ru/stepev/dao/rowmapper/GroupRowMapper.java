@@ -13,7 +13,6 @@ public class GroupRowMapper implements RowMapper<Group> {
 
 	@Override
 	public Group mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		Group group = new Group(resultSet.getInt("group_id"), resultSet.getString("group_name"));
-		return group;
+		return new Group(resultSet.getInt("id"), resultSet.getString("group_name"));
 	}
 }

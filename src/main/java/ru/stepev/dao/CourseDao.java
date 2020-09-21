@@ -1,9 +1,12 @@
 package ru.stepev.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.CourseRowMapper;
@@ -13,16 +16,16 @@ import ru.stepev.model.Course;
 public class CourseDao {
 
 	private static final String CREATE_COURSE_QUERY = "INSERT INTO courses (course_name, course_description) values (?, ?)";
-	private static final String UPDATE_COURSE_BY_ID = "UPDATE courses SET course_name = ?, course_description = ? WHERE course_id = ?";
+	private static final String UPDATE_COURSE_BY_ID = "UPDATE courses SET course_name = ?, course_description = ? WHERE id = ?";
 	private static final String GET_ALL = "SELECT * FROM courses";
-	private static final String FIND_COURSE_BY_ID = "SELECT * FROM courses WHERE course_id = ?";
-	private static final String DELETE_COURSE_BY_ID = "DELETE FROM courses WHERE course_id = ?";
-	private static final String GET_COURSE_ID_BY_NAME = "SELECT course_id FROM courses WHERE course_name = ?";
+	private static final String FIND_COURSE_BY_ID = "SELECT * FROM courses WHERE id = ?";
+	private static final String DELETE_COURSE_BY_ID = "DELETE FROM courses WHERE id = ?";
+	private static final String FIND_ALL_COURSE_BY_TEACHER_ID = "SELECT * FROM "
+			+ "courses INNER JOIN teachers_courses ON  courses.id = teachers_courses.course_id WHERE teachers_courses.teacher_id = ?";
+	private static final String FIND_ALL_COURSE_BY_STUDENT_ID = "SELECT * FROM "
+			+ "courses INNER JOIN students_courses ON  courses.id = students_courses.course_id WHERE students_courses.student_id = ?";
 
-	@Autowired
 	private CourseRowMapper courseRowMapper;
-
-	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	public CourseDao(JdbcTemplate jdbcTemplate, CourseRowMapper courseRowMapper) {
@@ -31,8 +34,15 @@ public class CourseDao {
 	}
 
 	public void create(Course course) {
-		jdbcTemplate.update(CREATE_COURSE_QUERY, course.getName(), course.getDescription());
-		course.setId(jdbcTemplate.queryForObject(GET_COURSE_ID_BY_NAME, Integer.class, course.getName()));
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(CREATE_COURSE_QUERY,
+					Statement.RETURN_GENERATED_KEYS);
+			statement.setString(1, course.getName());
+			statement.setString(2, course.getDescription());
+			return statement;
+		}, keyHolder);
+		course.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Course course, int courseId) {
@@ -40,7 +50,7 @@ public class CourseDao {
 	}
 
 	public void delete(int courseId) {
-		jdbcTemplate.update(DELETE_COURSE_BY_ID,  courseId);
+		jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId);
 	}
 
 	public Course findById(int courseId) {
@@ -49,5 +59,13 @@ public class CourseDao {
 
 	public List<Course> findAllCourses() {
 		return this.jdbcTemplate.query(GET_ALL, courseRowMapper);
+	}
+
+	public List<Course> findAllCoursesForTeacherById(int teacherId) {
+		return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
+	}
+
+	public List<Course> findAllCoursesForStudentById(int studentId) {
+		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
 	}
 }

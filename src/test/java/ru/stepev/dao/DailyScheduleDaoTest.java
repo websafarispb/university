@@ -7,20 +7,16 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.dbunit.DataSourceDatabaseTester;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
-import ru.stepev.dao.rowmapper.DailyScheduleRowMapper;
-import ru.stepev.dao.rowmapper.LectureRowMapper;
+import ru.stepev.config.TestConfig;
 import ru.stepev.model.Classroom;
 import ru.stepev.model.Course;
 import ru.stepev.model.DailySchedule;
@@ -28,140 +24,131 @@ import ru.stepev.model.Group;
 import ru.stepev.model.Lecture;
 import ru.stepev.model.Teacher;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class DailyScheduleDaoTest {
 
-	private static IDatabaseTester databaseTester;
-	private static JdbcTemplate jdbcTemplate;
-	private static DailyScheduleDao dailyScheduleDao;
-
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private DailyScheduleDao dailyScheduleDao;
+	
+	private static List<Course> courses;
+	
 	@BeforeAll
-	public static void init() throws Exception {
-		DataSource dataSourse = new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.H2)
-				.setScriptEncoding("UTF-8").ignoreFailedDrops(true).addScript("schema.sql").addScript("data.sql")
-				.build();
-		jdbcTemplate = new JdbcTemplate(dataSourse);
-		DataSourceDatabaseTester dataSourceDatabaseTester = new DataSourceDatabaseTester(dataSourse);
-		databaseTester = dataSourceDatabaseTester; // (IDatabaseTester)
-
-		LectureRowMapper lectureRowMapper = new LectureRowMapper(jdbcTemplate);
-		DailyScheduleRowMapper dailyScheduleRowMapper = new DailyScheduleRowMapper();
-		dailyScheduleDao = new DailyScheduleDao(jdbcTemplate, dailyScheduleRowMapper, lectureRowMapper);
+	public static void init () {
+		courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
 	}
 
 	@Test
 	public void createOneDailyScheduleTest() throws Exception {
+		List<Lecture> lectures = new ArrayList<>();
+		Course course = new Course(2, "Biology", "Bio");
+		Classroom classroom = new Classroom(2, "102", 40);
+		Group group = new Group(3, "c2c2");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 9), LocalTime.of(13, 0, 0), course, classroom, group,
+				teacher);
+		lectures.add(lecture);
 
-		List<DailySchedule> expected = new ArrayList<>();
-		expected.add(new DailySchedule(1, LocalDate.of(2020, 9, 7)));
-		expected.add(new DailySchedule(2, LocalDate.of(2020, 9, 8)));
-		expected.add(new DailySchedule(3, LocalDate.of(2020, 9, 9)));
-		expected.add(new DailySchedule(4, LocalDate.of(2020, 9, 11)));
-		expected.add(new DailySchedule(5, LocalDate.of(2020, 9, 10)));
-
-		DailySchedule dailySchedule = new DailySchedule(4, LocalDate.of(2020, 9, 10));
-
+		course = new Course(4, "Physics", "Phy");
+		classroom = new Classroom(2, "102", 40);
+		group = new Group(3, "c2c2");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		lecture = new Lecture(7, LocalDate.of(2020, 9, 9), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
+		lectures.add(lecture);
+		
+		int expectedRows = 5;
+		DailySchedule dailySchedule = new DailySchedule(LocalDate.of(2020, 9, 10),lectures);
 		dailyScheduleDao.create(dailySchedule);
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("DAILYSCHEDULE");
-
-		List<DailySchedule> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new DailySchedule(Integer.parseInt(actualTable.getValue(i, "dailyschedule_id").toString()),
-					LocalDate.parse(actualTable.getValue(i, "dailyschedule_date").toString())));
-		}
-		assertEquals(expected, actual);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "DAILYSCHEDULE");
+		assertEquals(expectedRows, actualRows);
+		
+		int expectedRow = 1;
+		int actualRow = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "DAILYSCHEDULE", String.format("id = %d AND dailyschedule_date = '%s'",
+				dailySchedule.getId(), dailySchedule.getDate().toString())); 
+		assertEquals(expectedRow, actualRow);
 	}
 
 	@Test
 	public void updateDailyScheduleByIdTest() throws Exception {
+		List<Lecture> lectures = new ArrayList<>();
+		Course course = new Course(2, "Biology", "Bio");
+		Classroom classroom = new Classroom(2, "102", 40);
+		Group group = new Group(3, "c2c2");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 10), LocalTime.of(13, 0, 0), course, classroom, group,
+				teacher);
+		lectures.add(lecture);
 
-		List<DailySchedule> expected = new ArrayList<>();
-		expected.add(new DailySchedule(1, LocalDate.of(2020, 9, 7)));
-		expected.add(new DailySchedule(2, LocalDate.of(2020, 9, 8)));
-		expected.add(new DailySchedule(3, LocalDate.of(2021, 10, 19)));
-		expected.add(new DailySchedule(4, LocalDate.of(2020, 9, 11)));
-		expected.add(new DailySchedule(5, LocalDate.of(2020, 9, 10)));
-
-		DailySchedule dailySchedule = new DailySchedule(3, LocalDate.of(2021, 10, 19));
-		dailyScheduleDao.update(dailySchedule, 3);
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("DAILYSCHEDULE");
-
-		List<DailySchedule> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new DailySchedule(Integer.parseInt(actualTable.getValue(i, "dailyschedule_id").toString()),
-					LocalDate.parse(actualTable.getValue(i, "dailyschedule_date").toString())));
-		}
-		assertEquals(expected, actual);
+		course = new Course(4, "Physics", "Phy");
+		classroom = new Classroom(2, "102", 40);
+		group = new Group(3, "c2c2");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		lecture = new Lecture(7, LocalDate.of(2020, 9, 10), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
+		lectures.add(lecture);
+		
+		DailySchedule dailySchedule = new DailySchedule(2, LocalDate.of(2020, 10, 10),lectures);
+		
+		dailyScheduleDao.update(dailySchedule);
+		
+		int expectedRows = 5;
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "DAILYSCHEDULE");
+		assertEquals(expectedRows, actualRows);
+		
+		int expectedRow = 1;
+		int actualRow = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "DAILYSCHEDULE", String.format("id = %d AND dailyschedule_date = '%s'",
+				dailySchedule.getId(),dailySchedule.getDate().toString()));
+		assertEquals(expectedRow, actualRow);
+		
 	}
 
 	@Test
 	public void deleteDailyScheduleByIdTest() throws Exception {
 
-		List<DailySchedule> expected = new ArrayList<>();
-		expected.add(new DailySchedule(1, LocalDate.of(2020, 9, 7)));
-		expected.add(new DailySchedule(2, LocalDate.of(2020, 9, 8)));
-		expected.add(new DailySchedule(4, LocalDate.of(2020, 9, 11)));
-		expected.add(new DailySchedule(5, LocalDate.of(2020, 9, 10)));
-
-		dailyScheduleDao.delete(3);
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("DAILYSCHEDULE");
-
-		List<DailySchedule> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new DailySchedule(Integer.parseInt(actualTable.getValue(i, "dailyschedule_id").toString()),
-					LocalDate.parse(actualTable.getValue(i, "dailyschedule_date").toString())));
-		}
-		assertEquals(expected, actual);
+		int expectedRows = 4;
+		DailySchedule dailySchedule = new DailySchedule(2, LocalDate.of(2020, 9, 8));
+		dailyScheduleDao.delete(dailySchedule.getId());
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "DAILYSCHEDULE");
+		assertEquals(expectedRows, actualRows);
+		
+		int expectedRow = 0;
+		int actualRow = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "DAILYSCHEDULE", String.format("id = %d AND dailyschedule_date = '%s'",
+				dailySchedule.getId(),dailySchedule.getDate().toString()));
+		assertEquals(expectedRow, actualRow);
 	}
 
 	@Test
 	public void findById() {
-		DailySchedule expected = new DailySchedule(3, LocalDate.of(2020, 9, 9));
+		List<Lecture> lectures = new ArrayList<>();
+		Course course = new Course(2, "Biology", "Bio");
+		Classroom classroom = new Classroom(2, "102", 40);
+		Group group = new Group(3, "c2c2");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 9), LocalTime.of(13, 0, 0), course, classroom, group,
+				teacher);
+		lectures.add(lecture);
+
+		course = new Course(4, "Physics", "Phy");
+		classroom = new Classroom(2, "102", 40);
+		group = new Group(3, "c2c2");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		lecture = new Lecture(7, LocalDate.of(2020, 9, 9), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
+		lectures.add(lecture);
+		
+		DailySchedule expected = new DailySchedule(3, LocalDate.of(2020, 9, 9),lectures);
 		DailySchedule actual = dailyScheduleDao.findById(3);
 		assertEquals(expected, actual);
 	}
 
 	@Test
-	public void assignLecturesTest() {
-		List<Lecture> expected = new ArrayList<>();
-		Course course = new Course(2, "Biology", "Bio");
-		Classroom classroom = new Classroom(2, "102", 40);
-		Group group = new Group(3, "c2c2");
-		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
-		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 9), LocalTime.of(13, 0, 0), course, classroom, group,
-				teacher);
-		expected.add(lecture);
-
-		course = new Course(4, "Physics", "Phy");
-		classroom = new Classroom(2, "102", 40);
-		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
-		lecture = new Lecture(7, LocalDate.of(2020, 9, 9), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
-		expected.add(lecture);
-
-		DailySchedule dailySchedule = new DailySchedule(3, LocalDate.of(2020, 9, 9));
-		dailySchedule.setLectures(expected);
-		dailyScheduleDao.assignLectures(dailySchedule);
-		List<Lecture> actual = dailyScheduleDao.findLecturesByDateAndGroup(LocalDate.of(2020, 9, 9),
-				new Group(3, "c2c2"));
-		assertEquals(expected, actual);
-	}
-
-	@Test
 	public void findAllDailySchedulesTest() {
-		List<DailySchedule> expected = new ArrayList<>();
-		expected.add(new DailySchedule(1, LocalDate.of(2020, 9, 7)));
-		expected.add(new DailySchedule(2, LocalDate.of(2020, 9, 8)));
-		expected.add(new DailySchedule(3, LocalDate.of(2020, 9, 9)));
-		expected.add(new DailySchedule(4, LocalDate.of(2020, 9, 11)));
-		expected.add(new DailySchedule(5, LocalDate.of(2020, 9, 10)));
-		List<DailySchedule> actual = dailyScheduleDao.findAllDailySchedules();
-
+		int expected = 5;
+		int actual = dailyScheduleDao.findAllDailySchedules().size();
 		assertEquals(expected, actual);
 	}
 
@@ -174,7 +161,7 @@ public class DailyScheduleDaoTest {
 		Course course = new Course(2, "Biology", "Bio");
 		Classroom classroom = new Classroom(2, "102", 40);
 		Group group = new Group(3, "c2c2");
-		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		Lecture lecture = new Lecture(4, LocalDate.of(2020, 9, 7), LocalTime.of(13, 0, 0), course, classroom, group,
 				teacher);
 		lectures.add(lecture);
@@ -182,7 +169,7 @@ public class DailyScheduleDaoTest {
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(5, LocalDate.of(2020, 9, 7), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 		DailySchedule dailySchedule = new DailySchedule(1, LocalDate.of(2020, 9, 7));
@@ -193,14 +180,14 @@ public class DailyScheduleDaoTest {
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(8, LocalDate.of(2020, 9, 11), LocalTime.of(13, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(9, LocalDate.of(2020, 9, 11), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 		dailySchedule = new DailySchedule(4, LocalDate.of(2020, 9, 11));
@@ -217,8 +204,25 @@ public class DailyScheduleDaoTest {
 
 	@Test
 	public void findDailySchedualByDateTest() {
-		DailySchedule expected = new DailySchedule(1, LocalDate.of(2020, 9, 7));
-		DailySchedule actual = dailyScheduleDao.findDailySchedualByDate(LocalDate.of(2020, 9, 7));
+		List<Lecture> lectures = new ArrayList<>();
+
+		Course course = new Course(2, "Biology", "Bio");
+		Classroom classroom = new Classroom(2, "102", 40);
+		Group group = new Group(3, "c2c2");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		Lecture lecture = new Lecture(8, LocalDate.of(2020, 9, 11), LocalTime.of(13, 0, 0), course, classroom, group,
+				teacher);
+		lectures.add(lecture);
+		
+		course = new Course(4, "Physics", "Phy");
+		classroom = new Classroom(2, "102", 40);
+		group = new Group(3, "c2c2");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
+		lecture = new Lecture(9, LocalDate.of(2020, 9, 11), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
+		lectures.add(lecture);
+		
+		DailySchedule expected = new DailySchedule(4, LocalDate.of(2020, 9, 11),lectures);
+		DailySchedule actual = dailyScheduleDao.findDailySchedualByDate(LocalDate.of(2020, 9, 11));
 		assertEquals(expected, actual);
 	}
 
@@ -229,7 +233,7 @@ public class DailyScheduleDaoTest {
 		Course course = new Course(2, "Biology", "Bio");
 		Classroom classroom = new Classroom(2, "102", 40);
 		Group group = new Group(3, "c2c2");
-		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		Lecture lecture = new Lecture(4, LocalDate.of(2020, 9, 7), LocalTime.of(13, 0, 0), course, classroom, group,
 				teacher);
 		expected.add(lecture);
@@ -237,7 +241,7 @@ public class DailyScheduleDaoTest {
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(5, LocalDate.of(2020, 9, 7), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		expected.add(lecture);
 
@@ -257,7 +261,7 @@ public class DailyScheduleDaoTest {
 		Course course = new Course(1, "Mathematics", "Math");
 		Classroom classroom = new Classroom(1, "101", 50);
 		Group group = new Group(2, "b2b2");
-		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		Lecture lecture = new Lecture(1, LocalDate.of(2020, 9, 7), LocalTime.of(9, 0, 0), course, classroom, group,
 				teacher);
 		lectures.add(lecture);
@@ -265,21 +269,21 @@ public class DailyScheduleDaoTest {
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(2, "b2b2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(2, LocalDate.of(2020, 9, 7), LocalTime.of(10, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(4, LocalDate.of(2020, 9, 7), LocalTime.of(13, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(5, LocalDate.of(2020, 9, 7), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 		DailySchedule dailySchedule = new DailySchedule(1, LocalDate.of(2020, 9, 7));
@@ -290,14 +294,14 @@ public class DailyScheduleDaoTest {
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(8, LocalDate.of(2020, 9, 11), LocalTime.of(13, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(9, LocalDate.of(2020, 9, 11), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 		dailySchedule = new DailySchedule(4, LocalDate.of(2020, 9, 11));
@@ -319,7 +323,7 @@ public class DailyScheduleDaoTest {
 		Course course = new Course(1, "Mathematics", "Math");
 		Classroom classroom = new Classroom(1, "101", 50);
 		Group group = new Group(2, "b2b2");
-		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		Lecture lecture = new Lecture(1, LocalDate.of(2020, 9, 7), LocalTime.of(9, 0, 0), course, classroom, group,
 				teacher);
 		expected.add(lecture);
@@ -327,21 +331,21 @@ public class DailyScheduleDaoTest {
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(2, "b2b2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(2, LocalDate.of(2020, 9, 7), LocalTime.of(10, 0, 0), course, classroom, group, teacher);
 		expected.add(lecture);
 
 		course = new Course(2, "Biology", "Bio");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(4, LocalDate.of(2020, 9, 7), LocalTime.of(13, 0, 0), course, classroom, group, teacher);
 		expected.add(lecture);
 
 		course = new Course(4, "Physics", "Phy");
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
 		lecture = new Lecture(5, LocalDate.of(2020, 9, 7), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		expected.add(lecture);
 

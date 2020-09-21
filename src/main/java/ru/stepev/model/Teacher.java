@@ -33,7 +33,7 @@ public class Teacher extends Person {
 	}
 
 	public Teacher(int id, int personalNumber, String firstName, String lastName, String birthday, String email,
-			String gender, String address) {
+			String gender, String address, List<Course> courses) {
 		this.id = id;
 		this.personalNumber = personalNumber;
 		this.firstName = firstName;
@@ -42,13 +42,17 @@ public class Teacher extends Person {
 		this.email = email;
 		this.gender = Gender.valueOf(gender);
 		this.address = address;
+		this.courses = courses;
 
 	}
 
+	
+
 	@Override
 	public String toString() {
-		return "Teacher [id = " + id + "personalNumber" + personalNumber + ", firstName=" + firstName + ", lastName="
-				+ lastName + "]";
+		return "Teacher [id=" + id + ", personalNumber=" + personalNumber + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
+				+ address + ", courses=" + courses + "]";
 	}
 
 	@Override

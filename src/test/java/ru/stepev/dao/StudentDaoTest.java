@@ -2,110 +2,92 @@ package ru.stepev.dao;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.dbunit.DataSourceDatabaseTester;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
-import ru.stepev.dao.rowmapper.StudentRowMapper;
+import ru.stepev.config.TestConfig;
 import ru.stepev.model.Course;
+import ru.stepev.model.Gender;
 import ru.stepev.model.Student;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class StudentDaoTest {
 
-	private static IDatabaseTester databaseTester;
-	private static JdbcTemplate jdbcTemplate;
-	private static StudentDao studentDao;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private StudentDao studentDao;
+
+	public static List<Course> coursesForStudent = new ArrayList<>();
 
 	@BeforeAll
-	public static void init() throws Exception {
-		DataSource dataSourse = new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.H2)
-				.setScriptEncoding("UTF-8").ignoreFailedDrops(true).addScript("schema.sql").addScript("data.sql")
-				.build();
-		jdbcTemplate = new JdbcTemplate(dataSourse);
-		DataSourceDatabaseTester dataSourceDatabaseTester = new DataSourceDatabaseTester(dataSourse);
-		databaseTester = dataSourceDatabaseTester;
-
-		StudentRowMapper studentRowMapper = new StudentRowMapper();
-		studentDao = new StudentDao(jdbcTemplate, studentRowMapper);
+	public static void init() {
+		coursesForStudent.add(new Course(1, "Mathematics", "Math"));
+		coursesForStudent.add(new Course(2, "Biology", "Bio"));
+		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
+		coursesForStudent.add((new Course(4, "Physics", "Phy")));
 	}
 
 	@Test
 	public void createOneStudentTest() throws Exception {
+		int expectedRows = 5;
+		Student student = new Student(6, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
+				Gender.FEMALE, "City10", coursesForStudent);
+		studentDao.create(student);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "STUDENTS");
+		assertEquals(expectedRows, actualRows);
 
-		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17"));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18"));
-		expected.add(new Student(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19"));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11"));
-		expected.add(new Student(6, 228, "Victoria", "Semenova", "2020-09-01", "Semenova@mail.ru", "FEMALE", "City10"));
-
-		studentDao.create(
-				new Student(6, 228, "Victoria", "Semenova", "2020-09-01", "Semenova@mail.ru", "FEMALE", "City10"));
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("STUDENTS");
-
-		List<Student> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new Student(Integer.parseInt(actualTable.getValue(i, "student_id").toString()),
-					Integer.parseInt(actualTable.getValue(i, "personal_number").toString()),
-					actualTable.getValue(i, "first_name").toString(), actualTable.getValue(i, "last_name").toString(),
-					actualTable.getValue(i, "birthday").toString(), actualTable.getValue(i, "email").toString(),
-					actualTable.getValue(i, "gender").toString(), actualTable.getValue(i, "address").toString()));
-		}
+		int expected = 1;
+		int actual = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS", String.format(
+				"id = %d AND first_name = '%s' AND last_name = '%s' "
+						+ "AND  birthday = '%s' AND email = '%s' AND gender = '%s' AND address = '%s' ",
+				student.getId(), student.getFirstName(), student.getLastName(), student.getBirthday().toString(),
+				student.getEmail(), student.getGender(), student.getAddress()));
 		assertEquals(expected, actual);
+		int expectedRowInStudentsCourses = 2;
+		int actualRowInStudentsCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_COURSES",
+				String.format("student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d",
+						student.getId(), 3, student.getId(), 4));
+		assertEquals(expectedRowInStudentsCourses, actualRowInStudentsCourses);
 	}
 
 	@Test
 	public void updateStudentByIdTest() throws Exception {
-
-		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17"));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18"));
-		expected.add(new Student(3, 125, "Igor", "Smirnov", "2020-09-03", "webIS@mail.ru", "MALE", "City17"));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11"));
-		expected.add(new Student(6, 228, "Victoria", "Semenova", "2020-09-01", "Semenova@mail.ru", "FEMALE", "City10"));
-
-		studentDao.update(new Student(3, 125, "Igor", "Smirnov", "2020-09-03", "webIS@mail.ru", "MALE", "City17"), 3);
-		List<Student> actual = studentDao.findAllStudents();
-
+		Student student = new Student(3, 328, "Ivan", "Stepanov", "2019-09-01", "Stepanov@mail.ru", "MALE", "City11",
+				coursesForStudent);
+		studentDao.update(student);
+		int expected = 1;
+		int actual = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS", String.format(
+				"id = %d AND first_name = '%s' AND last_name = '%s' "
+						+ "AND  birthday = '%s' AND email = '%s' AND gender = '%s' AND address = '%s' ",
+				student.getId(), student.getFirstName(), student.getLastName(), student.getBirthday().toString(),
+				student.getEmail(), student.getGender(), student.getAddress()));
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void deleteStudentByIdTest() throws Exception {
-
-		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17"));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18"));
-		expected.add(new Student(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19"));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11"));
-
+		int expectedRows = 5;
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "STUDENTS");
 		studentDao.delete(4);
-		List<Student> actual = studentDao.findAllStudents();
-
-		assertEquals(expected, actual);
+		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void findStudentByIdTest() throws Exception {
-
-		Student expected = new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
+		Student expected = new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", coursesForStudent);
 		Student actual = studentDao.findById(2);
-
 		assertEquals(expected, actual);
 	}
 
@@ -114,53 +96,21 @@ public class StudentDaoTest {
 		List<Student> actual = studentDao.findAllStudents();
 
 		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17"));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18"));
-		expected.add(new Student(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19"));
-		expected.add(new Student(4, 126, "Peter", "Smirnov", "2020-09-06", "webPS@mail.ru", "MALE", "City17"));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11"));
+		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17", coursesForStudent));
+		expected.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", coursesForStudent));
+		expected.add(new Student(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19", coursesForStudent));
+		expected.add(new Student(4, 126, "Peter", "Smirnov", "2020-09-06", "webPS@mail.ru", "MALE", "City17", coursesForStudent));
+		expected.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11", coursesForStudent));
 
 		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void assignStudentToCourseTest() throws Exception {
-		Student student = new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18");
-
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add(new Course(3, "Chemistry", "Chem"));
-		courses.add(new Course(4, "Physics", "Phy"));
-		student.setCourses(courses);
-
-		List<Integer> studentAndCoursesExpected = Arrays.asList(2, 1, 2, 2, 2, 3, 2, 4);
-		studentDao.assignToCourse(student);
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("STUDENTS_COURSES");
-
-		List<Integer> studentAndCoursesActual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			studentAndCoursesActual.add(Integer.parseInt(actualTable.getValue(i, "student_id").toString()));
-			studentAndCoursesActual.add(Integer.parseInt(actualTable.getValue(i, "course_id").toString()));
-		}
-		assertEquals(studentAndCoursesExpected, studentAndCoursesActual);
 	}
 
 	@Test
 	public void findStudentByFirstAndLastNamesTest() throws Exception {
 		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17"));
+		expected.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17", coursesForStudent));
 
 		List<Student> actual = studentDao.findStudentByFirstAndLastNames("Peter", "Petrov");
 		assertEquals(expected, actual);
 	}
-
-	@AfterAll
-	public static void cleanUp() throws Exception {
-		databaseTester.onTearDown();
-		databaseTester = null;
-	}
-
 }

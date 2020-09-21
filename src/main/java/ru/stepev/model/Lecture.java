@@ -50,6 +50,9 @@ public class Lecture {
 		this.teacher = (Teacher) param[6];
 	}
 
+	public Lecture() {
+	}
+
 	public LocalTime getTime() {
 		return time;
 	}

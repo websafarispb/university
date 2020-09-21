@@ -33,7 +33,7 @@ public class Student extends Person{
 	}
 
 	public Student(int id, int personalNumber, String firstName, String lastName, String birthday, String email, String gender,
-			String address) {
+			String address, List<Course> courses) {
 		this.id = id;
 		this.personalNumber = personalNumber;
 		this.firstName = firstName;
@@ -42,14 +42,19 @@ public class Student extends Person{
 		this.email = email;
 		this.gender = Gender.valueOf(gender);
 		this.address = address;
+		this.courses = courses;
 		
 	}
 
+	
+	
 	@Override
 	public String toString() {
-		return "Student id=" + id + " | " + firstName + " " + lastName + ", email=" + email + " gender=" + gender + " birthday=" + birthday ;
+		return "Student [id=" + id + ", personalNumber=" + personalNumber + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
+				+ address + ", courses=" + courses + "]";
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

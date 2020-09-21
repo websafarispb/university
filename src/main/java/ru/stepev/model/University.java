@@ -87,7 +87,7 @@ public class University {
 			List<Integer> freeTeachers = random.ints(0, 10).distinct().limit(10).boxed().collect(toList());
 			int timeOfStartLecture = 9 + i;
 			for (int j = 0; j < groups.size(); j++) {
-				Lecture lecture = new Lecture(date,LocalTime.of(timeOfStartLecture, 0, 0), courses.get(i),
+				Lecture lecture = new Lecture(j+1,date,LocalTime.of(timeOfStartLecture, 0, 0), courses.get(i),
 						classRooms.get(freeRooms.get(j)), groups.get(j), teachers.get(freeTeachers.get(j)));
 				lectures.add(lecture);
 			}

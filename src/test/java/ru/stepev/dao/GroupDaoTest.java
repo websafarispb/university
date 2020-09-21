@@ -5,118 +5,71 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.dbunit.DataSourceDatabaseTester;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
-import ru.stepev.dao.rowmapper.GroupRowMapper;
+import ru.stepev.config.TestConfig;
+import ru.stepev.model.Course;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class GroupDaoTest {
 
-	private static IDatabaseTester databaseTester;
-	private static JdbcTemplate jdbcTemplate;
-	private static GroupDao groupDao;
-
-	@BeforeAll
-	public static void init() throws Exception {
-		DataSource dataSourse = new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.H2)
-				.setScriptEncoding("UTF-8").ignoreFailedDrops(true).addScript("schema.sql").addScript("data.sql")
-				.build();
-		jdbcTemplate = new JdbcTemplate(dataSourse);
-		DataSourceDatabaseTester dataSourceDatabaseTester = new DataSourceDatabaseTester(dataSourse);
-		databaseTester = dataSourceDatabaseTester; // (IDatabaseTester)
-
-		GroupRowMapper groupRowMapper = new GroupRowMapper();
-		groupDao = new GroupDao(jdbcTemplate, groupRowMapper);
-	}
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	@Autowired
+	private GroupDao groupDao;
 
 	@Test
 	public void createOneGroupTest() throws Exception {
-
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "a2a2"));
-		expected.add(new Group(2, "b2b2"));
-		expected.add(new Group(4, "f2f2"));
-		expected.add(new Group(5, "e2e2"));
-
+		int expectedRows = 4;	
 		groupDao.create(new Group("e2e2"));
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("GROUPS");
-
-		List<Group> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new Group(Integer.parseInt(actualTable.getValue(i, "group_id").toString()),
-					actualTable.getValue(i, "group_name").toString()));
-		}
-		assertEquals(expected, actual);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
+		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void updateGroupByIdTest() throws Exception {
-
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "a2a2"));
-		expected.add(new Group(2, "b2b2"));
-		expected.add(new Group(4, "f2f2"));
-
-		groupDao.update(new Group(4, "f2f2"), 4);
-		List<Group> actual = groupDao.findAll();
-
-		assertEquals(expected, actual);
+		Group group = new Group(4, "f2f2");
+		groupDao.update(group);
+		int expectedRows = 1;
+		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
+				String.format("id = '%d' AND group_name = '%s'",
+						group.getId(), group.getName()));
+		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void deleteGroupByIdTest() throws Exception {
-
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "a2a2"));
-		expected.add(new Group(2, "b2b2"));
-		expected.add(new Group(4, "d2d2"));
-
+		int expectedRows = 3;
 		groupDao.delete(3);
-		List<Group> actual = groupDao.findAll();
-
-		assertEquals(expected, actual);
+		int actualRow = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
+		assertEquals(expectedRows, actualRow);
 	}
 
 	@Test
 	public void findGroupByIdTest() throws Exception {
-
 		Group expected = new Group(2, "b2b2");
 		Group actual = groupDao.findById(2);
-
 		assertEquals(expected, actual);
 	}
 
 	@Test
 	public void findAllCoursesInBasaTest() throws Exception {
-
-		List<Group> actual = groupDao.findAll();
-
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(1, "a2a2"));
-		expected.add(new Group(2, "b2b2"));
-		expected.add(new Group(3, "c2c2"));
-		expected.add(new Group(4, "d2d2"));
-
-		assertEquals(expected, actual);
+		int expectedRow = 4;
+		int actualRow = groupDao.findAll().size();
+		assertEquals(expectedRow, actualRow);
 	}
 
 	@Test
-	public void getGroupByStudentId() {
-
+	public void getGroupByStudentIdTest() {
 		List<Group> expected = new ArrayList<>();
 		expected.add(new Group(2, "b2b2"));
 		List<Group> actual = groupDao.getGroupByStudentId(2);
@@ -125,23 +78,17 @@ public class GroupDaoTest {
 
 	@Test
 	public void assignStudentsToGroup() throws Exception {
-
+		List<Course> coursesForStudent = new ArrayList<>();
+		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
+		coursesForStudent.add((new Course(4, "Physics", "Phy")));
 		List<Student> students = new ArrayList<>();
-		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18"));
+		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", coursesForStudent));
 		Group group = new Group(1, "a2a2");
-		List<Group> expectedGroup = new ArrayList<>();
-		expectedGroup.add(group);
-		expectedGroup.add(new Group(2, "b2b2"));
 		groupDao.assignToStudents(group, students);
-
-		List<Group> actualGroup = groupDao.getGroupByStudentId(2);
-
-		assertEquals(expectedGroup, actualGroup);
-	}
-
-	@AfterAll
-	public static void cleanUp() throws Exception {
-		databaseTester.onTearDown();
-		databaseTester = null;
+		int expectedRows = 1;
+		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
+				String.format("student_id = '%s' AND group_id = %d",
+						2, 1));
+		assertEquals(expectedRows, actualRows);
 	}
 }

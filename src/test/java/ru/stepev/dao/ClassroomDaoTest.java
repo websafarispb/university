@@ -5,119 +5,84 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import org.dbunit.DataSourceDatabaseTester;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ITable;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
-import ru.stepev.dao.rowmapper.ClassroomRowMapper;
+import ru.stepev.config.TestConfig;
 import ru.stepev.model.Classroom;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = TestConfig.class)
 public class ClassroomDaoTest {
 
-	private static IDatabaseTester databaseTester;
-	private static JdbcTemplate jdbcTemplate;
-	private static ClassroomDao classroomDao;
+	@Autowired
+	private ClassroomDao classroomDao;
 
-	@BeforeAll
-	public static void init() throws Exception {
-		DataSource dataSourse = new EmbeddedDatabaseBuilder().generateUniqueName(true).setType(EmbeddedDatabaseType.H2)
-				.setScriptEncoding("UTF-8").ignoreFailedDrops(true).addScript("schema.sql").addScript("data.sql")
-				.build();
-		jdbcTemplate = new JdbcTemplate(dataSourse);
-		DataSourceDatabaseTester dataSourceDatabaseTester = new DataSourceDatabaseTester(dataSourse);
-		databaseTester = dataSourceDatabaseTester;
-		ClassroomRowMapper classroomRowMapper = new ClassroomRowMapper();
-		classroomDao = new ClassroomDao(jdbcTemplate, classroomRowMapper);
-	}
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	public void createOneCourseTest() throws Exception {
+	public void createOneClassroomTest() throws Exception {
+		int expectedRows = 5;
+		Classroom expectedClassroom = new Classroom(5, "105", 10);
 
-		List<Classroom> expected = new ArrayList<>();
-		expected.add(new Classroom(1, "101", 50));
-		expected.add(new Classroom(2, "102", 40));
-		expected.add(new Classroom(4, "104", 20));
-		expected.add(new Classroom(5, "105", 10));
+		Classroom actualClassroom = new Classroom("105", 10);
+		classroomDao.create(actualClassroom);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS");
 
-		classroomDao.create(new Classroom("105", 10));
-
-		IDataSet databaseDataSet = databaseTester.getConnection().createDataSet();
-		ITable actualTable = databaseDataSet.getTable("CLASSROOMS");
-
-		List<Classroom> actual = new ArrayList<>();
-		for (int i = 0; i < actualTable.getRowCount(); i++) {
-			actual.add(new Classroom(Integer.parseInt(actualTable.getValue(i, "classroom_id").toString()),
-					actualTable.getValue(i, "classroom_address").toString(),
-					Integer.parseInt(actualTable.getValue(i, "classroom_capacity").toString())));
-		}
-		assertEquals(expected, actual);
+		assertEquals(expectedRows, actualRows);
+		assertEquals(expectedClassroom, actualClassroom);
 	}
 
 	@Test
 	public void findClassroomByIdTest() throws Exception {
+		Classroom expectedClassroom = new Classroom(2, "102", 40);
+		Classroom actualClassroom = classroomDao.findById(2);
 
-		Classroom expected = new Classroom(2, "102", 40);
-		Classroom actual = classroomDao.findById(2);
-
-		assertEquals(expected, actual);
+		assertEquals(expectedClassroom, actualClassroom);
 	}
 
 	@Test
 	public void updateClassroomByIdTest() throws Exception {
+		int expectedRows = 1;
 
-		List<Classroom> expected = new ArrayList<>();
-		expected.add(new Classroom(1, "101", 50));
-		expected.add(new Classroom(2, "102", 40));
-		expected.add(new Classroom(4, "205", 200));
-		expected.add(new Classroom(5, "105", 10));
+		Classroom updatedClassroom = new Classroom(4, "205", 200);
+		classroomDao.update(updatedClassroom);
 
-		classroomDao.update(new Classroom(4, "205", 200), 4);
-		List<Classroom> actual = classroomDao.findAllClassrooms();
+		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "CLASSROOMS",
+				String.format("id = %d AND classroom_address = '%s' AND classroom_capacity = %d",
+						updatedClassroom.getId(), updatedClassroom.getAddress(), updatedClassroom.getCapacity()));
 
-		assertEquals(expected, actual);
+		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void deleteClassroomByIdTest() throws Exception {
-
-		List<Classroom> expected = new ArrayList<>();
-		expected.add(new Classroom(1, "101", 50));
-		expected.add(new Classroom(2, "102", 40));
-		expected.add(new Classroom(4, "104", 20));
-
+		int expectedRows = 4;
 		classroomDao.delete(3);
-		List<Classroom> actual = classroomDao.findAllClassrooms();
-
-		assertEquals(expected, actual);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS");
+		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void findAllClassroomsInBasaTest() throws Exception {
+		int expectedRows = 5;
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(1, "101", 50));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		expectedClassrooms.add(new Classroom(3, "103", 30));
+		expectedClassrooms.add(new Classroom(4, "104", 20));
+		expectedClassrooms.add(new Classroom(5, "105", 10));
 
-		List<Classroom> actual = classroomDao.findAllClassrooms();
+		List<Classroom> actualClassrooms = classroomDao.findAllClassrooms();
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS");
 
-		List<Classroom> expected = new ArrayList<>();
-		expected.add(new Classroom(1, "101", 50));
-		expected.add(new Classroom(2, "102", 40));
-		expected.add(new Classroom(3, "103", 30));
-		expected.add(new Classroom(4, "104", 20));
-
-		assertEquals(expected, actual);
+		assertEquals(expectedClassrooms, actualClassrooms);
+		assertEquals(expectedRows, actualRows);
 	}
-
-	@AfterAll
-	public static void cleanUp() throws Exception {
-		databaseTester.onTearDown();
-		databaseTester = null;
-	}
-
 }

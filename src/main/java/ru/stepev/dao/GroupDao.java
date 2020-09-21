@@ -1,9 +1,12 @@
 package ru.stepev.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.GroupRowMapper;
@@ -16,18 +19,15 @@ public class GroupDao {
 	private static final String GET_ALL_GROUPS = "SELECT * FROM GROUPS ";
 	private static final String CREATE_GROUP_QUERY = "INSERT INTO groups ( group_name) VALUES ( ?)";
 	private static final String ASSIGN_STUDENT = "INSERT INTO students_groups (student_id, group_id) VALUES (?, ?)";
-	private static final String GET_BY_STUDENT_ID = "SELECT groups.group_id, groups.group_name "
-			+ " FROM groups INNER JOIN students_groups  " + " ON students_groups.group_id = groups.group_id "
+	private static final String GET_BY_STUDENT_ID = "SELECT groups.id, groups.group_name "
+			+ " FROM groups INNER JOIN students_groups  " + " ON students_groups.group_id = groups.id "
 			+ " WHERE students_groups.student_id = ?";
-	private static final String GET_GROUP_ID_BY_NAME = "SELECT group_id FROM groups WHERE group_name = ?";
-	private static final String UPDATE_BY_GROUP_ID = "UPDATE groups SET group_name = ? WHERE group_id = ?";
-	private static final String DELETE_GROUP_BY_ID = "DELETE FROM groups WHERE group_id = ?";
-	private static final String FIND_GROUP_BY_ID = "SELECT * FROM groups WHERE group_id = ?";
+	private static final String UPDATE_BY_GROUP_ID = "UPDATE groups SET group_name = ? WHERE id = ?";
+	private static final String DELETE_GROUP_BY_ID = "DELETE FROM groups WHERE id = ?";
+	private static final String FIND_GROUP_BY_ID = "SELECT * FROM groups WHERE id = ?";
 
-	@Autowired
+
 	private GroupRowMapper groupRowMapper;
-
-	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	public GroupDao(JdbcTemplate jdbcTemplate, GroupRowMapper groupRowMapper) {
@@ -36,12 +36,18 @@ public class GroupDao {
 	}
 
 	public void create(Group group) {
-		jdbcTemplate.update(CREATE_GROUP_QUERY, group.getName());
-		group.setId(jdbcTemplate.queryForObject(GET_GROUP_ID_BY_NAME, Integer.class, group.getName()));
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		jdbcTemplate.update(connection -> {
+			PreparedStatement statement = connection.prepareStatement(CREATE_GROUP_QUERY,
+					Statement.RETURN_GENERATED_KEYS);
+			statement.setString(1, group.getName());
+			return statement;
+		}, keyHolder);
+		group.setId((int) (keyHolder.getKeys().get("id")));
 	}
 
-	public void update(Group group, int groupId) {
-		jdbcTemplate.update(UPDATE_BY_GROUP_ID, group.getName(), groupId);
+	public void update(Group group) {
+		jdbcTemplate.update(UPDATE_BY_GROUP_ID, group.getName(), group.getId());
 	}
 
 	public void delete(int groupId) {

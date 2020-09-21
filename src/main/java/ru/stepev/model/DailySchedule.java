@@ -16,6 +16,12 @@ public class DailySchedule {
 		this.lectures = lectures;
 	}
 	
+	public DailySchedule(int id, LocalDate date, List<Lecture> lectures) {
+		this.id = id;
+		this.date = date;
+		this.lectures = lectures;
+	}
+	
 	public DailySchedule(int id, LocalDate date) {
 		this.id = id;
 		this.date = date;

@@ -10,10 +10,9 @@ import ru.stepev.model.Course;
 
 @Component
 public class CourseRowMapper implements RowMapper<Course> {
-	
+
 	public Course mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		Course course = new Course(resultSet.getInt("course_id"), resultSet.getString("course_name"),
+		return new Course(resultSet.getInt("id"), resultSet.getString("course_name"),
 				resultSet.getString("course_description"));
-		return course;
 	}
 }

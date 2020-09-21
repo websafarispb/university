@@ -75,11 +75,17 @@ public class UniversityService {
 
 	public void createSerives(University university) {
 		createCourses(university.getCourses());
+		System.out.println("Courses have been created!!!");
 		createClassrooms(university.getClassRooms());
+		System.out.println("Classrooms have been created!!!");
 		createGroups(university.getGroups());
+		System.out.println("Groups have been created!!!");
 		createTeachers(university.getTeachers(), university.getCourses());
+		System.out.println("Teachers have been created!!!");
 		createStudents(university.getStudents(), university.getCourses(),university.getGroups());
+		System.out.println("Students have been created!!!");
 		createDailySchedules(university.getDailySchedules());
+		System.out.println("schedules have been created!!!");
 	}
 	
 	public void getTeachers() {
@@ -93,22 +99,13 @@ public class UniversityService {
 	private void createDailySchedules(List<DailySchedule> dailySchedules) {
 		for (DailySchedule dailySchedule : dailySchedules) {
 			dailyScheduleDao.create(dailySchedule);
-			for(Lecture lecture : dailySchedule.getLectures()) {
-				lectureDao.create(lecture);
-			}
 		}
-
-		for (DailySchedule dailySchedule : dailySchedules) {
-			dailySchedule.setLectures(lectureDao.findLecturesByDate(dailySchedule.getDate()));
-			dailyScheduleDao.assignLectures(dailySchedule);
-		}	
 	}
 
 	private void createStudents(List<Student> students, List<Course> courses, List<Group> groups) {
 		for (Student student : students) {
-			studentDao.create(student);
 			student.setCourses(courses);
-			studentDao.assignToCourse(student);
+			studentDao.create(student);
 		}	
 		AtomicInteger counter = new AtomicInteger(0);
 		students.stream()
@@ -120,9 +117,8 @@ public class UniversityService {
 
 	private void createTeachers(List<Teacher> teachers, List<Course> courses) {
 		for (Teacher teacher : teachers) {
-			teacherDao.create(teacher);
 			teacher.setCourses(courses);
-			teacherDao.assignToCourse(teacher);
+			teacherDao.create(teacher);
 		}	
 	}
 
@@ -155,7 +151,7 @@ public class UniversityService {
 
 	public void updateTeacherById(int teacherId) {
 		Teacher teacher = new Teacher(333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
-		teacherDao.update(teacher, teacherId);
+		teacherDao.update(teacher);
 		
 	}
 
@@ -169,7 +165,7 @@ public class UniversityService {
 
 	public void updateStudentById(int studentId) {
 		Student student = new Student(333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
-		studentDao.update(student, studentId);	
+		studentDao.update(student);	
 	}
 
 	public Object findStudentById(int studentId) {
