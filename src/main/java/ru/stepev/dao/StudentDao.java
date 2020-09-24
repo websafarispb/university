@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.rowmapper.CourseRowMapper;
 import ru.stepev.dao.rowmapper.StudentRowMapper;
@@ -38,6 +39,7 @@ public class StudentDao {
 		this.studentRowMapper = studentRowMapper;
 	}
 
+	@Transactional
 	public void create(Student student) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection -> {
@@ -57,12 +59,15 @@ public class StudentDao {
 
 	}
 
+	@Transactional
 	public void update(Student student) {
 		jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
 				student.getBirthday().toString(), student.getEmail(), student.getGender().toString(),
 				student.getAddress(), student.getId());
-		findAllCourseOfStudent(student.getId()).forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
-		student.getCourses().forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
+		findAllCourseOfStudent(student.getId()).stream().filter(c -> !student.getCourses().contains(c))
+				.forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
+		student.getCourses().stream().filter(c -> !findAllCourseOfStudent(student.getId()).contains(c))
+				.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 	}
 
 	public void delete(int teacherId) {

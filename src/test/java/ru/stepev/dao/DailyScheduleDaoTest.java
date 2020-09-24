@@ -51,7 +51,7 @@ public class DailyScheduleDaoTest {
 		Classroom classroom = new Classroom(2, "102", 40);
 		Group group = new Group(3, "c2c2");
 		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
-		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 9), LocalTime.of(13, 0, 0), course, classroom, group,
+		Lecture lecture = new Lecture(6, LocalDate.of(2020, 9, 10), LocalTime.of(13, 0, 0), course, classroom, group,
 				teacher);
 		lectures.add(lecture);
 
@@ -59,7 +59,7 @@ public class DailyScheduleDaoTest {
 		classroom = new Classroom(2, "102", 40);
 		group = new Group(3, "c2c2");
 		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",courses);
-		lecture = new Lecture(7, LocalDate.of(2020, 9, 9), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
+		lecture = new Lecture(7, LocalDate.of(2020, 9, 10), LocalTime.of(15, 0, 0), course, classroom, group, teacher);
 		lectures.add(lecture);
 		
 		int expectedRows = 5;

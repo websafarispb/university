@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.rowmapper.DailyScheduleRowMapper;
 import ru.stepev.dao.rowmapper.LectureRowMapper;
@@ -46,6 +47,7 @@ public class DailyScheduleDao {
 		this.dailyScheduleRowMapper = dailyScheduleRowMapper;
 	}
 
+	@Transactional
 	public void create(DailySchedule dailySchedule) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection -> {
@@ -57,15 +59,20 @@ public class DailyScheduleDao {
 		dailySchedule.setId((int) keyHolder.getKeys().get("id"));
 		dailySchedule.getLectures().forEach(l -> {
 			lectureDao.create(l);
+			System.out.println("Assign lecture to ds id-" + dailySchedule.getId() + " and lecture id-" +  l.getId());
 			jdbcTemplate.update(ASSIGN_LECTURE, dailySchedule.getId(), l.getId());
 			});
 	}
 
+	@Transactional
 	public void update(DailySchedule dailySchedule) {
-		jdbcTemplate.update(UPDATE_BY_LECTURE_ID, dailySchedule.getDate().toString(), dailySchedule.getId());
-		findDailySchedualById(dailySchedule.getId()).getLectures()
-				.forEach(l -> jdbcTemplate.update(REMOVE_LECTURE, dailySchedule.getId(), l.getId()));
-		dailySchedule.getLectures().forEach(l -> jdbcTemplate.update(ASSIGN_LECTURE, dailySchedule.getId(), l.getId()));
+		jdbcTemplate.update(UPDATE_BY_LECTURE_ID, dailySchedule.getDate().toString(), dailySchedule.getId());		
+		findDailySchedualById(dailySchedule.getId()).getLectures().stream()
+																  .filter(l->!dailySchedule.getLectures().contains(l))
+																  .forEach(l -> jdbcTemplate.update(REMOVE_LECTURE, dailySchedule.getId(), l.getId()));
+		dailySchedule.getLectures().stream()
+								   .filter(l->findDailySchedualById(dailySchedule.getId()).getLectures().contains(l))
+								   .forEach(l -> jdbcTemplate.update(ASSIGN_LECTURE, dailySchedule.getId(), l.getId()));
 	}
 
 	public DailySchedule findDailySchedualById(int scheduleId) {
@@ -107,7 +114,7 @@ public class DailyScheduleDao {
 		List<DailySchedule> dailySchedules = new ArrayList<>();
 		for (LocalDate date : periodOfTime) {
 			DailySchedule dailySchedule = findDailySchedualByDate(date);
-	//		dailySchedule.setLectures(findLecturesByDateAndTeacherId(date, id));
+			dailySchedule.setLectures(findLecturesByDateAndTeacherId(date, id));
 			dailySchedules.add(dailySchedule);
 		}
 		return dailySchedules;

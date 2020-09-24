@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.rowmapper.CourseRowMapper;
 import ru.stepev.dao.rowmapper.TeacherRowMapper;
@@ -38,6 +39,7 @@ public class TeacherDao {
 		this.teacherRowMapper = teacherRowMapper;
 	}
 
+	@Transactional
 	public void create(Teacher teacher) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection -> {
@@ -56,12 +58,17 @@ public class TeacherDao {
 		teacher.getCourses().forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, teacher.getId(), c.getId()));
 	}
 
+	@Transactional
 	public void update(Teacher teacher) {
 		jdbcTemplate.update(UPDATE_BY_TEACHER_ID, teacher.getFirstName(), teacher.getLastName(),
 				teacher.getBirthday().toString(), teacher.getEmail(), teacher.getGender().toString(),
 				teacher.getAddress(), teacher.getId());
-		findAllCourseOfTeacher(teacher.getId()).forEach(c->jdbcTemplate.update(RESIGN_FROM_COURSE, teacher.getId(), c.getId()));
-		teacher.getCourses().forEach(c->jdbcTemplate.update(ASSIGN_TO_COURSE, teacher.getId(), c.getId()));
+		findAllCourseOfTeacher(teacher.getId()).stream()
+											   .filter(c -> !teacher.getCourses().contains(c))
+				                               .forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, teacher.getId(), c.getId()));
+		teacher.getCourses().stream()
+							.filter(c -> !findAllCourseOfTeacher(teacher.getId()).contains(c))
+							.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, teacher.getId(), c.getId()));
 	}
 
 	public void delete(int teacherId) {
@@ -75,9 +82,9 @@ public class TeacherDao {
 	}
 
 	public List<Teacher> findAllTeacher() {
-		   List<Teacher> teachers = jdbcTemplate.query(GET_ALL, teacherRowMapper);
-	        teachers.forEach(t -> t.setCourses(findAllCourseOfTeacher(t.getId())));
-	        return teachers;
+		List<Teacher> teachers = jdbcTemplate.query(GET_ALL, teacherRowMapper);
+		teachers.forEach(t -> t.setCourses(findAllCourseOfTeacher(t.getId())));
+		return teachers;
 	}
 
 	public List<Course> findAllCourseOfTeacher(int teacherId) {

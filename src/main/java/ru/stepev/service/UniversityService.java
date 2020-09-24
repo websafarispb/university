@@ -2,13 +2,11 @@ package ru.stepev.service;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.stepev.config.UniversityConfig;
 import ru.stepev.dao.ClassroomDao;
@@ -23,15 +21,12 @@ import ru.stepev.model.Course;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Gender;
 import ru.stepev.model.Group;
-import ru.stepev.model.Lecture;
 import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
 import ru.stepev.model.University;
-import ru.stepev.utils.FileReader;
 
 public class UniversityService {
 	
-	private JdbcTemplate jdbcTemplate;
 	private CourseDao courseDao;
 	private GroupDao groupDao;
 	private StudentDao studentDao;
@@ -39,12 +34,9 @@ public class UniversityService {
 	private ClassroomDao classroomDao;
 	private LectureDao lectureDao;
 	private DailyScheduleDao dailyScheduleDao;
-	private FileReader reader = new FileReader();
 	
 	public UniversityService() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(UniversityConfig.class);
-
-		jdbcTemplate = context.getBean("jdbcTamplate", JdbcTemplate.class);
 		courseDao = context.getBean("courseDao", CourseDao.class);
 		studentDao = context.getBean("studentDao", StudentDao.class);
 		teacherDao = context.getBean("teacherDao", TeacherDao.class);
@@ -53,13 +45,6 @@ public class UniversityService {
 		lectureDao = context.getBean("lectureDao", LectureDao.class);
 		dailyScheduleDao = context.getBean("dailyScheduleDao", DailyScheduleDao.class);
 		context.close();
-		String sqlRequest = null;
-		try {
-			sqlRequest = reader.read("schema.sql").collect(joining(System.lineSeparator()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		jdbcTemplate.execute(sqlRequest);
 	}
 	
 	public String getScheduleForTeacher(int teacherId, List<LocalDate> periodOfTime) {
