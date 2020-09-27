@@ -48,13 +48,13 @@ public class UniversityService {
 	}
 	
 	public String getScheduleForTeacher(int teacherId, List<LocalDate> periodOfTime) {
-		return dailyScheduleDao.findSchedualesForTeacher(teacherId, periodOfTime).stream()
+		return dailyScheduleDao.findForTeacher(teacherId, periodOfTime).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 	
 	public String getScheduleForStudent(int studentId, List<LocalDate> periodOfTime) {
-		List<Group> groups = groupDao.getGroupByStudentId(studentId);
-		return dailyScheduleDao.findSchedualesForStudent(groups.get(0), periodOfTime).stream()
+		List<Group> groups = groupDao.findByStudentId(studentId);
+		return dailyScheduleDao.findForStudent(groups.get(0), periodOfTime).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 
@@ -74,11 +74,11 @@ public class UniversityService {
 	}
 	
 	public void getTeachers() {
-		teacherDao.findAllTeacher().stream().forEach(System.out::println);	
+		teacherDao.findAll().stream().forEach(System.out::println);	
 	}
 
 	public void getStudents() {
-		studentDao.findAllStudents().stream().forEach(System.out::println);
+		studentDao.findAll().stream().forEach(System.out::println);
 	}
 
 	private void createDailySchedules(List<DailySchedule> dailySchedules) {
@@ -126,7 +126,7 @@ public class UniversityService {
 	}
 
 	public void getStudentsByFirstAndLastNames(List<String> firstAndLastName) {
-		studentDao.findStudentByFirstAndLastNames(firstAndLastName.get(0), firstAndLastName.get(1)).stream()
+		studentDao.findByFirstAndLastNames(firstAndLastName.get(0), firstAndLastName.get(1)).stream()
 		.forEach(System.out::println);
 	}
 

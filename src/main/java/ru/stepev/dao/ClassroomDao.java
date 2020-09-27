@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -24,6 +25,7 @@ public class ClassroomDao {
 	private ClassroomRowMapper classroomRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
 	public ClassroomDao(JdbcTemplate jdbcTemplate, ClassroomRowMapper classroomRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.classroomRowMapper = classroomRowMapper;
@@ -53,7 +55,7 @@ public class ClassroomDao {
 		return this.jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
 	}
 
-	public List<Classroom> findAllClassrooms() {
+	public List<Classroom> findAll() {
 		return this.jdbcTemplate.query(GET_ALL, classroomRowMapper);
 	}
 }

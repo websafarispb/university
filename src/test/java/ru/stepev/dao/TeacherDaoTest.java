@@ -1,12 +1,12 @@
 package ru.stepev.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,127 +28,114 @@ public class TeacherDaoTest {
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
 	private TeacherDao teacherDao;
-	
-	private static List<Course> courses;
-
-	@BeforeAll
-	public static void init() {
-		courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add(new Course(3, "Chemistry", "Chem"));
-		courses.add(new Course(4, "Physics", "Phy"));
-	}
 
 	@Test
-	public void createOneTeacherTest() throws Exception {
-		List<Course> coursesForTeacher = new ArrayList<>();
-		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
-		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
-		Teacher teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
-				Gender.MALE, "City10", coursesForTeacher);
-		teacherDao.create(teacher);
-		int expectedRows = 6;
-		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS");
-		assertEquals(expectedRows, actualRows);
-
-		int expectedRowInTeachersCourses = 2;
-		int actualRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
-				String.format("teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
-						teacher.getId(), 3, teacher.getId(), 4));
-		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
-
-	}
-
-	@Test
-	public void updateTeacherByIdTest() throws Exception {
-		List<Course> coursesForTeacher = new ArrayList<>();
-		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
-		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
-		Teacher teacher = new Teacher(2, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
-				Gender.MALE, "City10", coursesForTeacher);
-		teacherDao.update(teacher);
-		int expectedRows = 1;
-		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS",
-				String.format(
-						"id = %d AND first_name = '%s' AND last_name = '%s' AND birthday = '%s' AND "
-								+ "email = '%s' AND gender = '%s' AND address = '%s'",
-						teacher.getId(), teacher.getFirstName(), teacher.getLastName(),
-						teacher.getBirthday().toString(), teacher.getEmail(), teacher.getGender().toString(),
-						teacher.getAddress()));
-		assertEquals(expectedRows, actualRows);
-
-		int expectedRowInTeachersCourses = 2;
-		int actualRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
-				String.format("teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
-						teacher.getId(), 3, teacher.getId(), 4));
-		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
-	}
-
-	@Test
-	public void deleteTeacherByIdTest() throws Exception {
-		int expectedRows = 5;
-		teacherDao.delete(2);
-		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS");
-		assertEquals(expectedRows, actualRows);
-	}
-
-	@Test
-	public void findTeacherByIdTest() throws Exception {
-		List<Course> coursesForTeacher = new ArrayList<>();
-		coursesForTeacher.add(new Course(1, "Mathematics", "Math"));
-		coursesForTeacher.add(new Course(2, "Biology", "Bio"));
-		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
-		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
-		Teacher expected = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19", courses);
-		expected.setCourses(coursesForTeacher);
-		Teacher actual = teacherDao.findById(3);
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void findAllTeachersInBasaTest() throws Exception {
-		List<Teacher> actual = teacherDao.findAllTeacher();
-
+	public void create_whenCreateOneTeacher_thenTableTeachersMustHaveCorrectCountOfRows() throws Exception {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
 
-		List<Teacher> expected = new ArrayList<>();
-		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17", courses);
-		teacher.setCourses(courses);
-		expected.add(teacher);
+		Teacher teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
+				Gender.MALE, "City10", courses);
+		String inquiry = String.format(
+				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
+				teacher.getId(), 1, teacher.getId(), 2, teacher.getId(), 3, teacher.getId(), 4);
 
-		List<Course> coursesTwo = new ArrayList<>();
-		coursesTwo.add(new Course(3, "Chemistry", "Chem"));
-		coursesTwo.add(new Course(4, "Physics", "Phy"));
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS") + 1;
+		int expectedRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
+				inquiry) + 4;
 
-		teacher = new Teacher(2, 124, "Victoria", "Semenova", "2020-09-01", "Semenova@mail.ru", "MALE", "City10", courses);
-		teacher.setCourses(coursesTwo);
-		expected.add(teacher);
+		teacherDao.create(teacher);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS");
+		assertEquals(expectedRows, actualRows);
 
-		teacher = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19", courses);
-		teacher.setCourses(courses);
-		expected.add(teacher);
+		int actualRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES", inquiry);
+		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
 
-		teacher = new Teacher(4, 126, "Peter", "Smirnov", "2020-09-06", "webPS@mail.ru", "MALE", "City17", courses);
-		teacher.setCourses(courses);
-		expected.add(teacher);
-
-		teacher = new Teacher(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11", courses);
-		teacher.setCourses(courses);
-		expected.add(teacher);
-
-		assertEquals(expected, actual);
 	}
 
 	@Test
-	public void findAllCourseOfTeacherTest() {
-		int expectedRows = 4;
-		int actualRows = teacherDao.findAllCourseOfTeacher(1).size();
+	public void update_whenUpdateTeacherById_thenTableMustHaveCorrectRow() throws Exception {
+		List<Course> coursesForTeacher = new ArrayList<>();
+		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
+		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
+		Teacher teacher = new Teacher(2, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
+				Gender.MALE, "City10", coursesForTeacher);
+		String inquiry = String.format(
+				"id = %d AND first_name = '%s' AND last_name = '%s' AND birthday = '%s' AND "
+						+ "email = '%s' AND gender = '%s' AND address = '%s'",
+				teacher.getId(), teacher.getFirstName(), teacher.getLastName(), teacher.getBirthday().toString(),
+				teacher.getEmail(), teacher.getGender().toString(), teacher.getAddress());
+		String inquiryForTeachersCourses = String.format(
+				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
+				teacher.getId(), 1, teacher.getId(), 2, teacher.getId(), 3, teacher.getId(), 4);
+		int expectedRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS", inquiry) + 1;
+		int expectedRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
+				inquiryForTeachersCourses) - 2;
+
+		teacherDao.update(teacher);
+
+		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS", inquiry);
+		assertEquals(expectedRows, actualRows);
+
+		int actualRowInTeachersCourses = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
+				inquiryForTeachersCourses);
+		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
+	}
+
+	@Test
+	public void delete_whenDeleteTeacherById_thenCountOfRowsInTableMustDecrease() throws Exception {
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS") - 1;
+		teacherDao.delete(4);
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS");
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Test
+	public void findTeacherById_shouldFindCorrectTeacherById_thenTableHaveOne() throws Exception {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
+		Teacher expected = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19",
+				courses);
+
+		Teacher actual = teacherDao.findById(3);
+		assertThat(expected).isEqualTo(actual);
+	}
+
+	@Test
+	public void findAllTeachers_shouldFindAllTeachers_whenTableHaveMoreThenOne() throws Exception {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
+
+		List<Course> coursesForUpdatedTeacher = new ArrayList<>();
+		coursesForUpdatedTeacher.add((new Course(3, "Chemistry", "Chem")));
+		coursesForUpdatedTeacher.add((new Course(4, "Physics", "Phy")));
+
+		List<Teacher> actual = teacherDao.findAll();
+
+		List<Teacher> expected = new ArrayList<>();
+		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17",
+				courses);
+		expected.add(teacher);
+
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", courses);
+		expected.add(teacher);
+
+		teacher = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19", courses);
+		expected.add(teacher);
+
+		teacher = new Teacher(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11",
+				courses);
+		expected.add(teacher);
+
+		assertThat(expected).isEqualTo(actual);
+	}
 }

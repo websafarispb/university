@@ -1,5 +1,6 @@
 package ru.stepev.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -27,9 +28,9 @@ public class CourseDaoTest {
 	private CourseDao courseDao;
 
 	@Test
-	public void createOneCourseTest() throws Exception {
+	public void create_whenCreateOneCourse_thenTableCoursesMustHaveCorrectCountOfRows() throws Exception {
 
-		int expectedRows = 5;
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES") + 1;
 		Course expectedCourse = new Course(5, "Geography", "Geo");
 		Course actualCourse = new Course("Geography", "Geo");
 
@@ -41,23 +42,25 @@ public class CourseDaoTest {
 	}
 
 	@Test
-	public void updateCourseByIdTest() throws Exception {
-		int expectedRows = 1;
-
+	public void update_whenUpdateCourseById_thenTableMustHaveCorrectRow() throws Exception {
 		Course updatedCourse = new Course(4, "History", "History description");
-		courseDao.update(updatedCourse,4);
+		int expectedRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "COURSES",
+				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
+						updatedCourse.getName(), updatedCourse.getDescription())) + 1;
+
+		courseDao.update(updatedCourse, 4);
 
 		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "COURSES",
-				String.format("id = %d AND course_name = '%s' AND course_description = '%s'",
-						updatedCourse.getId(), updatedCourse.getName(), updatedCourse.getDescription()));
+				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
+						updatedCourse.getName(), updatedCourse.getDescription()));
 
 		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
-	public void deleteCourseByIdTest() throws Exception {
+	public void delete_whenDeleteCourseById_thenCountOfRowsInTableMustDecrease() throws Exception {
 
-		int expectedRows = 4;
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES") - 1;
 		List<Course> expected = new ArrayList<>();
 		expected.add(new Course(1, "Mathematics", "Math"));
 		expected.add(new Course(2, "Biology", "Bio"));
@@ -65,7 +68,7 @@ public class CourseDaoTest {
 		expected.add(new Course(5, "Geography", "Geo"));
 
 		courseDao.delete(3);
-		List<Course> actual = courseDao.findAllCourses();
+		List<Course> actual = courseDao.findAll();
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES");
 
 		assertEquals(expected, actual);
@@ -73,7 +76,7 @@ public class CourseDaoTest {
 	}
 
 	@Test
-	public void findCoyrseByIdTest() throws Exception {
+	public void findCourseById_shouldFindCorrectCourseById_thenTableHaveOne() throws Exception {
 
 		Course expected = new Course(2, "Biology", "Bio");
 		Course actual = courseDao.findById(2);
@@ -82,19 +85,20 @@ public class CourseDaoTest {
 	}
 
 	@Test
-	public void findAllCoursesInBasaTest() throws Exception {
-		List<Course> actual = courseDao.findAllCourses();
+	public void findAllCourses_shouldFindAllCourses_whenTableHaveMoreThenOne() throws Exception {
+		List<Course> actual = courseDao.findAll();
+		int expectedRows = actual.size();
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES");
 
-		int expectedRows = 4;
 		List<Course> expected = new ArrayList<>();
 		expected.add(new Course(1, "Mathematics", "Math"));
 		expected.add(new Course(2, "Biology", "Bio"));
 		expected.add(new Course(3, "Chemistry", "Chem"));
-		expected.add(new Course(4, "Physics", "Phy"));
+		expected.add(new Course(4, "History", "History description"));
+		expected.add(new Course(5, "Geography", "Geo"));
 
 		assertEquals(expectedRows, actualRows);
-		assertEquals(expected, actual);
+		assertThat(expected).isEqualTo(actual);
 	}
 
 }

@@ -1,5 +1,6 @@
 package ru.stepev.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -28,61 +29,140 @@ public class GroupDaoTest {
 	private GroupDao groupDao;
 
 	@Test
-	public void createOneGroupTest() throws Exception {
-		int expectedRows = 4;	
-		groupDao.create(new Group("e2e2"));
+	public void create_whenCreateOneGroup_thenTableGroupMustHaveCorrectCountOfRows() throws Exception {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17",
+				courses));
+		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",
+				courses));
+		
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS") + 1;
+		
+		Group newGroup = new Group(5,"e2e2", students);
+		
+		String inquryForOneGroup = String.format(
+				"id = %d AND group_name = '%s' ",
+				newGroup.getId(), newGroup.getName());
+		String inquryForStudentsGroups = String.format(
+				"student_id = %d AND group_id = %d OR student_id = %d AND group_id = %d",
+				1, newGroup.getId(), 2, newGroup.getId());
+
+		int expectedCountRowsWichHaveOneGroup = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
+				inquryForOneGroup) + 1;
+		int expectedRowInStudentsGroups = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
+				inquryForStudentsGroups) + 2;
+
+		groupDao.create(newGroup);
+		
+		int actualCountRowsWichHaveOneGroup = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
+				inquryForOneGroup);
+		int actualRowInStudentsGroups = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
+				inquryForStudentsGroups);
+
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRows);
+		assertEquals(expectedCountRowsWichHaveOneGroup, actualCountRowsWichHaveOneGroup);
+		assertEquals(expectedRowInStudentsGroups, actualRowInStudentsGroups);
 	}
 
 	@Test
 	public void updateGroupByIdTest() throws Exception {
-		Group group = new Group(4, "f2f2");
-		groupDao.update(group);
-		int expectedRows = 1;
-		int actualRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
-				String.format("id = '%d' AND group_name = '%s'",
-						group.getId(), group.getName()));
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19",
+				courses));
+		students.add(new Student(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11",
+				courses));
+		
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
+		
+		Group updatedGroup = new Group(1,"a2a2", students);
+		
+		String inquryForOneGroup = String.format(
+				"id = %d AND group_name = '%s' ",
+				updatedGroup.getId(), updatedGroup.getName());
+		String inquryForStudentsGroups = String.format(
+				"student_id = %d AND group_id = %d OR student_id = %d AND group_id = %d",
+				3, updatedGroup.getId(), 5, updatedGroup.getId());
+
+		int expectedCountRowsWichHaveOneGroup = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
+				inquryForOneGroup);
+		int expectedRowInStudentsGroups = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
+				inquryForStudentsGroups) + 2;
+
+		groupDao.update(updatedGroup);
+		
+		int actualCountRowsWichHaveOneGroup = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "GROUPS",
+				inquryForOneGroup);
+		int actualRowInStudentsGroups = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
+				inquryForStudentsGroups);
+
+		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRows);
+		assertEquals(expectedCountRowsWichHaveOneGroup, actualCountRowsWichHaveOneGroup);
+		assertEquals(expectedRowInStudentsGroups, actualRowInStudentsGroups);
 	}
 
 	@Test
-	public void deleteGroupByIdTest() throws Exception {
-		int expectedRows = 3;
+	public void delete_whenDeleteGroupById_thenCountOfRowsInTableMustDecrease() throws Exception {
+		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS") - 1;
 		groupDao.delete(3);
 		int actualRow = JdbcTestUtils.countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRow);
 	}
 
 	@Test
-	public void findGroupByIdTest() throws Exception {
-		Group expected = new Group(2, "b2b2");
+	public void findGroupById_shouldFindCorrectGroupById_thenTableHaveOne() throws Exception {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",
+				courses));
+		Group expected = new Group(2, "b2b2", students);
 		Group actual = groupDao.findById(2);
-		assertEquals(expected, actual);
+		assertThat(expected).isEqualTo(actual);
 	}
 
 	@Test
-	public void findAllCoursesInBasaTest() throws Exception {
+	public void findAll_shouldReturnAllGroups_whenTableHaveMoreThenOne() throws Exception {
 		int expectedRow = 4;
 		int actualRow = groupDao.findAll().size();
-		assertEquals(expectedRow, actualRow);
+		assertThat(expectedRow).isEqualTo(actualRow);
 	}
 
 	@Test
-	public void getGroupByStudentIdTest() {
-		List<Group> expected = new ArrayList<>();
-		expected.add(new Group(2, "b2b2"));
-		List<Group> actual = groupDao.getGroupByStudentId(2);
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void assignStudentsToGroup() throws Exception {
-		List<Course> coursesForStudent = new ArrayList<>();
-		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
-		coursesForStudent.add((new Course(4, "Physics", "Phy")));
+	public void findGroupByStudentId_shouldFindCorrectGroupStudentId_thenTableHaveOne() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
 		List<Student> students = new ArrayList<>();
-		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", coursesForStudent));
+		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18",
+				courses));
+		List<Group> expected = new ArrayList<>();
+		expected.add(new Group(2, "b2b2", students));
+		List<Group> actual = groupDao.findByStudentId(2);
+		assertThat(expected).isEqualTo(actual);
+	}
+
+	@Test
+	public void assignStudentsToGroup_whenUpdateStudentsGroups_thenTableMustHaveCorrectCountOFRows() throws Exception {
+		List<Course> courses = new ArrayList<>();
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", courses));
 		Group group = new Group(1, "a2a2");
 		groupDao.assignToStudents(group, students);
 		int expectedRows = 1;

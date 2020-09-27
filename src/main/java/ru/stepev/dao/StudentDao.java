@@ -11,9 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ru.stepev.dao.rowmapper.CourseRowMapper;
 import ru.stepev.dao.rowmapper.StudentRowMapper;
-import ru.stepev.model.Course;
 import ru.stepev.model.Student;
 
 @Component
@@ -26,14 +24,12 @@ public class StudentDao {
 	private static final String FIND_STUDENT_BY_ID = "SELECT * FROM students WHERE id = ?";
 	private static final String DELETE_BY_STUDENT_ID = "DELETE FROM students WHERE id = ?";
 	private static final String UPDATE_BY_STUDENT_ID = "UPDATE students SET first_name = ?, last_name = ?, birthday = ?, email = ?, gender= ?, address = ? WHERE id = ?";
-	private static final String FIND_ALL_COURSE_BY_STUDENT_ID = "SELECT * FROM "
-			+ "courses INNER JOIN students_courses ON  courses.id = students_courses.course_id WHERE students_courses.student_id = ?";
+	private static final String GET_STUDENT_BY_GROUP_ID = "SELECT * FROM students INNER JOIN students_groups ON  students.id = students_groups.student_id WHERE students_groups.group_id = ?";
 
-	@Autowired
-	private CourseRowMapper courseRowMapper;
 	private StudentRowMapper studentRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
 	public StudentDao(JdbcTemplate jdbcTemplate, StudentRowMapper studentRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.studentRowMapper = studentRowMapper;
@@ -56,38 +52,41 @@ public class StudentDao {
 		}, keyHolder);
 		student.setId((int) keyHolder.getKeys().get("id"));
 		student.getCourses().forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
-
 	}
 
 	@Transactional
 	public void update(Student student) {
+		Student updatedSudent = findById(student.getId());
 		jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
 				student.getBirthday().toString(), student.getEmail(), student.getGender().toString(),
 				student.getAddress(), student.getId());
-		findAllCourseOfStudent(student.getId()).stream().filter(c -> !student.getCourses().contains(c))
-				.forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
-		student.getCourses().stream().filter(c -> !findAllCourseOfStudent(student.getId()).contains(c))
-				.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
+
+		updatedSudent.getCourses().stream()
+								  .filter(c -> !student.getCourses().contains(c))
+				                  .forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
+		student.getCourses().stream()
+							.filter(c -> !updatedSudent.getCourses().contains(c))
+						    .forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 	}
 
-	public void delete(int teacherId) {
-		jdbcTemplate.update(DELETE_BY_STUDENT_ID, teacherId);
+	public void delete(int studentId) {
+		jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId);
 	}
 
-	public Student findById(int teacherId) {
-		return this.jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, teacherId);
+	public Student findById(int studentId) {
+		return this.jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId);
 	}
 
-	public List<Student> findAllStudents() {
+	public List<Student> findAll() {
 		return this.jdbcTemplate.query(GET_ALL, studentRowMapper);
 	}
 
-	public List<Student> findStudentByFirstAndLastNames(String firstName, String lastName) {
+	public List<Student> findByFirstAndLastNames(String firstName, String lastName) {
 		Object[] objects = new Object[] { firstName, lastName };
 		return this.jdbcTemplate.query(GET_STUDENT_ID, objects, studentRowMapper);
 	}
-
-	public List<Course> findAllCourseOfStudent(int studentId) {
-		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
+	
+	public List<Student> findStudentsByGroupId(int groupId){
+		return this.jdbcTemplate.query(GET_STUDENT_BY_GROUP_ID, studentRowMapper, groupId);
 	}
 }

@@ -25,7 +25,6 @@ public class Lecture {
 	public Lecture(int id, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
 		this.id = id;
 		this.date = date;
-
 		this.time = time;
 		this.course = course;
 		this.classRoom = classRoom;
@@ -113,8 +112,8 @@ public class Lecture {
 
 	@Override
 	public String toString() {
-		return "Lecture [id=" + id + ", date=" + date + ", time=" + time + ", course=" + course + ", classRoom="
-				+ classRoom + ", group=" + group + ", teacher=" + teacher + "]";
+		return "Lecture [id=" + id + ", date=" + date + ", time=" + time + System.lineSeparator() + ", course=" + course + ", classRoom="
+				+ classRoom + System.lineSeparator()  + ", group=" + group +  System.lineSeparator()  + ", teacher=" + teacher + "]";
 	
 	}
 
@@ -150,24 +149,25 @@ public class Lecture {
 			if (other.course != null)
 				return false;
 		} else if (!course.equals(other.course))
-			return false;
+			return false;		
 		if (date == null) {
 			if (other.date != null)
 				return false;
 		} else if (!date.equals(other.date))
-			return false;
+			return false;	
 		if (group == null) {
 			if (other.group != null)
 				return false;
 		} else if (!group.equals(other.group))
 			return false;
 		if (id != other.id)
-			return false;
+			return false;	
 		if (teacher == null) {
 			if (other.teacher != null)
 				return false;
 		} else if (!teacher.equals(other.teacher))
 			return false;
+		
 		if (time == null) {
 			if (other.time != null)
 				return false;

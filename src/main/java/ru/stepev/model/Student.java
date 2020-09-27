@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class Student extends Person{
-
+	
+	public Student() {
+	}
+	
 	public Student(int personalNumber, String firstName, String lastName, LocalDate birthday, String email, Gender gender, String address,
 			List<Course> courses) {
 		
@@ -45,8 +48,6 @@ public class Student extends Person{
 		this.courses = courses;
 		
 	}
-
-	
 	
 	@Override
 	public String toString() {

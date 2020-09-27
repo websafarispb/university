@@ -11,9 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ru.stepev.dao.rowmapper.CourseRowMapper;
 import ru.stepev.dao.rowmapper.TeacherRowMapper;
-import ru.stepev.model.Course;
 import ru.stepev.model.Teacher;
 
 @Component
@@ -26,14 +24,11 @@ public class TeacherDao {
 	private static final String UPDATE_BY_TEACHER_ID = "UPDATE teachers SET first_name = ?, last_name = ?, birthday = ?, email = ?, gender= ?, address = ? WHERE id = ?";
 	private static final String ASSIGN_TO_COURSE = "INSERT INTO teachers_courses (teacher_id, course_id) VALUES (?, ?)";
 	private static final String RESIGN_FROM_COURSE = "DELETE FROM teachers_courses WHERE teacher_id = ? AND course_id = ?";
-	private static final String FIND_ALL_COURSE_BY_TEACHER_ID = "SELECT * FROM "
-			+ "courses INNER JOIN teachers_courses ON  courses.id = teachers_courses.course_id WHERE teachers_courses.teacher_id = ?";
 
-	@Autowired
-	private CourseRowMapper courseRowMapper;
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
 	public TeacherDao(JdbcTemplate jdbcTemplate, TeacherRowMapper teacherRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.teacherRowMapper = teacherRowMapper;
@@ -60,14 +55,15 @@ public class TeacherDao {
 
 	@Transactional
 	public void update(Teacher teacher) {
+		Teacher updatedTeacher = findById(teacher.getId());
 		jdbcTemplate.update(UPDATE_BY_TEACHER_ID, teacher.getFirstName(), teacher.getLastName(),
 				teacher.getBirthday().toString(), teacher.getEmail(), teacher.getGender().toString(),
 				teacher.getAddress(), teacher.getId());
-		findAllCourseOfTeacher(teacher.getId()).stream()
-											   .filter(c -> !teacher.getCourses().contains(c))
-				                               .forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, teacher.getId(), c.getId()));
+		updatedTeacher.getCourses().stream()
+								   .filter(c -> !teacher.getCourses().contains(c))
+				                   .forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, teacher.getId(), c.getId()));
 		teacher.getCourses().stream()
-							.filter(c -> !findAllCourseOfTeacher(teacher.getId()).contains(c))
+							.filter(c -> !updatedTeacher.getCourses().contains(c))
 							.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, teacher.getId(), c.getId()));
 	}
 
@@ -76,18 +72,10 @@ public class TeacherDao {
 	}
 
 	public Teacher findById(int teacherId) {
-		Teacher teacher = this.jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId);
-		teacher.setCourses(findAllCourseOfTeacher(teacher.getId()));
-		return teacher;
+		return this.jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId);
 	}
 
-	public List<Teacher> findAllTeacher() {
-		List<Teacher> teachers = jdbcTemplate.query(GET_ALL, teacherRowMapper);
-		teachers.forEach(t -> t.setCourses(findAllCourseOfTeacher(t.getId())));
-		return teachers;
-	}
-
-	public List<Course> findAllCourseOfTeacher(int teacherId) {
-		return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
+	public List<Teacher> findAll() {
+		return jdbcTemplate.query(GET_ALL, teacherRowMapper);
 	}
 }

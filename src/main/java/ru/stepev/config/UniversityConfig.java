@@ -23,21 +23,24 @@ public class UniversityConfig {
 
 	@Value("${driver}")
 	private String driver;
-
+	
 	@Value("${url}")
 	private String url;
-
+	
 	@Value("${user}")
 	private String user;
-
+	
 	@Value("${pass}")
 	private String pass;
-
+	
 	@Value("${schema}")
 	private Resource schema;
+	
+	@Value("${data}")
+	private Resource data;
 
 	@Bean
-	public JdbcTemplate jdbcTamplate(DataSource dateSourse) {
+	public JdbcTemplate jdbcTamplate(final DataSource dateSourse) {
 		return new JdbcTemplate(dateSourse);
 	}
 
@@ -50,19 +53,20 @@ public class UniversityConfig {
 		dataSource.setPassword(pass);
 		return dataSource;
 	}
+	
+	@Bean
+	public PlatformTransactionManager transactionManager(final DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
+	}
 
 	@Bean
 	public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
 		ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
 		resourceDatabasePopulator.addScript(schema);
+		resourceDatabasePopulator.addScript(data);
 		DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
 		dataSourceInitializer.setDataSource(dataSource);
 		dataSourceInitializer.setDatabasePopulator(resourceDatabasePopulator);
 		return dataSourceInitializer;
 	}
-	
-	@Bean
-    public PlatformTransactionManager transactionManager(final DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
 }

@@ -5,6 +5,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -28,6 +29,7 @@ public class LectureDao {
 	private LectureRowMapper lectureRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
 	public LectureDao(JdbcTemplate jdbcTemplate, LectureRowMapper lectureRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.lectureRowMapper = lectureRowMapper;
@@ -63,16 +65,16 @@ public class LectureDao {
 		return this.jdbcTemplate.queryForObject(FIND_LECTURE_BY_ID, lectureRowMapper, lectureId);
 	}
 
-	public List<Lecture> findAllLectures() {
+	public List<Lecture> findAll() {
 		return this.jdbcTemplate.query(GET_ALL, lectureRowMapper);
 	}
 
-	public List<Lecture> findLecturesByDate(LocalDate date) {
+	public List<Lecture> findByDate(LocalDate date) {
 		Object[] objects = new Object[] { date.toString() };
 		return this.jdbcTemplate.query(GET_BY_DATE, objects, lectureRowMapper);
 	}
 
-	public List<Lecture> findLecturesByDateAndGroup(LocalDate date, Group group) {
+	public List<Lecture> findByDateAndGroup(LocalDate date, Group group) {
 		Object[] objects = new Object[] { date.toString(), group.getId() };
 		return this.jdbcTemplate.query(GET_LECTURE_ID, objects, lectureRowMapper);
 	}

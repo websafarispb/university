@@ -18,14 +18,18 @@ import ru.stepev.model.Lecture;
 @Component
 public class LectureRowMapper implements RowMapper<Lecture> {
 
-	@Autowired
 	private CourseDao courseDao;
-	@Autowired
 	private ClassroomDao classroomDao;
-	@Autowired
 	private GroupDao groupDao;
-	@Autowired
 	private TeacherDao teacherDao;
+	
+	@Autowired
+	public LectureRowMapper(CourseDao courseDao, ClassroomDao classroomDao, GroupDao groupDao, TeacherDao teacherDao) {
+		this.courseDao = courseDao;
+		this.classroomDao = classroomDao;
+		this.groupDao = groupDao;
+		this.teacherDao = teacherDao;
+	}
 
 	@Override
 	public Lecture mapRow(ResultSet resultSet, int rowNum) throws SQLException {

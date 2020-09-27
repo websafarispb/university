@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class Teacher extends Person {
+	
+	public Teacher() {
+	}
 
 	public Teacher(int personalNumber, String firstName, String lastName, LocalDate birthday, String email,
 			Gender gender, String address, List<Course> courses) {
@@ -43,10 +46,7 @@ public class Teacher extends Person {
 		this.gender = Gender.valueOf(gender);
 		this.address = address;
 		this.courses = courses;
-
 	}
-
-	
 
 	@Override
 	public String toString() {
@@ -118,5 +118,4 @@ public class Teacher extends Person {
 			return false;
 		return true;
 	}
-
 }

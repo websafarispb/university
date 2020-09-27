@@ -17,7 +17,7 @@
 		<junit.jupiter.version>5.5.2</junit.jupiter.version>
 		<junit.platform.version>1.5.2</junit.platform.version>
 		<mockito.version>3.3.3</mockito.version>
-		<dbunit.version>2.7.0</dbunit.version>
+		<assertj-core.version>3.12.2</assertj-core.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,16 +58,6 @@
 			<artifactId>spring-test</artifactId>
 			<version>${springframework.version}</version>
 			<scope>test</scope>
-		</dependency><dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${springframework.version}</version>
-			<scope>test</scope>
-		</dependency><dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${springframework.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -79,6 +69,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${springframework.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>${assertj-core.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

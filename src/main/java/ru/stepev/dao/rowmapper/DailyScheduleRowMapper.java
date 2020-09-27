@@ -19,9 +19,8 @@ public class DailyScheduleRowMapper implements RowMapper<DailySchedule> {
 
 	@Override
 	public DailySchedule mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		return new DailySchedule(resultSet.getInt("id"),
-				LocalDate.parse(resultSet.getString("dailyschedule_date")),
-				lectureDao.findLecturesByDate(LocalDate.parse(resultSet.getString("dailyschedule_date"))));
+		return new DailySchedule(resultSet.getInt("id"), LocalDate.parse(resultSet.getString("dailyschedule_date")),
+				lectureDao.findByDate(LocalDate.parse(resultSet.getString("dailyschedule_date"))));
 	}
 
 }
