@@ -3,8 +3,8 @@ package ru.stepev.dao;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.function.Predicate;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -29,7 +29,10 @@ public class StudentDao {
 	private StudentRowMapper studentRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	@Autowired
+	public static <T> Predicate<T> not(Predicate<T> t) {
+		return t.negate();
+	}
+
 	public StudentDao(JdbcTemplate jdbcTemplate, StudentRowMapper studentRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.studentRowMapper = studentRowMapper;
@@ -44,7 +47,7 @@ public class StudentDao {
 			statement.setInt(1, student.getPersonalNumber());
 			statement.setString(2, student.getFirstName());
 			statement.setString(3, student.getLastName());
-			statement.setString(4, student.getBirthday().toString());
+			statement.setObject(4, student.getBirthday());
 			statement.setString(5, student.getEmail());
 			statement.setString(6, student.getGender().toString());
 			statement.setString(7, student.getAddress());
@@ -57,16 +60,13 @@ public class StudentDao {
 	@Transactional
 	public void update(Student student) {
 		Student updatedSudent = findById(student.getId());
-		jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
-				student.getBirthday().toString(), student.getEmail(), student.getGender().toString(),
-				student.getAddress(), student.getId());
+		jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(), student.getBirthday(),
+				student.getEmail(), student.getGender().toString(), student.getAddress(), student.getId());
 
-		updatedSudent.getCourses().stream()
-								  .filter(c -> !student.getCourses().contains(c))
-				                  .forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
-		student.getCourses().stream()
-							.filter(c -> !updatedSudent.getCourses().contains(c))
-						    .forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
+		updatedSudent.getCourses().stream().filter(not(student.getCourses()::contains))
+				.forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
+		student.getCourses().stream().filter(not(updatedSudent.getCourses()::contains))
+				.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 	}
 
 	public void delete(int studentId) {
@@ -85,8 +85,8 @@ public class StudentDao {
 		Object[] objects = new Object[] { firstName, lastName };
 		return this.jdbcTemplate.query(GET_STUDENT_ID, objects, studentRowMapper);
 	}
-	
-	public List<Student> findStudentsByGroupId(int groupId){
+
+	public List<Student> findByGroupId(int groupId) {
 		return this.jdbcTemplate.query(GET_STUDENT_BY_GROUP_ID, studentRowMapper, groupId);
 	}
 }

@@ -6,7 +6,10 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,6 +23,7 @@ import ru.stepev.model.Course;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CourseDaoTest {
 
 	@Autowired
@@ -27,9 +31,9 @@ public class CourseDaoTest {
 	@Autowired
 	private CourseDao courseDao;
 
+	@Order(1)
 	@Test
-	public void create_whenCreateOneCourse_thenTableCoursesMustHaveCorrectCountOfRows() throws Exception {
-
+	public void givenCreateCourse_whenCreateCourse_thenCourseWillBeCreated() throws Exception {
 		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES") + 1;
 		Course expectedCourse = new Course(5, "Geography", "Geo");
 		Course actualCourse = new Course("Geography", "Geo");
@@ -41,8 +45,9 @@ public class CourseDaoTest {
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Order(2)
 	@Test
-	public void update_whenUpdateCourseById_thenTableMustHaveCorrectRow() throws Exception {
+	public void givenUpdateCourse_whenUpdateCourseById_thenCourseWillBeUpdated() throws Exception {
 		Course updatedCourse = new Course(4, "History", "History description");
 		int expectedRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "COURSES",
 				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
@@ -57,9 +62,9 @@ public class CourseDaoTest {
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Order(3)
 	@Test
-	public void delete_whenDeleteCourseById_thenCountOfRowsInTableMustDecrease() throws Exception {
-
+	public void givenDelete_whenDeleteCourseById_thenCourseWillBeDeleted() throws Exception {
 		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "COURSES") - 1;
 		List<Course> expected = new ArrayList<>();
 		expected.add(new Course(1, "Mathematics", "Math"));
@@ -75,15 +80,16 @@ public class CourseDaoTest {
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Order(4)
 	@Test
-	public void findCourseById_shouldFindCorrectCourseById_thenTableHaveOne() throws Exception {
-
+	public void givenFindCourseById_whenFindCourseById_thenCourseWillBeFound() throws Exception {
 		Course expected = new Course(2, "Biology", "Bio");
 		Course actual = courseDao.findById(2);
 
 		assertEquals(expected, actual);
 	}
 
+	@Order(5)
 	@Test
 	public void findAllCourses_shouldFindAllCourses_whenTableHaveMoreThenOne() throws Exception {
 		List<Course> actual = courseDao.findAll();
@@ -93,7 +99,6 @@ public class CourseDaoTest {
 		List<Course> expected = new ArrayList<>();
 		expected.add(new Course(1, "Mathematics", "Math"));
 		expected.add(new Course(2, "Biology", "Bio"));
-		expected.add(new Course(3, "Chemistry", "Chem"));
 		expected.add(new Course(4, "History", "History description"));
 		expected.add(new Course(5, "Geography", "Geo"));
 

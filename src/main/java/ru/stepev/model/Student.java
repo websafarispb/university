@@ -34,20 +34,6 @@ public class Student extends Person{
 		this.address = address;
 		this.courses = courses;
 	}
-
-	public Student(int id, int personalNumber, String firstName, String lastName, String birthday, String email, String gender,
-			String address, List<Course> courses) {
-		this.id = id;
-		this.personalNumber = personalNumber;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.birthday = LocalDate.parse(birthday);
-		this.email = email;
-		this.gender = Gender.valueOf(gender);
-		this.address = address;
-		this.courses = courses;
-		
-	}
 	
 	@Override
 	public String toString() {

@@ -1,11 +1,15 @@
 package ru.stepev.dao;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,16 +22,17 @@ import ru.stepev.model.Classroom;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClassroomDaoTest {
 
 	@Autowired
 	private ClassroomDao classroomDao;
-
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Order(1)
 	@Test
-	public void create_whenCreateOneClassroom_thenTableClassroomsMustHaveCorrectCountOfRows() throws Exception {
+	public void givenCreateNewClassroom_whenCreate_thenCreated() throws Exception {
 		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS") + 1;
 		Classroom expectedClassroom = new Classroom(5, "105", 10);
 
@@ -35,20 +40,13 @@ public class ClassroomDaoTest {
 		classroomDao.create(actualClassroom);
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS");
 
-		assertEquals(expectedRows, actualRows);
-		assertEquals(expectedClassroom, actualClassroom);
+		assertThat(expectedRows).isEqualTo(actualRows);
+		assertThat(expectedClassroom).isEqualTo(actualClassroom);
 	}
-
+	
+	@Order(2)
 	@Test
-	public void findClassroomById_shouldFindCorrectClassroomById_thenTableHaveOne() throws Exception {
-		Classroom expectedClassroom = new Classroom(2, "102", 40);
-		Classroom actualClassroom = classroomDao.findById(2);
-
-		assertEquals(expectedClassroom, actualClassroom);
-	}
-
-	@Test
-	public void updateClassroomById_whenUpdateClassroomById_thenTableMustHaveCorrectRow() throws Exception {
+	public void givenUpdateExistedClassroomById_whenUpdateClassroomById_thenClassroomWillBeUpdated() throws Exception {
 		Classroom updatedClassroom = new Classroom(4, "205", 200);
 		int expectedRows = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "CLASSROOMS",
 				String.format("id = %d AND classroom_address = '%s' AND classroom_capacity = %d",
@@ -61,24 +59,36 @@ public class ClassroomDaoTest {
 
 		assertEquals(expectedRows, actualRows);
 	}
-
+	
+	@Order(3)
 	@Test
-	public void deleteClassroomById_whenDeleteClassroomById_thenCountOfRowsInTableMustDecrease() throws Exception {
+	public void givenFindAllClassrooms_whenFindAllClassrooms_thenFindAllClassroom() throws Exception {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(1, "101", 50));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		expectedClassrooms.add(new Classroom(3, "103", 30));
+		expectedClassrooms.add(new Classroom(4, "205", 200));
+		expectedClassrooms.add(new Classroom(5, "105", 10));
+
+		List<Classroom> actualClassrooms = classroomDao.findAll();
+		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
+	}
+	
+	@Order(4)
+	@Test
+	public void givenDeleteClassroomById_whenDeleteClassroomById_thenTableWillNotHaveGivenClassroom() throws Exception {
 		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS") - 1;
 		classroomDao.delete(3);
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "CLASSROOMS");
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Order(5)
 	@Test
-	public void findAllClassrooms_shouldFindAllClassrooms_whenTableHaveMoreThenOne() throws Exception {
-		List<Classroom> expectedClassrooms = new ArrayList<>();
-		expectedClassrooms.add(new Classroom(1, "101", 50));
-		expectedClassrooms.add(new Classroom(2, "102", 40));
-		expectedClassrooms.add(new Classroom(4, "104", 20));
-		expectedClassrooms.add(new Classroom(5, "105", 10));
+	public void givenFindClassroomById_whenFindClassroomById_thenFindClassroomById() throws Exception {
+		Classroom expectedClassroom = new Classroom(2, "102", 40);
+		Classroom actualClassroom = classroomDao.findById(2);
 
-		List<Classroom> actualClassrooms = classroomDao.findAll();
-		assertEquals(expectedClassrooms, actualClassrooms);
+		assertEquals(expectedClassroom, actualClassroom);
 	}
 }

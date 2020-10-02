@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -31,7 +30,6 @@ public class GroupDao {
 	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	@Autowired
 	public GroupDao(JdbcTemplate jdbcTemplate, GroupRowMapper groupRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.groupRowMapper = groupRowMapper;
@@ -81,5 +79,4 @@ public class GroupDao {
 			jdbcTemplate.update(ASSIGN_STUDENT, student.getId(), group.getId());
 		}
 	}
-
 }

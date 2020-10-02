@@ -4,19 +4,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.CourseDao;
-import ru.stepev.model.Gender;
 import ru.stepev.model.Teacher;
 
 @Component
 public class TeacherRowMapper implements RowMapper<Teacher> {
 
-	@Autowired
-	public CourseDao courseDao;
+	private CourseDao courseDao;
+	
+	public TeacherRowMapper(CourseDao courseDao) {
+		this.courseDao = courseDao;
+	}
 
 	@Override
 	public Teacher mapRow(ResultSet resultSet, int rowNum) throws SQLException {
@@ -27,9 +28,9 @@ public class TeacherRowMapper implements RowMapper<Teacher> {
 		teacher.setLastName(resultSet.getString("last_name"));
 		teacher.setBirthday(LocalDate.parse(resultSet.getString("birthday")));
 		teacher.setEmail(resultSet.getString("email"));
-		teacher.setGender(Gender.valueOf(resultSet.getString("gender")));
+		teacher.setGender(resultSet.getString("gender"));
 		teacher.setAddres(resultSet.getString("address"));
-		teacher.setCourses(courseDao.findAllForTeacherById(resultSet.getInt("id")));
+		teacher.setCourses(courseDao.findByTeacherId(resultSet.getInt("id")));
 		return teacher;
 	}
 }

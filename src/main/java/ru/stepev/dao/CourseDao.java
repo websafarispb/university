@@ -2,9 +2,10 @@ package ru.stepev.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -29,7 +30,6 @@ public class CourseDao {
 	private CourseRowMapper courseRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	@Autowired
 	public CourseDao(JdbcTemplate jdbcTemplate, CourseRowMapper courseRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.courseRowMapper = courseRowMapper;
@@ -56,18 +56,34 @@ public class CourseDao {
 	}
 
 	public Course findById(int courseId) {
-		return jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId);
+		try {
+			return jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId);
+		} catch (EmptyResultDataAccessException e) {
+			return new Course(0, "null", "null");
+		}
 	}
 
 	public List<Course> findAll() {
-		return this.jdbcTemplate.query(GET_ALL, courseRowMapper);
+		try {
+			return this.jdbcTemplate.query(GET_ALL, courseRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}
 	}
 
-	public List<Course> findAllForTeacherById(int teacherId) {
-		return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
+	public List<Course> findByTeacherId(int teacherId) {
+		try {
+			return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}
 	}
 
-	public List<Course> findAllForStudentById(int studentId) {
-		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
+	public List<Course> findByStudentId(int studentId) {
+		try {
+			return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<>();
+		}
 	}
 }

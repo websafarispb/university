@@ -4,15 +4,16 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Lecture {
-	
+
 	private int id;
+	private int dailyScheduleId;
 	private LocalDate date;
 	private LocalTime time;
 	private Course course;
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
-	
+
 	public Lecture(LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
 		this.date = date;
 		this.time = time;
@@ -21,9 +22,22 @@ public class Lecture {
 		this.group = group;
 		this.teacher = teacher;
 	}
-	
-	public Lecture(int id, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
+
+	public Lecture(int id, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group,
+			Teacher teacher) {
 		this.id = id;
+		this.date = date;
+		this.time = time;
+		this.course = course;
+		this.classRoom = classRoom;
+		this.group = group;
+		this.teacher = teacher;
+	}
+	
+	public Lecture(int id, int dailyScheduleId, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group,
+			Teacher teacher) {
+		this.id = id;
+		this.dailyScheduleId = dailyScheduleId;
 		this.date = date;
 		this.time = time;
 		this.course = course;
@@ -39,17 +53,15 @@ public class Lecture {
 		this.teacher = teacher;
 	}
 
-	public Lecture(Object[] param) {
-		this.id = (int) param[0];
-		this.date = (LocalDate) param[1];
-		this.time = (LocalTime) param[2];
-		this.course = (Course) param[3];
-		this.classRoom = (Classroom) param[4];
-		this.group = (Group) param[5];
-		this.teacher = (Teacher) param[6];
+	public Lecture() {
+	}
+	
+	public int getDailyScheduleId() {
+		return dailyScheduleId;
 	}
 
-	public Lecture() {
+	public void setDailyScheduleId(int dailyScheduleId) {
+		this.dailyScheduleId = dailyScheduleId;
 	}
 
 	public LocalTime getTime() {
@@ -91,7 +103,7 @@ public class Lecture {
 	public void setTeacher(Teacher teacher) {
 		this.teacher = teacher;
 	}
-	
+
 	public int getId() {
 		return id;
 	}
@@ -99,7 +111,7 @@ public class Lecture {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	public LocalDate getDate() {
 		return date;
 	}
@@ -112,9 +124,8 @@ public class Lecture {
 
 	@Override
 	public String toString() {
-		return "Lecture [id=" + id + ", date=" + date + ", time=" + time + System.lineSeparator() + ", course=" + course + ", classRoom="
-				+ classRoom + System.lineSeparator()  + ", group=" + group +  System.lineSeparator()  + ", teacher=" + teacher + "]";
-	
+		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", date=" + date + ", time=" + time
+				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
 	}
 
 	@Override
@@ -149,25 +160,24 @@ public class Lecture {
 			if (other.course != null)
 				return false;
 		} else if (!course.equals(other.course))
-			return false;		
+			return false;
 		if (date == null) {
 			if (other.date != null)
 				return false;
 		} else if (!date.equals(other.date))
-			return false;	
+			return false;
 		if (group == null) {
 			if (other.group != null)
 				return false;
 		} else if (!group.equals(other.group))
 			return false;
 		if (id != other.id)
-			return false;	
+			return false;
 		if (teacher == null) {
 			if (other.teacher != null)
 				return false;
 		} else if (!teacher.equals(other.teacher))
 			return false;
-		
 		if (time == null) {
 			if (other.time != null)
 				return false;
@@ -175,6 +185,4 @@ public class Lecture {
 			return false;
 		return true;
 	}
-	
-	
 }

@@ -20,7 +20,7 @@ CREATE TABLE teachers (
 	personal_number INT NOT NULL,
     first_name varchar(15) NOT NULL,
     last_name varchar(15) NOT NULL,
-    birthday text NOT NULL,
+    birthday DATE NOT NULL,
 	email text NOT NULL,
 	gender text NOT NULL,
 	address text NOT NULL
@@ -31,7 +31,7 @@ CREATE TABLE students (
 	personal_number INT NOT NULL,
     first_name varchar(15) NOT NULL,
     last_name varchar(15) NOT NULL,
-    birthday text NOT NULL,
+    birthday DATE NOT NULL,
 	email text NOT NULL,
 	gender text NOT NULL,
 	address text NOT NULL
@@ -50,31 +50,25 @@ CREATE TABLE classrooms(
 	
 );
 
+CREATE TABLE dailyschedule(
+	id serial PRIMARY KEY,
+	dailyschedule_date DATE NOT NULL
+);
+
 CREATE TABLE lectures (
 	id serial PRIMARY KEY,
-	local_date varchar(15) NOT NULL,
-	local_time varchar(15) NOT NULL,
+	dailyschedule_id INT NOT NULL, 
+	local_date DATE NOT NULL,
+	local_time TIME NOT NULL,
     course_id INT NOT NULL,
     classroom_id INT NOT NULL,
     group_id INT NOT NULL,
     teacher_id INT NOT NULL,
+    CONSTRAINT fkd_dailyschedule_id FOREIGN KEY (dailyschedule_id) REFERENCES dailyschedule(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_course_id FOREIGN KEY (course_id) REFERENCES courses(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_classroom_id FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fkl_group_id FOREIGN KEY (group_id) REFERENCES groups(id) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fkl_teacher_id FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
-CREATE TABLE dailyschedule(
-	id serial PRIMARY KEY,
-	dailyschedule_date text NOT NULL
-);
-
-CREATE TABLE dailyschedules_lectures(
-dailyschedule_id INT NOT NULL, 
-lecture_id INT NOT NULL,
-CONSTRAINT fkd_dailyschedule_id FOREIGN KEY (dailyschedule_id) REFERENCES dailyschedule(id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT fkd_lecture_id FOREIGN KEY (lecture_id) REFERENCES lectures(id) ON UPDATE CASCADE ON DELETE CASCADE,
-CONSTRAINT dailyschedule_lectures UNIQUE (dailyschedule_id, lecture_id)
 );
 
 CREATE TABLE students_courses(

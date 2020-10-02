@@ -2,9 +2,10 @@ package ru.stepev.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -25,7 +26,6 @@ public class ClassroomDao {
 	private ClassroomRowMapper classroomRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	@Autowired
 	public ClassroomDao(JdbcTemplate jdbcTemplate, ClassroomRowMapper classroomRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.classroomRowMapper = classroomRowMapper;
@@ -44,7 +44,7 @@ public class ClassroomDao {
 	}
 
 	public void update(Classroom classroom) {
-		jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId() );
+		jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId());
 	}
 
 	public void delete(int classroomId) {
@@ -52,10 +52,18 @@ public class ClassroomDao {
 	}
 
 	public Classroom findById(int classroomId) {
-		return this.jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
+		try {
+			return this.jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
+		} catch (EmptyResultDataAccessException e) {
+			return new Classroom(0, "0", 0);
+		}
 	}
 
 	public List<Classroom> findAll() {
-		return this.jdbcTemplate.query(GET_ALL, classroomRowMapper);
+		try {
+			return this.jdbcTemplate.query(GET_ALL, classroomRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return new ArrayList<Classroom>();
+		}
 	}
 }

@@ -7,7 +7,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +25,7 @@ import ru.stepev.model.Teacher;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TeacherDaoTest {
 
 	@Autowired
@@ -29,15 +33,16 @@ public class TeacherDaoTest {
 	@Autowired
 	private TeacherDao teacherDao;
 
+	@Order(3)
 	@Test
-	public void create_whenCreateOneTeacher_thenTableTeachersMustHaveCorrectCountOfRows() throws Exception {
+	public void givenCreateTeacher_whenCreateTeacher_thenTeacherWasCreated() throws Exception {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
 
-		Teacher teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
+		Teacher teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
 				Gender.MALE, "City10", courses);
 		String inquiry = String.format(
 				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
@@ -56,17 +61,18 @@ public class TeacherDaoTest {
 
 	}
 
+	@Order(5)
 	@Test
-	public void update_whenUpdateTeacherById_thenTableMustHaveCorrectRow() throws Exception {
+	public void givenUpdateTeacher_whenUpdateTeacherById_thenTeacherWasUpdated() throws Exception {
 		List<Course> coursesForTeacher = new ArrayList<>();
 		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
 		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
-		Teacher teacher = new Teacher(2, 228, "Victoria", "Semenova", LocalDate.parse("2020-09-01"), "Semenova@mail.ru",
+		Teacher teacher = new Teacher(2, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
 				Gender.MALE, "City10", coursesForTeacher);
 		String inquiry = String.format(
 				"id = %d AND first_name = '%s' AND last_name = '%s' AND birthday = '%s' AND "
 						+ "email = '%s' AND gender = '%s' AND address = '%s'",
-				teacher.getId(), teacher.getFirstName(), teacher.getLastName(), teacher.getBirthday().toString(),
+				teacher.getId(), teacher.getFirstName(), teacher.getLastName(), teacher.getBirthday(),
 				teacher.getEmail(), teacher.getGender().toString(), teacher.getAddress());
 		String inquiryForTeachersCourses = String.format(
 				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
@@ -85,30 +91,33 @@ public class TeacherDaoTest {
 		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
 	}
 
+	@Order(1)
 	@Test
-	public void delete_whenDeleteTeacherById_thenCountOfRowsInTableMustDecrease() throws Exception {
+	public void givenDelete_whenDeleteTeacherById_thenTeacherWasDeleted() throws Exception {
 		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS") - 1;
 		teacherDao.delete(4);
 		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "TEACHERS");
 		assertEquals(expectedRows, actualRows);
 	}
 
+	@Order(4)
 	@Test
-	public void findTeacherById_shouldFindCorrectTeacherById_thenTableHaveOne() throws Exception {
+	public void givenFindTeacherById_whenFindTeacherById_thenTheacherWasFound() throws Exception {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
-		Teacher expected = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19",
+		Teacher expected = new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru", Gender.FEMALE, "City19",
 				courses);
 
 		Teacher actual = teacherDao.findById(3);
 		assertThat(expected).isEqualTo(actual);
 	}
 
+	@Order(2)
 	@Test
-	public void findAllTeachers_shouldFindAllTeachers_whenTableHaveMoreThenOne() throws Exception {
+	public void givenFindAllTeachers_whenFindAllTeachers_thenAllTeachersWereFound() throws Exception {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
@@ -122,17 +131,17 @@ public class TeacherDaoTest {
 		List<Teacher> actual = teacherDao.findAll();
 
 		List<Teacher> expected = new ArrayList<>();
-		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", "2020-09-03", "webPP@mail.ru", "MALE", "City17",
+		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE, "City17",
 				courses);
 		expected.add(teacher);
 
-		teacher = new Teacher(2, 124, "Ivan", "Petrov", "2020-09-04", "webIP@mail.ru", "MALE", "City18", courses);
+		teacher = new Teacher(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE, "City18", courses);
 		expected.add(teacher);
 
-		teacher = new Teacher(3, 125, "Peter", "Ivanov", "2020-09-05", "webPI@mail.ru", "FEMALE", "City19", courses);
+		teacher = new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru", Gender.FEMALE, "City19", courses);
 		expected.add(teacher);
 
-		teacher = new Teacher(5, 227, "Irina", "Stepanova", "2020-09-07", "Ivanov@mail.ru", "FEMALE", "City11",
+		teacher = new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Ivanov@mail.ru", Gender.FEMALE, "City11",
 				courses);
 		expected.add(teacher);
 

@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
@@ -14,13 +13,15 @@ import ru.stepev.model.DailySchedule;
 @Component
 public class DailyScheduleRowMapper implements RowMapper<DailySchedule> {
 
-	@Autowired
-	public LectureDao lectureDao;
+	private LectureDao lectureDao;
+	
+	public DailyScheduleRowMapper(LectureDao lectureDao) {
+		this.lectureDao = lectureDao;
+	}
 
 	@Override
 	public DailySchedule mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		return new DailySchedule(resultSet.getInt("id"), LocalDate.parse(resultSet.getString("dailyschedule_date")),
-				lectureDao.findByDate(LocalDate.parse(resultSet.getString("dailyschedule_date"))));
+		return new DailySchedule(resultSet.getInt("id"), resultSet.getObject("dailyschedule_date", LocalDate.class),
+				lectureDao.findByDate(resultSet.getObject("dailyschedule_date", LocalDate.class)));
 	}
-
 }

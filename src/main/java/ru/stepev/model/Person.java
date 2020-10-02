@@ -54,6 +54,10 @@ public class Person {
 	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
+	
+	public void setGender(String gender) {
+		this.gender = Gender.valueOf(gender);
+	}
 
 	public String getAddress() {
 		return address;
@@ -90,10 +94,4 @@ public class Person {
 	public void setPersonalNumber(int personalNumber) {
 		this.personalNumber = personalNumber;
 	}
-
-	public Object[] getFilds() {
-		Object[] filds = { firstName, lastName, birthday, email, gender, address };
-		return filds;
-	}
-
 }

@@ -10,12 +10,12 @@ public class DailySchedule {
 	private int id;
 	private LocalDate date;
 	private List<Lecture> lectures;
-	
+
 	public DailySchedule(LocalDate date, List<Lecture> lectures) {
 		this.date = date;
 		this.lectures = lectures;
 	}
-	
+
 	public DailySchedule(int id, LocalDate date, List<Lecture> lectures) {
 		this.id = id;
 		this.date = date;
@@ -25,7 +25,7 @@ public class DailySchedule {
 	public DailySchedule(int id, LocalDate date) {
 		this.id = id;
 		this.date = date;
-		}
+	}
 
 	public LocalDate getDate() {
 		return date;
@@ -42,9 +42,9 @@ public class DailySchedule {
 	public void setLectures(List<Lecture> lectures) {
 		this.lectures = lectures;
 	}
-	
+
 	public String showAllLectures() {
-		return  lectures.stream().map(Lecture::toString).collect(joining(System.lineSeparator()));
+		return lectures.stream().map(Lecture::toString).collect(joining(System.lineSeparator()));
 	}
 
 	public int getId() {
@@ -57,8 +57,8 @@ public class DailySchedule {
 
 	@Override
 	public String toString() {
-		return "DailySchedule ID"+ id + " for date = " + date + System.lineSeparator() + " Lectures: " + System.lineSeparator() 
-										 +  lectures + "]";
+		return "DailySchedule ID" + id + " for date = " + date + System.lineSeparator() + " Lectures: "
+				+ System.lineSeparator() + lectures + "]";
 	}
 
 	@Override
@@ -94,6 +94,5 @@ public class DailySchedule {
 			return false;
 		return true;
 	}
-	
-	
+
 }

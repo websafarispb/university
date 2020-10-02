@@ -1,32 +1,20 @@
 package ru.stepev.uinterface;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import ru.stepev.config.UniversityConfig;
-import ru.stepev.model.*;
 import ru.stepev.service.UniversityService;
-import ru.stepev.utils.*;
 
 import static java.util.stream.Collectors.joining;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-
-import ru.stepev.dao.*;
 
 public class UserInterface {
 
 	private Map<String, String> menu;
 	private Scanner scanner;
-	private DataHelper dataHelper;
-	private University university;
 	private UniversityService universityService;
 
 	public UserInterface() {
@@ -41,10 +29,7 @@ public class UserInterface {
 		menu.put("g", "g. Update student");
 		menu.put("h", "h. Find student by ID");
 
-		dataHelper = new DataHelper();
-		university = new University(dataHelper);
 		universityService = new UniversityService();
-		universityService.createSerives(university);
 	}
 
 	public String getMenu() {

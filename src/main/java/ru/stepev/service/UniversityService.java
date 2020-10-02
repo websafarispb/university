@@ -23,7 +23,6 @@ import ru.stepev.model.Gender;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
-import ru.stepev.model.University;
 
 public class UniversityService {
 	
@@ -48,29 +47,14 @@ public class UniversityService {
 	}
 	
 	public String getScheduleForTeacher(int teacherId, List<LocalDate> periodOfTime) {
-		return dailyScheduleDao.findForTeacher(teacherId, periodOfTime).stream()
+		return dailyScheduleDao.findBiTeacherIdAndPeriodOfTime(teacherId, periodOfTime).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 	
 	public String getScheduleForStudent(int studentId, List<LocalDate> periodOfTime) {
 		List<Group> groups = groupDao.findByStudentId(studentId);
-		return dailyScheduleDao.findForStudent(groups.get(0), periodOfTime).stream()
+		return dailyScheduleDao.findByGroupAndPeriodOfTime(groups.get(0), periodOfTime).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
-	}
-
-	public void createSerives(University university) {
-		createCourses(university.getCourses());
-		System.out.println("Courses have been created!!!");
-		createClassrooms(university.getClassRooms());
-		System.out.println("Classrooms have been created!!!");
-		createGroups(university.getGroups());
-		System.out.println("Groups have been created!!!");
-		createTeachers(university.getTeachers(), university.getCourses());
-		System.out.println("Teachers have been created!!!");
-		createStudents(university.getStudents(), university.getCourses(),university.getGroups());
-		System.out.println("Students have been created!!!");
-		createDailySchedules(university.getDailySchedules());
-		System.out.println("schedules have been created!!!");
 	}
 	
 	public void getTeachers() {
