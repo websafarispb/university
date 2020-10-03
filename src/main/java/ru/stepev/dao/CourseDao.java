@@ -12,6 +12,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.CourseRowMapper;
+import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Course;
 
 @Component
@@ -59,31 +60,19 @@ public class CourseDao {
 		try {
 			return jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId);
 		} catch (EmptyResultDataAccessException e) {
-			return new Course(0, "null", "null");
+			throw new ObjectNotFoundException(String.format("Course with Id = %d not found !!!", courseId), e);
 		}
 	}
 
 	public List<Course> findAll() {
-		try {
-			return this.jdbcTemplate.query(GET_ALL, courseRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}
+		return jdbcTemplate.query(GET_ALL, courseRowMapper);
 	}
 
 	public List<Course> findByTeacherId(int teacherId) {
-		try {
-			return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}
+		return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
 	}
 
 	public List<Course> findByStudentId(int studentId) {
-		try {
-			return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<>();
-		}
+		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
 	}
 }

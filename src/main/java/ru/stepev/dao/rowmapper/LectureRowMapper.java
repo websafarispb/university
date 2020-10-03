@@ -2,7 +2,6 @@ package ru.stepev.dao.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 import org.springframework.jdbc.core.RowMapper;
@@ -34,7 +33,6 @@ public class LectureRowMapper implements RowMapper<Lecture> {
 		Lecture lecture = new Lecture();
 		lecture.setId(resultSet.getInt("id"));
 		lecture.setDailyScheduleId(resultSet.getInt("dailyschedule_id"));
-		lecture.setDate(resultSet.getObject("local_date", LocalDate.class));
 		lecture.setTime(resultSet.getObject("local_time", LocalTime.class));
 		lecture.setCourse(courseDao.findById(resultSet.getInt("course_id")));
 		lecture.setClassRoom(classroomDao.findById(resultSet.getInt("classroom_id")));

@@ -5,6 +5,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.rowmapper.TeacherRowMapper;
+import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Teacher;
 
 @Component
@@ -27,9 +29,9 @@ public class TeacherDao {
 
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;
-	
+
 	public static <T> Predicate<T> not(Predicate<T> t) {
-	    return t.negate();
+		return t.negate();
 	}
 
 	public TeacherDao(JdbcTemplate jdbcTemplate, TeacherRowMapper teacherRowMapper) {
@@ -58,24 +60,32 @@ public class TeacherDao {
 
 	@Transactional
 	public void update(Teacher teacher) {
-		Teacher updatedTeacher = findById(teacher.getId());
-		jdbcTemplate.update(UPDATE_BY_TEACHER_ID, teacher.getFirstName(), teacher.getLastName(),
-				teacher.getBirthday(), teacher.getEmail(), teacher.getGender().toString(),
-				teacher.getAddress(), teacher.getId());
-		updatedTeacher.getCourses().stream()
-								   .filter(not(teacher.getCourses()::contains))
-				                   .forEach(c -> jdbcTemplate.update(DELETE_COURSE, teacher.getId(), c.getId()));
-		teacher.getCourses().stream()
-							.filter(not(updatedTeacher.getCourses()::contains))
-							.forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
+		if (jdbcTemplate.update(UPDATE_BY_TEACHER_ID, teacher.getFirstName(), teacher.getLastName(),
+				teacher.getBirthday(), teacher.getEmail(), teacher.getGender().toString(), teacher.getAddress(),
+				teacher.getId()) == 0) {
+			throw new ObjectNotFoundException(String.format("Teacher with Id = %d not found !!!", teacher.getId()));
+
+		} else {
+			Teacher updatedTeacher = findById(teacher.getId());
+			updatedTeacher.getCourses().stream().filter(not(teacher.getCourses()::contains))
+					.forEach(c -> jdbcTemplate.update(DELETE_COURSE, teacher.getId(), c.getId()));
+			teacher.getCourses().stream().filter(not(updatedTeacher.getCourses()::contains))
+					.forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
+		}
 	}
 
 	public void delete(int teacherId) {
-		jdbcTemplate.update(DELETE_TEACHER_QUERY, teacherId);
+		if (jdbcTemplate.update(DELETE_TEACHER_QUERY, teacherId) == 0) {
+			throw new ObjectNotFoundException(String.format("Teacher with Id = %d not found !!!", teacherId));
+		}
 	}
 
 	public Teacher findById(int teacherId) {
-		return this.jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId);
+		try {
+			return jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId);
+		} catch (EmptyResultDataAccessException e) {
+			throw new ObjectNotFoundException(String.format("Teacher with Id = %d not found !!!", teacherId), e);
+		}
 	}
 
 	public List<Teacher> findAll() {

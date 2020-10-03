@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @ComponentScan("ru.stepev.dao")
-@PropertySource("classpath:university.properties")
+@PropertySource("classpath:config.properties")
 public class UniversityConfig {
 
 	@Value("${driver}")
@@ -40,7 +40,7 @@ public class UniversityConfig {
 	private Resource data;
 
 	@Bean
-	public JdbcTemplate jdbcTamplate(final DataSource dateSourse) {
+	public JdbcTemplate jdbcTamplate(DataSource dateSourse) {
 		return new JdbcTemplate(dateSourse);
 	}
 
@@ -55,12 +55,12 @@ public class UniversityConfig {
 	}
 	
 	@Bean
-	public PlatformTransactionManager transactionManager(final DataSource dataSource) {
+	public PlatformTransactionManager transactionManager(DataSource dataSource) {
 		return new DataSourceTransactionManager(dataSource);
 	}
 
 	@Bean
-	public DataSourceInitializer dataSourceInitializer(final DataSource dataSource) {
+	public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
 		ResourceDatabasePopulator resourceDatabasePopulator = new ResourceDatabasePopulator();
 		resourceDatabasePopulator.addScript(schema);
 		resourceDatabasePopulator.addScript(data);

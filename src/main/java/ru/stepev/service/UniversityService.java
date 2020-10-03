@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -47,7 +46,7 @@ public class UniversityService {
 	}
 	
 	public String getScheduleForTeacher(int teacherId, List<LocalDate> periodOfTime) {
-		return dailyScheduleDao.findBiTeacherIdAndPeriodOfTime(teacherId, periodOfTime).stream()
+		return dailyScheduleDao.findByTeacherIdAndPeriodOfTime(teacherId, periodOfTime).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 	
@@ -68,19 +67,6 @@ public class UniversityService {
 	private void createDailySchedules(List<DailySchedule> dailySchedules) {
 		for (DailySchedule dailySchedule : dailySchedules) {
 			dailyScheduleDao.create(dailySchedule);
-		}
-	}
-
-	private void createStudents(List<Student> students, List<Course> courses, List<Group> groups) {
-		for (Student student : students) {
-			student.setCourses(courses);
-			studentDao.create(student);
-		}	
-		AtomicInteger counter = new AtomicInteger(0);
-		students.stream()
-				.forEach(s -> groups.get((counter.getAndIncrement()) % 10).addStudent(s));
-		for (Group group : groups) {
-			groupDao.assignToStudents(group, group.getStudents());
 		}
 	}
 

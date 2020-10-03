@@ -2,7 +2,6 @@ package ru.stepev.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,6 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.ClassroomRowMapper;
+import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Classroom;
 
 @Component
@@ -44,26 +44,28 @@ public class ClassroomDao {
 	}
 
 	public void update(Classroom classroom) {
-		jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId());
+		if (jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(),
+				classroom.getId()) == 0) {
+			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroom.getId()));
+
+		}
 	}
 
 	public void delete(int classroomId) {
-		jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId);
+		if (jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId) == 0) {
+			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroomId));
+		}
 	}
 
-	public Classroom findById(int classroomId) {
+	public Classroom findById(int classroomId) throws ObjectNotFoundException {
 		try {
-			return this.jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
+			return jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
 		} catch (EmptyResultDataAccessException e) {
-			return new Classroom(0, "0", 0);
+			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroomId), e);
 		}
 	}
 
 	public List<Classroom> findAll() {
-		try {
-			return this.jdbcTemplate.query(GET_ALL, classroomRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			return new ArrayList<Classroom>();
-		}
+		return jdbcTemplate.query(GET_ALL, classroomRowMapper);
 	}
 }

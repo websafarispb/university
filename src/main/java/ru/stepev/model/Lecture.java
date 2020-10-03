@@ -1,21 +1,18 @@
 package ru.stepev.model;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Lecture {
 
 	private int id;
 	private int dailyScheduleId;
-	private LocalDate date;
 	private LocalTime time;
 	private Course course;
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
 
-	public Lecture(LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
-		this.date = date;
+	public Lecture(LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
 		this.time = time;
 		this.course = course;
 		this.classRoom = classRoom;
@@ -23,10 +20,9 @@ public class Lecture {
 		this.teacher = teacher;
 	}
 
-	public Lecture(int id, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group,
+	public Lecture(int id, LocalTime time, Course course, Classroom classRoom, Group group,
 			Teacher teacher) {
 		this.id = id;
-		this.date = date;
 		this.time = time;
 		this.course = course;
 		this.classRoom = classRoom;
@@ -34,11 +30,10 @@ public class Lecture {
 		this.teacher = teacher;
 	}
 	
-	public Lecture(int id, int dailyScheduleId, LocalDate date, LocalTime time, Course course, Classroom classRoom, Group group,
+	public Lecture(int id, int dailyScheduleId,  LocalTime time, Course course, Classroom classRoom, Group group,
 			Teacher teacher) {
 		this.id = id;
 		this.dailyScheduleId = dailyScheduleId;
-		this.date = date;
 		this.time = time;
 		this.course = course;
 		this.classRoom = classRoom;
@@ -112,21 +107,17 @@ public class Lecture {
 		this.id = id;
 	}
 
-	public LocalDate getDate() {
-		return date;
-	}
-
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
-
-	
-
 	@Override
 	public String toString() {
-		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", date=" + date + ", time=" + time
-				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
+		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
+				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() +  ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
 	}
+	
+//	@Override
+//	public String toString() {
+//		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
+//				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
+//	}
 
 	@Override
 	public int hashCode() {
@@ -134,7 +125,6 @@ public class Lecture {
 		int result = 1;
 		result = prime * result + ((classRoom == null) ? 0 : classRoom.hashCode());
 		result = prime * result + ((course == null) ? 0 : course.hashCode());
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + id;
 		result = prime * result + ((teacher == null) ? 0 : teacher.hashCode());
@@ -160,11 +150,6 @@ public class Lecture {
 			if (other.course != null)
 				return false;
 		} else if (!course.equals(other.course))
-			return false;
-		if (date == null) {
-			if (other.date != null)
-				return false;
-		} else if (!date.equals(other.date))
 			return false;
 		if (group == null) {
 			if (other.group != null)

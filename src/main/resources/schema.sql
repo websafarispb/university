@@ -58,7 +58,6 @@ CREATE TABLE dailyschedule(
 CREATE TABLE lectures (
 	id serial PRIMARY KEY,
 	dailyschedule_id INT NOT NULL, 
-	local_date DATE NOT NULL,
 	local_time TIME NOT NULL,
     course_id INT NOT NULL,
     classroom_id INT NOT NULL,
