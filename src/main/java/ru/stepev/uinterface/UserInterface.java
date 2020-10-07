@@ -37,17 +37,21 @@ public class UserInterface {
 	}
 
 	public String choseMenuItem(String item) {
+		List<LocalDate> periodOfTime = new ArrayList<>();
 		String formattedAnswer = null;
 		try {
 			switch (item) {
 			case "a":
 				universityService.getTeachers();
-				formattedAnswer = universityService.getScheduleForTeacher(getId(), getPeriodOfTime());
+				periodOfTime = getPeriodOfTime();
+				formattedAnswer = universityService.getScheduleForTeacher(getId(), periodOfTime.get(0), periodOfTime.get(1));
 				break;
 			case "b":
 				universityService.getStudents();
 				universityService.getStudentsByFirstAndLastNames(getFirstAndLastName());
-				formattedAnswer = universityService.getScheduleForStudent(getId(), getPeriodOfTime());
+				int id = getId();
+				periodOfTime = getPeriodOfTime();
+				formattedAnswer = universityService.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1));
 				break;
 			case "c":
 				universityService.getTeachers();
@@ -96,10 +100,7 @@ public class UserInterface {
 		LocalDate firstDay = LocalDate.parse(scanner.nextLine());
 		System.out.println("Enter the last day of period");
 		LocalDate lastDay = LocalDate.parse(scanner.nextLine());
-		if (!firstDay.equals(lastDay)) {
-			period = Stream.iterate(firstDay, date -> date.plusDays(1))
-					.limit(ChronoUnit.DAYS.between(firstDay, lastDay)).collect(Collectors.toList());
-		}
+		period.add(firstDay);
 		period.add(lastDay);
 		return period;
 	}

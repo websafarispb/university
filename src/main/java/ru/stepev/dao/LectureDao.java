@@ -3,6 +3,7 @@ package ru.stepev.dao;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +12,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.LectureRowMapper;
-import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Lecture;
 
 @Component
@@ -49,24 +49,21 @@ public class LectureDao {
 	}
 
 	public void update(Lecture lecture) {
-		if (jdbcTemplate.update(UPDATE_BY_LECTURE_ID, lecture.getDailyScheduleId(),
+		jdbcTemplate.update(UPDATE_BY_LECTURE_ID, lecture.getDailyScheduleId(),
 				lecture.getTime(), lecture.getCourse().getId(), lecture.getClassRoom().getId(),
-				lecture.getGroup().getId(), lecture.getTeacher().getId(), lecture.getId()) == 0) {
-			throw new ObjectNotFoundException(String.format("Lecture with Id = %d not found !!!", lecture.getId()));
-		}
+				lecture.getGroup().getId(), lecture.getTeacher().getId(), lecture.getId());
 	}
 
 	public void delete(int lectureId) {
-		if (jdbcTemplate.update(DELETE_LECTURE_BY_ID, lectureId) == 0) {
-			throw new ObjectNotFoundException(String.format("Lecture with Id = %d not found !!!", lectureId));
-		}
+		jdbcTemplate.update(DELETE_LECTURE_BY_ID, lectureId);
+	
 	}
 
-	public Lecture findById(int lectureId) {
+	public Optional<Lecture> findById(int lectureId) {
 		try {
-			return jdbcTemplate.queryForObject(FIND_LECTURE_BY_ID, lectureRowMapper, lectureId);
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_ID, lectureRowMapper, lectureId));
 		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException(String.format("Lecture with Id = %d not found !!!", lectureId), e);
+			return Optional.empty();
 		}
 	}
 

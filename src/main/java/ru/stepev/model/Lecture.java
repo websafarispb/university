@@ -11,23 +11,8 @@ public class Lecture {
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
-
-	public Lecture(LocalTime time, Course course, Classroom classRoom, Group group, Teacher teacher) {
-		this.time = time;
-		this.course = course;
-		this.classRoom = classRoom;
-		this.group = group;
-		this.teacher = teacher;
-	}
-
-	public Lecture(int id, LocalTime time, Course course, Classroom classRoom, Group group,
-			Teacher teacher) {
-		this.id = id;
-		this.time = time;
-		this.course = course;
-		this.classRoom = classRoom;
-		this.group = group;
-		this.teacher = teacher;
+	
+	public Lecture() {
 	}
 	
 	public Lecture(int id, int dailyScheduleId,  LocalTime time, Course course, Classroom classRoom, Group group,
@@ -39,16 +24,6 @@ public class Lecture {
 		this.classRoom = classRoom;
 		this.group = group;
 		this.teacher = teacher;
-	}
-
-	public Lecture(Course course, Classroom classroom, Group group, Teacher teacher) {
-		this.course = course;
-		this.classRoom = classroom;
-		this.group = group;
-		this.teacher = teacher;
-	}
-
-	public Lecture() {
 	}
 	
 	public int getDailyScheduleId() {
@@ -106,18 +81,12 @@ public class Lecture {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
-				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() +  ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
+				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
 	}
-	
-//	@Override
-//	public String toString() {
-//		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
-//				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
-//	}
 
 	@Override
 	public int hashCode() {

@@ -1,9 +1,11 @@
 package ru.stepev.dao;
 
+import static java.util.function.Predicate.not;
+
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.rowmapper.StudentRowMapper;
-import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Student;
 
 @Component
@@ -30,10 +31,6 @@ public class StudentDao {
 
 	private StudentRowMapper studentRowMapper;
 	private JdbcTemplate jdbcTemplate;
-
-	public static <T> Predicate<T> not(Predicate<T> t) {
-		return t.negate();
-	}
 
 	public StudentDao(JdbcTemplate jdbcTemplate, StudentRowMapper studentRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -64,29 +61,24 @@ public class StudentDao {
 
 		if (jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
 				student.getBirthday(), student.getEmail(), student.getGender().toString(), student.getAddress(),
-				student.getId()) == 0) {
-			throw new ObjectNotFoundException(String.format("Student with Id = %d not found !!!", student.getId()));
-		} else {
-
-			Student updatedSudent = findById(student.getId());
-			updatedSudent.getCourses().stream().filter(not(student.getCourses()::contains))
+				student.getId()) != 0) {
+			Optional <Student> updatedSudent = findById(student.getId());
+			updatedSudent.get().getCourses().stream().filter(not(student.getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
-			student.getCourses().stream().filter(not(updatedSudent.getCourses()::contains))
+			student.getCourses().stream().filter(not(updatedSudent.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 		}
 	}
 
 	public void delete(int studentId) {
-		if (jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId) == 0) {
-			throw new ObjectNotFoundException(String.format("Student with Id = %d not found !!!", studentId));
-		}
+		jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId);
 	}
 
-	public Student findById(int studentId) {
+	public Optional<Student> findById(int studentId) {
 		try {
-			return jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId);
+			return Optional.of(jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId));
 		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException(String.format("Student with Id = %d not found !!!", studentId), e);
+			return Optional.empty();
 		}
 	}
 

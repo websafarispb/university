@@ -45,14 +45,14 @@ public class UniversityService {
 		context.close();
 	}
 	
-	public String getScheduleForTeacher(int teacherId, List<LocalDate> periodOfTime) {
-		return dailyScheduleDao.findByTeacherIdAndPeriodOfTime(teacherId, periodOfTime).stream()
+	public String getScheduleForTeacher(int teacherId, LocalDate firstDate, LocalDate lastDate) {
+		return dailyScheduleDao.findByTeacherIdAndPeriodOfTime(teacherId, firstDate, lastDate).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 	
-	public String getScheduleForStudent(int studentId, List<LocalDate> periodOfTime) {
-		List<Group> groups = groupDao.findByStudentId(studentId);
-		return dailyScheduleDao.findByGroupAndPeriodOfTime(groups.get(0), periodOfTime).stream()
+	public String getScheduleForStudent(int studentId, LocalDate firstDate, LocalDate lastDate) {
+		Group group = groupDao.findByStudentId(studentId).get();
+		return dailyScheduleDao.findByGroupAndPeriodOfTime(group, firstDate, lastDate).stream()
 				.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 	}
 	
@@ -105,13 +105,13 @@ public class UniversityService {
 	}
 
 	public void updateTeacherById(int teacherId) {
-		Teacher teacher = new Teacher(333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
+		Teacher teacher = new Teacher(teacherId, 333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
 		teacherDao.update(teacher);
 		
 	}
 
 	public Teacher findTeacherById(int teacherId) {
-		return teacherDao.findById(teacherId);
+		return teacherDao.findById(teacherId).get();
 	}
 
 	public void deleteStudentById(int studentId) {
@@ -119,7 +119,7 @@ public class UniversityService {
 	}
 
 	public void updateStudentById(int studentId) {
-		Student student = new Student(333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
+		Student student = new Student(studentId, 333, "Peter", "Petrov", LocalDate.of(2000, 12, 2), "wer@mail.ru", Gender.MALE, "Street 56", null);
 		studentDao.update(student);	
 	}
 

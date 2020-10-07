@@ -12,9 +12,8 @@ public class Classroom {
 	}
 	
 	public Classroom(int id, String address, int capacity) {
+		this(address, capacity);
 		this.id = id;
-		this.address = address;
-		this.capacity = capacity;
 	}
 
 	public String getAddress() {

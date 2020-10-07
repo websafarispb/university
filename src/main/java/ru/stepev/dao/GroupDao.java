@@ -3,6 +3,7 @@ package ru.stepev.dao;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +12,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.GroupRowMapper;
-import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Group;
 
 @Component
@@ -49,30 +49,25 @@ public class GroupDao {
 	}
 
 	public void update(Group group) {
-
-		if (jdbcTemplate.update(UPDATE_BY_GROUP_ID, group.getName(), group.getId()) == 0) {
-			throw new ObjectNotFoundException(String.format("Group with Id = %d not found !!!", group.getId()));
-		} else {
-			Group updatedGroup = findById(group.getId());
-			updatedGroup.getStudents().stream().filter(s -> !group.getStudents().contains(s))
+		if (jdbcTemplate.update(UPDATE_BY_GROUP_ID, group.getName(), group.getId()) != 0) {
+			Optional<Group> updatedGroup = findById(group.getId());
+			updatedGroup.get().getStudents().stream().filter(s -> !group.getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(DELETE_STUDENT_FROM_GROUP, s.getId(), group.getId()));
 
-			group.getStudents().stream().filter(s -> !updatedGroup.getStudents().contains(s))
+			group.getStudents().stream().filter(s -> !updatedGroup.get().getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));
 		}
 	}
 
 	public void delete(int groupId) {
-		if (jdbcTemplate.update(DELETE_GROUP_BY_ID, groupId) == 0) {
-			throw new ObjectNotFoundException(String.format("Group with Id = %d not found !!!", groupId));
-		}
+		jdbcTemplate.update(DELETE_GROUP_BY_ID, groupId);
 	}
 
-	public Group findById(int groupId) {
+	public Optional<Group> findById(int groupId) {
 		try {
-			return jdbcTemplate.queryForObject(FIND_GROUP_BY_ID, groupRowMapper, groupId);
+			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_ID, groupRowMapper, groupId));
 		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException(String.format("Group with Id = %d not found !!!", groupId), e);
+			return Optional.empty();
 		}
 	}
 
@@ -80,8 +75,12 @@ public class GroupDao {
 		return jdbcTemplate.query(GET_ALL_GROUPS, groupRowMapper);
 	}
 
-	public List<Group> findByStudentId(int studentId) {
+	public Optional<Group> findByStudentId(int studentId) {
 		Object[] objects = new Object[] { studentId };
-		return jdbcTemplate.query(GET_BY_STUDENT_ID, objects, groupRowMapper);
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(GET_BY_STUDENT_ID, objects, groupRowMapper));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
 	}
 }

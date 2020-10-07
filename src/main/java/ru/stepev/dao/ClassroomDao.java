@@ -3,6 +3,7 @@ package ru.stepev.dao;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +12,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.ClassroomRowMapper;
-import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Classroom;
 
 @Component
@@ -44,24 +44,19 @@ public class ClassroomDao {
 	}
 
 	public void update(Classroom classroom) {
-		if (jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(),
-				classroom.getId()) == 0) {
-			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroom.getId()));
-
-		}
+		jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId());
 	}
 
 	public void delete(int classroomId) {
-		if (jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId) == 0) {
-			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroomId));
-		}
+		jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId);
+
 	}
 
-	public Classroom findById(int classroomId) throws ObjectNotFoundException {
+	public Optional<Classroom> findById(int classroomId) {
 		try {
-			return jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId);
+			return Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId));
 		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException(String.format("Classroom with Id = %d not found !!!", classroomId), e);
+			return Optional.empty();
 		}
 	}
 

@@ -2,12 +2,13 @@ package ru.stepev.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.springframework.test.jdbc.JdbcTestUtils.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.config.TestConfig;
@@ -38,14 +38,14 @@ public class LectureDaoTest {
 	private LectureDao lectureDao;
 
 	@Test
-	public void givenCreateLecture_whenCreateLecture_thenLectureCreated() throws Exception {
+	public void givenCreateLecture_whenCreateLecture_thenLectureCreated() {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
 		
-		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "LECTURES") + 1;
+		int expectedRows = countRowsInTable(jdbcTemplate, "LECTURES") + 1;
 		Course course = new Course(2, "Biology", "Bio");
 		Classroom classroom = new Classroom(1, "101", 50);
 		Group group = new Group(1, "a2a2");
@@ -54,36 +54,13 @@ public class LectureDaoTest {
 				teacher);
 
 		lectureDao.create(lecture);
-		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "LECTURES");
+		
+		int actualRows = countRowsInTable(jdbcTemplate, "LECTURES");
 		assertEquals(expectedRows, actualRows);
-	}
-	
-	@Test
-	public void givenUpdateLectureByIdNotExist_whenUpdateLectureById_thenGetObjectNotFoundException() throws Exception {
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add(new Course(3, "Chemistry", "Chem"));
-		courses.add(new Course(4, "Physics", "Phy"));
-		
-		Course course = new Course(1, "Mathematics", "Math");
-		Classroom classroom = new Classroom(1, "101", 50);
-		Group group = new Group(1, "a2a2");
-		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE, "City17", courses);
-		Lecture lecture = new Lecture(200, 1,  LocalTime.of(10, 0, 0), course, classroom, group,
-				teacher);
-		
-		try {
-			lectureDao.update(lecture);
-			fail("Expected Exception");
-		} catch (Exception e) {
-			assertEquals("Lecture with Id = 200 not found !!!", e.getMessage());
-		}
-		
 	}
 
 	@Test
-	public void givenUpdateLectureById_whenUpdateLectureById_thenLectureUpdated() throws Exception {
+	public void givenUpdateLectureById_whenUpdateLectureById_thenLectureUpdated() {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
@@ -96,9 +73,11 @@ public class LectureDaoTest {
 		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE, "City17", courses);
 		Lecture lecture = new Lecture(1, 1,  LocalTime.of(10, 0, 0), course, classroom, group,
 				teacher);
+		
 		lectureDao.update(lecture);
+		
 		int expectedRow = 1;
-		int actualRow = JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "LECTURES",
+		int actualRow = countRowsInTableWhere(jdbcTemplate, "LECTURES",
 				String.format("id = %d  AND "
 						+ "local_time = '%s:00' AND course_id = %d AND classroom_id = %d AND group_id = %d AND teacher_id = %d",
 						lecture.getId(), lecture.getTime(),
@@ -109,17 +88,14 @@ public class LectureDaoTest {
 	}
 	
 	@Test
-	public void givenFindLectureByIdNotExist_whenFindLectureById_thenGetObjectNotFoundException() throws Exception {
-		try {
-			lectureDao.findById(200);
-			fail("Expected Exception");
-		} catch (Exception e) {
-			assertEquals("Lecture with Id = 200 not found !!!", e.getMessage());
-		}
+	public void givenFindLectureByIdNotExist_whenNotFindLectureById_thenGetEmptyOptional() throws Exception {
+		Optional<Lecture> actual = lectureDao.findById(200);
+		
+			assertThat(actual).isEmpty();	
 	}
 
 	@Test
-	public void givenFindLectureById_whenFindLectureById_thenLectureWasFound() throws Exception {
+	public void givenFindLectureById_whenFindLectureById_thenLectureWasFound() {
 		List<Course> courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
@@ -133,42 +109,39 @@ public class LectureDaoTest {
 		Classroom classroom = new Classroom(1, "101", 50);
 		Group group = new Group(2, "b2b2",students);
 		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE, "City18", courses);
-		Lecture lecture = new Lecture(1, LocalTime.of(9, 0, 0), course, classroom, group,
+		Lecture expected = new Lecture(1, 1, LocalTime.of(9, 0, 0), course, classroom, group,
 				teacher);
-		Lecture expected = lecture;
-		Lecture actual = lectureDao.findById(1);
-		assertThat(expected).isEqualTo(actual);
-	}
-	
-	@Test
-	public void givenDeleteLectureNotExist_whenDeleteLectureById_thenGetObjectNotFoundException() throws Exception {
-		try {
-			lectureDao.delete(200);
-			fail("Expected Exception");
-		} catch (Exception e) {
-			assertEquals("Lecture with Id = 200 not found !!!", e.getMessage());
-		}
+		
+		Optional <Lecture> actual = lectureDao.findById(1);
+		
+		assertThat(actual).get().isEqualTo(expected);
 	}
 
 	@Test
-	public void givenDeleteLecture_whenDeleteLectureById_thenLectureWasDeleted() throws Exception {
-		int expectedRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "LECTURES") - 1;
+	public void givenDeleteLecture_whenDeleteLectureById_thenLectureWasDeleted() {
+		int expectedRows = countRowsInTable(jdbcTemplate, "LECTURES") - 1;
+		
 		lectureDao.delete(3);
-		int actualRows = JdbcTestUtils.countRowsInTable(jdbcTemplate, "LECTURES");
+		
+		int actualRows = countRowsInTable(jdbcTemplate, "LECTURES");
 		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
 	public void givenfindAllLectures_whenFindAllLectures_thenAllLecturesWasFound() {
 		int expectedSize = 11;
+		
 		int actualSize = lectureDao.findAll().size();
+		
 		assertEquals(expectedSize, actualSize);
 	}
 
 	@Test
 	public void givenFindLecturesByDailyScheduleId_whenFindLectureByDailyScheduleId_thenLecturesWasFound() {
 		int expected = 2;
+		
 		int actual = lectureDao.findByDailyScheduleId(2).size();
+		
 		assertEquals(expected, actual);
 	}
 }

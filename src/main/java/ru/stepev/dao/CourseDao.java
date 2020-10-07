@@ -2,8 +2,8 @@ package ru.stepev.dao;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +12,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.rowmapper.CourseRowMapper;
-import ru.stepev.exceptions.ObjectNotFoundException;
 import ru.stepev.model.Course;
 
 @Component
@@ -56,12 +55,13 @@ public class CourseDao {
 		jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId);
 	}
 
-	public Course findById(int courseId) {
+	public Optional<Course> findById(int courseId) {
 		try {
-			return jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId);
+			return Optional.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
 		} catch (EmptyResultDataAccessException e) {
-			throw new ObjectNotFoundException(String.format("Course with Id = %d not found !!!", courseId), e);
+			return Optional.empty();
 		}
+
 	}
 
 	public List<Course> findAll() {

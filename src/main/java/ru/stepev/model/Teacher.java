@@ -8,18 +8,18 @@ public class Teacher extends Person {
 	public Teacher() {
 	}
 
-	public Teacher(int personalNumber, String firstName, String lastName, LocalDate birthday, String email,
-			Gender gender, String address, List<Course> courses) {
-
-		this.personalNumber = personalNumber;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.birthday = birthday;
-		this.email = email;
-		this.gender = gender;
-		this.address = address;
-		this.courses = courses;
-	}
+//	public Teacher(int personalNumber, String firstName, String lastName, LocalDate birthday, String email,
+//			Gender gender, String address, List<Course> courses) {
+//
+//		this.personalNumber = personalNumber;
+//		this.firstName = firstName;
+//		this.lastName = lastName;
+//		this.birthday = birthday;
+//		this.email = email;
+//		this.gender = gender;
+//		this.address = address;
+//		this.courses = courses;
+//	}
 
 	public Teacher(int id, int personalNumber, String firstName, String lastName, LocalDate birthday, String email,
 			Gender gender, String address, List<Course> courses) {
