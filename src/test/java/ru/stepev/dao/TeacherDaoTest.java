@@ -124,8 +124,8 @@ public class TeacherDaoTest {
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
 		List<Course> coursesForUpdatedTeacher = new ArrayList<>();
-		coursesForUpdatedTeacher.add((new Course(3, "Chemistry", "Chem")));
-		coursesForUpdatedTeacher.add((new Course(4, "Physics", "Phy")));
+		coursesForUpdatedTeacher.add(new Course(3, "Chemistry", "Chem"));
+		coursesForUpdatedTeacher.add(new Course(4, "Physics", "Phy"));
 		
 		List<Teacher> actual = teacherDao.findAll();
 		

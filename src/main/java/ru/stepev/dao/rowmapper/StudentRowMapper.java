@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.CourseDao;
+import ru.stepev.model.Gender;
 import ru.stepev.model.Student;
 
 @Component
@@ -26,7 +27,7 @@ public class StudentRowMapper implements RowMapper<Student> {
 		student.setPersonalNumber(resultSet.getInt("personal_number"));
 		student.setFirstName(resultSet.getString("first_name"));
 		student.setLastName(resultSet.getString("last_name"));
-		student.setBirthday(LocalDate.parse(resultSet.getString("birthday")));
+		student.setBirthday(resultSet.getObject("birthday", LocalDate.class));
 		student.setEmail(resultSet.getString("email"));
 		student.setGender(resultSet.getString("gender"));
 		student.setAddres(resultSet.getString("address"));

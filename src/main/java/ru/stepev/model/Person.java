@@ -46,9 +46,9 @@ public class Person {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public Gender getGender() {
-		return gender;
+	
+	public String getGender() {
+		return gender.toString();
 	}
 
 	public void setGender(Gender gender) {

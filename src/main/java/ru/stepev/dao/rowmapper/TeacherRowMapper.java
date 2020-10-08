@@ -26,7 +26,7 @@ public class TeacherRowMapper implements RowMapper<Teacher> {
 		teacher.setPersonalNumber(resultSet.getInt("personal_number"));
 		teacher.setFirstName(resultSet.getString("first_name"));
 		teacher.setLastName(resultSet.getString("last_name"));
-		teacher.setBirthday(LocalDate.parse(resultSet.getString("birthday")));
+		teacher.setBirthday(resultSet.getObject("birthday", LocalDate.class));
 		teacher.setEmail(resultSet.getString("email"));
 		teacher.setGender(resultSet.getString("gender"));
 		teacher.setAddres(resultSet.getString("address"));

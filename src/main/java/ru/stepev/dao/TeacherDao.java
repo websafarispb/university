@@ -47,7 +47,7 @@ public class TeacherDao {
 			statement.setString(3, teacher.getLastName());
 			statement.setObject(4, teacher.getBirthday());
 			statement.setString(5, teacher.getEmail());
-			statement.setString(6, teacher.getGender().toString());
+			statement.setString(6, teacher.getGender());
 			statement.setString(7, teacher.getAddress());
 			return statement;
 		}, keyHolder);

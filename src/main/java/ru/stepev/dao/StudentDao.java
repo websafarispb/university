@@ -48,7 +48,7 @@ public class StudentDao {
 			statement.setString(3, student.getLastName());
 			statement.setObject(4, student.getBirthday());
 			statement.setString(5, student.getEmail());
-			statement.setString(6, student.getGender().toString());
+			statement.setString(6, student.getGender());
 			statement.setString(7, student.getAddress());
 			return statement;
 		}, keyHolder);
