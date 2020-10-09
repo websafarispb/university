@@ -34,10 +34,10 @@ public class LectureRowMapper implements RowMapper<Lecture> {
 		lecture.setId(resultSet.getInt("id"));
 		lecture.setDailyScheduleId(resultSet.getInt("dailyschedule_id"));
 		lecture.setTime(resultSet.getObject("local_time", LocalTime.class));
-		lecture.setCourse(courseDao.findById(resultSet.getInt("course_id")).get());
-		lecture.setClassRoom(classroomDao.findById(resultSet.getInt("classroom_id")).get());
-		lecture.setGroup(groupDao.findById(resultSet.getInt("group_id")).get());
-		lecture.setTeacher(teacherDao.findById(resultSet.getInt("teacher_id")).get());
+		courseDao.findById(resultSet.getInt("course_id")).ifPresent(lecture::setCourse);
+		classroomDao.findById(resultSet.getInt("classroom_id")).ifPresent(lecture::setClassRoom);
+		groupDao.findById(resultSet.getInt("group_id")).ifPresent(lecture::setGroup);
+		teacherDao.findById(resultSet.getInt("teacher_id")).ifPresent(lecture::setTeacher);
 		return lecture;
 	}
 }
