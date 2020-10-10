@@ -1,15 +1,18 @@
 package ru.stepev.model;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class Person {
-	
+
+	protected int id;
+	protected int personalNumber;
 	protected String firstName;
 	protected String lastName;
-	protected Date birthday;
+	protected LocalDate birthday;
 	protected String email;
 	protected Gender gender;
-	protected String addres;
+	protected String address;
 	protected List<Course> courses;
 
 	public String getFirstName() {
@@ -28,11 +31,11 @@ public class Person {
 		this.lastName = lastName;
 	}
 
-	public Date getBirthday() {
+	public LocalDate getBirthday() {
 		return birthday;
 	}
 
-	public void setBirthday(Date birthday) {
+	public void setBirthday(LocalDate birthday) {
 		this.birthday = birthday;
 	}
 
@@ -43,21 +46,29 @@ public class Person {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public Gender getGender() {
-		return gender;
+	
+	public String getGender() {
+		return gender.toString();
 	}
 
 	public void setGender(Gender gender) {
 		this.gender = gender;
 	}
-
-	public String getAddres() {
-		return addres;
+	
+	public void setGender(String gender) {
+		this.gender = Gender.valueOf(gender);
 	}
 
-	public void setAddres(String addres) {
-		this.addres = addres;
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public void setAddres(String address) {
+		this.address = address;
 	}
 
 	public List<Course> getCourses() {
@@ -67,5 +78,20 @@ public class Person {
 	public void setCourses(List<Course> courses) {
 		this.courses = courses;
 	}
-	
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getPersonalNumber() {
+		return personalNumber;
+	}
+
+	public void setPersonalNumber(int personalNumber) {
+		this.personalNumber = personalNumber;
+	}
 }

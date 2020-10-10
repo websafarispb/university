@@ -1,36 +1,35 @@
 package ru.stepev.uinterface;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import ru.stepev.model.DailySchedule;
-import ru.stepev.model.University;
-import ru.stepev.utils.DataHelper;
+import ru.stepev.service.UniversityService;
 
 import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class UserInterface {
 
 	private Map<String, String> menu;
 	private Scanner scanner;
-	private DataHelper dataHelper;
-	private University university;
+	private UniversityService universityService;
 
 	public UserInterface() {
 		menu = new LinkedHashMap<>();
 		scanner = new Scanner(System.in);
 		menu.put("a", "a. Show schedule for teacher");
 		menu.put("b", "b. Show schedule for student");
-		
-		dataHelper = new DataHelper();
-		university = new University();
-		university.setCourses(dataHelper.createCourses());
-		university.setTeachers(dataHelper.createTeachers());
-		university.setStudents(dataHelper.createStudents());
-		university.setGroups(dataHelper.createGroups());
-		university.setClassRooms(dataHelper.createClassRooms());
-		university.setDailySchedules(dataHelper.createDailySchedules());
+		menu.put("c", "c. Delete teacher");
+		menu.put("d", "d. Update teacher");
+		menu.put("e", "e. Find teacher by ID");
+		menu.put("f", "f. Delete student");
+		menu.put("g", "g. Update student");
+		menu.put("h", "h. Find student by ID");
+
+		universityService = new UniversityService();
 	}
 
 	public String getMenu() {
@@ -38,14 +37,49 @@ public class UserInterface {
 	}
 
 	public String choseMenuItem(String item) {
+		List<LocalDate> periodOfTime = new ArrayList<>();
 		String formattedAnswer = null;
 		try {
 			switch (item) {
 			case "a":
-				formattedAnswer = getScheduleForTeacher();
+				universityService.getTeachers();
+				periodOfTime = getPeriodOfTime();
+				formattedAnswer = universityService.getScheduleForTeacher(getId(), periodOfTime.get(0), periodOfTime.get(1));
 				break;
 			case "b":
-				formattedAnswer = getScheduleForStudent();
+				universityService.getStudents();
+				universityService.getStudentsByFirstAndLastNames(getFirstAndLastName());
+				int id = getId();
+				periodOfTime = getPeriodOfTime();
+				formattedAnswer = universityService.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1));
+				break;
+			case "c":
+				universityService.getTeachers();
+				universityService.deleteTeacherById(getId());
+				formattedAnswer = "Delete have been completed!!!";
+				break;
+			case "d":
+				universityService.getTeachers();
+				universityService.updateTeacherById(getId());
+				formattedAnswer = "Update have been completed!!!";
+				break;
+			case "e":
+				universityService.getTeachers();
+				formattedAnswer = universityService.findTeacherById(getId()).toString();
+				break;
+			case "f":
+				universityService.getStudents();
+				universityService.deleteStudentById(getId());
+				formattedAnswer = "Delete have been completed!!!";
+				break;
+			case "g":
+				universityService.getStudents();
+				universityService.updateStudentById(getId());
+				formattedAnswer = "Update have been completed!!!";
+				break;
+			case "h":
+				universityService.getStudents();
+				formattedAnswer = universityService.findStudentById(getId()).toString();
 				break;
 			default:
 				formattedAnswer = "You should enter letter from a to f ";
@@ -57,21 +91,7 @@ public class UserInterface {
 		return formattedAnswer;
 	}
 
-	public String getScheduleForStudent() {
-		university.getStudents().stream().forEach(System.out::println);
-		List<String> firstAndLastName = getFirstAndLastName();
-		List<DailySchedule> schedule = university.getTimeTableForStudent(firstAndLastName.get(0), firstAndLastName.get(1), getPeriodOfTime());
-		return schedule.stream().map(DailySchedule::toString).collect(joining(System.lineSeparator()));
-	}
-
-	public String getScheduleForTeacher() {
-		university.getTeachers().stream().forEach(System.out::println);
-		List<String> firstAndLastName = getFirstAndLastName();
-		List<DailySchedule> schedule = university.getTimeTableForTeacher(firstAndLastName.get(0), firstAndLastName.get(1), getPeriodOfTime());
-		return schedule.stream().map(DailySchedule::toString).collect(joining(System.lineSeparator()));
-	}
-	
-	public List<LocalDate> getPeriodOfTime (){
+	public List<LocalDate> getPeriodOfTime() {
 		List<LocalDate> period = new ArrayList<>();
 		System.out.println("Enter period or day with you want to get.");
 		System.out.println("If you need only one day then first day and last day of schedule have to be same.");
@@ -80,16 +100,17 @@ public class UserInterface {
 		LocalDate firstDay = LocalDate.parse(scanner.nextLine());
 		System.out.println("Enter the last day of period");
 		LocalDate lastDay = LocalDate.parse(scanner.nextLine());
-		if(!firstDay.equals(lastDay)) {
-			period.add(firstDay);
-			period.add(lastDay);
-		}
-		else
-			period.add(firstDay);
+		period.add(firstDay);
+		period.add(lastDay);
 		return period;
 	}
-	
-	public List<String> getFirstAndLastName(){
+
+	public int getId() {
+		System.out.println("Enter person ID  wich you need");
+		return Integer.parseInt(scanner.nextLine());
+	}
+
+	public List<String> getFirstAndLastName() {
 		List<String> name = new ArrayList<>();
 		System.out.println("Enter first name");
 		name.add(scanner.nextLine());
@@ -97,5 +118,5 @@ public class UserInterface {
 		name.add(scanner.nextLine());
 		return name;
 	}
-	
+
 }
