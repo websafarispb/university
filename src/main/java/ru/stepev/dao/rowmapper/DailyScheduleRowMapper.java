@@ -14,7 +14,7 @@ import ru.stepev.model.DailySchedule;
 public class DailyScheduleRowMapper implements RowMapper<DailySchedule> {
 
 	private LectureDao lectureDao;
-	
+
 	public DailyScheduleRowMapper(LectureDao lectureDao) {
 		this.lectureDao = lectureDao;
 	}

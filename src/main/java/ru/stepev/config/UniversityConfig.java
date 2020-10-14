@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableTransactionManagement
-@ComponentScan("ru.stepev.dao")
+@ComponentScan("ru.stepev")
 @PropertySource("classpath:config.properties")
 public class UniversityConfig {
 

@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.StudentDaoImpl;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
 import ru.stepev.model.Student;
@@ -28,7 +29,7 @@ public class StudentDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private StudentDao studentDao;
+	private StudentDaoImpl studentDao;
 
 	@Test
 	public void givenCreateStudent_whenCreateStudent_thenStudentWasCreated() {

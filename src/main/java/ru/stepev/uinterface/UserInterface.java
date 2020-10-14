@@ -1,23 +1,47 @@
 package ru.stepev.uinterface;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import ru.stepev.service.UniversityService;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import ru.stepev.config.UniversityConfig;
+import ru.stepev.model.Classroom;
+import ru.stepev.model.DailySchedule;
+import ru.stepev.model.Student;
+import ru.stepev.model.Teacher;
+import ru.stepev.service.ClassroomService;
+import ru.stepev.service.CourseService;
+import ru.stepev.service.DailyScheduleService;
+import ru.stepev.service.GroupService;
+import ru.stepev.service.LectureService;
+import ru.stepev.service.StudentService;
+import ru.stepev.service.TeacherService;
 
 import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 public class UserInterface {
 
 	private Map<String, String> menu;
 	private Scanner scanner;
-	private UniversityService universityService;
+	private ClassroomService classroomService;
+	private CourseService courseService;
+	private DailyScheduleService dailyScheduleService;
+	private GroupService groupService;
+	private LectureService lectureService;
+	private StudentService studentService;
+	private TeacherService teacherService;
 
 	public UserInterface() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(UniversityConfig.class);
+		classroomService = context.getBean("classroomService", ClassroomService.class);
+		courseService = context.getBean("courseService", CourseService.class);
+		dailyScheduleService = context.getBean("dailyScheduleService", DailyScheduleService.class);
+		groupService = context.getBean("groupService", GroupService.class);
+		lectureService = context.getBean("lectureService", LectureService.class);
+		studentService = context.getBean("studentService", StudentService.class);
+		teacherService = context.getBean("teacherService", TeacherService.class);
 		menu = new LinkedHashMap<>();
 		scanner = new Scanner(System.in);
 		menu.put("a", "a. Show schedule for teacher");
@@ -28,8 +52,9 @@ public class UserInterface {
 		menu.put("f", "f. Delete student");
 		menu.put("g", "g. Update student");
 		menu.put("h", "h. Find student by ID");
+		menu.put("l", "l. Show all classrooms");
+		menu.put("m", "m. Show all dailyschedules");
 
-		universityService = new UniversityService();
 	}
 
 	public String getMenu() {
@@ -42,44 +67,60 @@ public class UserInterface {
 		try {
 			switch (item) {
 			case "a":
-				universityService.getTeachers();
+				teacherService.getAll();
 				periodOfTime = getPeriodOfTime();
-				formattedAnswer = universityService.getScheduleForTeacher(getId(), periodOfTime.get(0), periodOfTime.get(1));
+				formattedAnswer = dailyScheduleService
+						.getScheduleForTeacher(getId(), periodOfTime.get(0), periodOfTime.get(1)).stream()
+						.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 				break;
 			case "b":
-				universityService.getStudents();
-				universityService.getStudentsByFirstAndLastNames(getFirstAndLastName());
+				studentService.getAll();
+				studentService.getByFirstAndLastNames(getFirstAndLastName().get(0), getFirstAndLastName().get(1));
 				int id = getId();
 				periodOfTime = getPeriodOfTime();
-				formattedAnswer = universityService.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1));
+				formattedAnswer = dailyScheduleService
+						.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1)).stream()
+						.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 				break;
 			case "c":
-				universityService.getTeachers();
-				universityService.deleteTeacherById(getId());
+				teacherService.getAll();
+				teacherService.delete(getId());
 				formattedAnswer = "Delete have been completed!!!";
 				break;
 			case "d":
-				universityService.getTeachers();
-				universityService.updateTeacherById(getId());
+				teacherService.getAll();
+				Teacher teacher = teacherService.getById(getId()).get();
+				teacher.setFirstName("Жора");
+				teacherService.update(teacher);
 				formattedAnswer = "Update have been completed!!!";
 				break;
 			case "e":
-				universityService.getTeachers();
-				formattedAnswer = universityService.findTeacherById(getId()).toString();
+				teacherService.getAll();
+				formattedAnswer = teacherService.getById(getId()).get().toString();
 				break;
 			case "f":
-				universityService.getStudents();
-				universityService.deleteStudentById(getId());
+				studentService.getAll();
+				studentService.delete(getId());
 				formattedAnswer = "Delete have been completed!!!";
 				break;
 			case "g":
-				universityService.getStudents();
-				universityService.updateStudentById(getId());
+				studentService.getAll();
+				Student student = studentService.getById(getId()).get();
+				student.setFirstName("Жора");
+				studentService.update(student);
 				formattedAnswer = "Update have been completed!!!";
 				break;
 			case "h":
-				universityService.getStudents();
-				formattedAnswer = universityService.findStudentById(getId()).toString();
+				studentService.getAll();
+				formattedAnswer = studentService.getById(getId()).get().toString();
+				break;
+			case "l":
+				formattedAnswer = classroomService.findAll().stream().map(Classroom::toString)
+						.collect(joining(System.lineSeparator()));
+				break;
+			case "m":
+				formattedAnswer = dailyScheduleService.getAll().stream().map(DailySchedule::toString)
+						.collect(joining(System.lineSeparator()));
 				break;
 			default:
 				formattedAnswer = "You should enter letter from a to f ";

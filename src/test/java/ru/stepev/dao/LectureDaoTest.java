@@ -19,6 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.LectureDaoImpl;
 import ru.stepev.model.Classroom;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
@@ -35,7 +36,7 @@ public class LectureDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private LectureDao lectureDao;
+	private LectureDaoImpl lectureDao;
 
 	@Test
 	public void givenCreateLecture_whenCreateLecture_thenLectureCreated() {

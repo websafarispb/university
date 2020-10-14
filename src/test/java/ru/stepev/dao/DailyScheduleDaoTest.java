@@ -18,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.DailyScheduleDaoImpl;
 import ru.stepev.model.Classroom;
 import ru.stepev.model.Course;
 import ru.stepev.model.DailySchedule;

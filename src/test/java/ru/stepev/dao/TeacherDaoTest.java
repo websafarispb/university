@@ -17,6 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.TeacherDaoImpl;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
 import ru.stepev.model.Teacher;
@@ -28,7 +29,7 @@ public class TeacherDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private TeacherDao teacherDao;
+	private TeacherDaoImpl teacherDao;
 
 	@Test
 	public void givenCreateTeacher_whenCreateTeacher_thenTeacherWasCreated() {

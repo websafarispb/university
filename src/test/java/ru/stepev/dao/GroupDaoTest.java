@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.GroupDaoImpl;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
 import ru.stepev.model.Group;
@@ -29,7 +30,7 @@ public class GroupDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private GroupDao groupDao;
+	private GroupDaoImpl groupDao;
 
 	@Test
 	public void givenCreate_whenGroupCreate_thenGroupWasCreated() {

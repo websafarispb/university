@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.CourseDao;
-import ru.stepev.model.Gender;
 import ru.stepev.model.Student;
 
 @Component

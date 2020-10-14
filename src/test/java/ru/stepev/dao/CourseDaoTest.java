@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
 import ru.stepev.config.TestConfig;
-import ru.stepev.dao.CourseDao;
+import ru.stepev.dao.impl.CourseDaoImpl;
 import ru.stepev.model.Course;
 
 @ExtendWith(SpringExtension.class)
@@ -27,7 +27,7 @@ public class CourseDaoTest {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private CourseDao courseDao;
+	private CourseDaoImpl courseDao;
 
 	@Test
 	public void givenCreateCourse_whenCreateCourse_thenCourseWillBeCreated() {
@@ -49,7 +49,7 @@ public class CourseDaoTest {
 				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
 						updatedCourse.getName(), updatedCourse.getDescription())) + 1;
 
-		courseDao.update(updatedCourse, 4);
+		courseDao.update(updatedCourse);
 
 		int actualRows = countRowsInTableWhere(jdbcTemplate, "COURSES",
 				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),

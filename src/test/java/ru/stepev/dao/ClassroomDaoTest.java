@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import ru.stepev.config.TestConfig;
+import ru.stepev.dao.impl.ClassroomDaoImpl;
 import ru.stepev.model.Classroom;
 
 @ExtendWith(SpringExtension.class)
@@ -22,7 +23,7 @@ import ru.stepev.model.Classroom;
 public class ClassroomDaoTest {
 
 	@Autowired
-	private ClassroomDao classroomDao;
+	private ClassroomDaoImpl classroomDao;
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
