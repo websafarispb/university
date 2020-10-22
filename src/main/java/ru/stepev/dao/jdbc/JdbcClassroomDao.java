@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -12,11 +12,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.ClassroomDao;
-import ru.stepev.dao.rowmapper.ClassroomRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.ClassroomRowMapper;
 import ru.stepev.model.Classroom;
 
 @Component
-public class ClassroomDaoImpl implements ClassroomDao{
+public class JdbcClassroomDao implements ClassroomDao {
 
 	private static final String CREATE_CLASSROOM_QUERY = "INSERT INTO classrooms (classroom_address, classroom_capacity) values (?, ?)";
 	private static final String GET_ALL = "SELECT * FROM classrooms";
@@ -27,7 +27,7 @@ public class ClassroomDaoImpl implements ClassroomDao{
 	private ClassroomRowMapper classroomRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public ClassroomDaoImpl(JdbcTemplate jdbcTemplate, ClassroomRowMapper classroomRowMapper) {
+	public JdbcClassroomDao(JdbcTemplate jdbcTemplate, ClassroomRowMapper classroomRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.classroomRowMapper = classroomRowMapper;
 	}
@@ -50,7 +50,6 @@ public class ClassroomDaoImpl implements ClassroomDao{
 
 	public void delete(int classroomId) {
 		jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId);
-
 	}
 
 	public Optional<Classroom> findById(int classroomId) {

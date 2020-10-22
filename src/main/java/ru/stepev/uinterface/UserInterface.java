@@ -6,7 +6,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import ru.stepev.config.UniversityConfig;
 import ru.stepev.model.Classroom;
+import ru.stepev.model.Course;
 import ru.stepev.model.DailySchedule;
+import ru.stepev.model.Group;
+import ru.stepev.model.Lecture;
 import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
 import ru.stepev.service.ClassroomService;
@@ -20,6 +23,7 @@ import ru.stepev.service.TeacherService;
 import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class UserInterface {
 
@@ -54,6 +58,7 @@ public class UserInterface {
 		menu.put("h", "h. Find student by ID");
 		menu.put("l", "l. Show all classrooms");
 		menu.put("m", "m. Show all dailyschedules");
+		menu.put("n", "n. Create lecture");
 
 	}
 
@@ -84,7 +89,8 @@ public class UserInterface {
 				break;
 			case "c":
 				teacherService.getAll();
-				teacherService.delete(getId());
+				Teacher teacherForDelete = teacherService.getById(getId()).get();
+				teacherService.delete(teacherForDelete);
 				formattedAnswer = "Delete have been completed!!!";
 				break;
 			case "d":
@@ -100,7 +106,8 @@ public class UserInterface {
 				break;
 			case "f":
 				studentService.getAll();
-				studentService.delete(getId());
+				Student studentForDelete = studentService.getById(getId()).get();
+				studentService.delete(studentForDelete);
 				formattedAnswer = "Delete have been completed!!!";
 				break;
 			case "g":
@@ -115,12 +122,16 @@ public class UserInterface {
 				formattedAnswer = studentService.getById(getId()).get().toString();
 				break;
 			case "l":
-				formattedAnswer = classroomService.findAll().stream().map(Classroom::toString)
+				formattedAnswer = classroomService.getAll().stream().map(Classroom::toString)
 						.collect(joining(System.lineSeparator()));
 				break;
 			case "m":
 				formattedAnswer = dailyScheduleService.getAll().stream().map(DailySchedule::toString)
 						.collect(joining(System.lineSeparator()));
+				break;
+			case "n":
+				lectureService.add(getLectureFromUser());
+				formattedAnswer = "create lecture";
 				break;
 			default:
 				formattedAnswer = "You should enter letter from a to f ";
@@ -130,6 +141,45 @@ public class UserInterface {
 			e.printStackTrace();
 		}
 		return formattedAnswer;
+	}
+
+	private Lecture getLectureFromUser() {
+		// TODO Auto-generated method stub
+		System.out.println("Enter date for lecture!!!");
+		Lecture lecture = new Lecture();
+
+		System.out.println("Enter day in the next format - \"yyyy-mm-dd\"");
+		LocalDate day = LocalDate.parse(scanner.nextLine());
+
+		DailySchedule dailyScheduleId = dailyScheduleService.getByDate(day).get();
+
+		System.out.println("Enter time in the next format \"10:15:30\"");
+		LocalTime time = LocalTime.parse(scanner.nextLine());
+
+		System.out.println(
+				courseService.getAll().stream().map(Course::toString).collect(joining(System.lineSeparator())));
+		System.out.println("Enter course id - ");
+		Course course = courseService.getById(scanner.nextInt()).get();
+
+		System.out.println(
+				classroomService.getAll().stream().map(Classroom::toString).collect(joining(System.lineSeparator())));
+		System.out.println("Enter classroom id - ");
+
+		Classroom classRoom = classroomService.getById(scanner.nextInt()).get();
+
+		System.out
+				.println(groupService.getAll().stream().map(Group::toString).collect(joining(System.lineSeparator())));
+		System.out.println("Enter group id - ");
+
+		Group group = groupService.getById(scanner.nextInt()).get();
+
+		System.out.println(
+				teacherService.getAll().stream().map(Teacher::toString).collect(joining(System.lineSeparator())));
+		System.out.println("Enter teacher id - ");
+
+		Teacher teacher = teacherService.getById(scanner.nextInt()).get();
+
+		return new Lecture(0, dailyScheduleId.getId(), time, course, classRoom, group, teacher);
 	}
 
 	public List<LocalDate> getPeriodOfTime() {

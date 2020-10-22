@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -12,11 +12,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.GroupDao;
-import ru.stepev.dao.rowmapper.GroupRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.GroupRowMapper;
 import ru.stepev.model.Group;
 
 @Component
-public class GroupDaoImpl implements GroupDao{
+public class JdbcGroupDao implements GroupDao {
 
 	private static final String GET_ALL_GROUPS = "SELECT * FROM GROUPS ";
 	private static final String CREATE_GROUP_QUERY = "INSERT INTO groups ( group_name) VALUES ( ?)";
@@ -32,7 +32,7 @@ public class GroupDaoImpl implements GroupDao{
 	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public GroupDaoImpl(JdbcTemplate jdbcTemplate, GroupRowMapper groupRowMapper) {
+	public JdbcGroupDao(JdbcTemplate jdbcTemplate, GroupRowMapper groupRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.groupRowMapper = groupRowMapper;
 	}

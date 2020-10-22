@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import static java.util.function.Predicate.not;
 
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.TeacherDao;
-import ru.stepev.dao.rowmapper.TeacherRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.TeacherRowMapper;
 import ru.stepev.model.Teacher;
 
 @Component
-public class TeacherDaoImpl implements TeacherDao{
+public class JdbcTeacherDao implements TeacherDao {
 
 	private static final String GET_ALL = "SELECT * FROM teachers";
 	private static final String FIND_TEACHER_BY_ID = "SELECT * FROM teachers WHERE id = ?";
@@ -32,7 +32,7 @@ public class TeacherDaoImpl implements TeacherDao{
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public TeacherDaoImpl(JdbcTemplate jdbcTemplate, TeacherRowMapper teacherRowMapper) {
+	public JdbcTeacherDao(JdbcTemplate jdbcTemplate, TeacherRowMapper teacherRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.teacherRowMapper = teacherRowMapper;
 	}

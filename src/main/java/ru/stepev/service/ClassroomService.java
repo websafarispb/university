@@ -6,35 +6,44 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.ClassroomDao;
-import ru.stepev.dao.impl.ClassroomDaoImpl;
 import ru.stepev.model.Classroom;
 
 @Component
 public class ClassroomService {
-	
+
 	private ClassroomDao classroomDao;
-	
-	public ClassroomService (ClassroomDao classroomDao) {
-		this.classroomDao =  classroomDao;
+
+	public ClassroomService(ClassroomDao classroomDao) {
+		this.classroomDao = classroomDao;
 	}
-	
+
 	public void add(Classroom classroom) {
-		classroomDao.create(classroom);
+		if (!isClassroomExist(classroom.getId())) {
+			classroomDao.create(classroom);
+		}
 	}
-	
+
 	public void update(Classroom classroom) {
-		classroomDao.update(classroom);
+		if (isClassroomExist(classroom.getId())) {
+			classroomDao.update(classroom);
+		}
 	}
-	
-	public void delete(int classroomId) {
-		classroomDao.delete(classroomId);
+
+	public void delete(Classroom classroom) {
+		if (isClassroomExist(classroom.getId())) {
+			classroomDao.delete(classroom.getId());
+		}
 	}
-	
-	public Optional<Classroom> findById (int classroomId) {
+
+	private boolean isClassroomExist(int classroomId) {
+		return classroomDao.findById(classroomId).isPresent();
+	}
+
+	public Optional<Classroom> getById(int classroomId) {
 		return classroomDao.findById(classroomId);
 	}
 
-	public List<Classroom> findAll(){
+	public List<Classroom> getAll() {
 		return classroomDao.findAll();
 	}
 }

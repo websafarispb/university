@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.function.Predicate.not;
@@ -19,12 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.LectureDao;
-import ru.stepev.dao.rowmapper.DailyScheduleRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.DailyScheduleRowMapper;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
 
 @Component
-public class DailyScheduleDaoImpl implements DailyScheduleDao{
+public class JdbcDailyScheduleDao implements DailyScheduleDao {
 
 	private static final String CREATE_DAILYSCHEDUALE_QUERY = "INSERT INTO dailyschedule (dailyschedule_date) VALUES (?)";
 	private static final String GET_ALL = "SELECT * FROM dailyschedule";
@@ -38,7 +38,7 @@ public class DailyScheduleDaoImpl implements DailyScheduleDao{
 	private DailyScheduleRowMapper dailyScheduleRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public DailyScheduleDaoImpl(JdbcTemplate jdbcTemplate, DailyScheduleRowMapper dailyScheduleRowMapper,
+	public JdbcDailyScheduleDao(JdbcTemplate jdbcTemplate, DailyScheduleRowMapper dailyScheduleRowMapper,
 			LectureDao lectureDao) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.dailyScheduleRowMapper = dailyScheduleRowMapper;

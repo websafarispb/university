@@ -11,62 +11,61 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import ru.stepev.config.TestConfig;
 import ru.stepev.dao.DailyScheduleDao;
-import ru.stepev.dao.impl.GroupDaoImpl;
+import ru.stepev.dao.jdbc.JdbcGroupDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.DailySchedule;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 public class DailyScheduleServiceTest {
 
 	@Mock
 	private DailyScheduleDao dailyScheduleDao;
 
 	@Mock
-	private GroupDaoImpl groupDao;
+	private JdbcGroupDao groupDao;
 
 	@InjectMocks
 	private DailyScheduleService dailyScheduleService;
 
-	@Autowired
 	private DataHelper dataHelper;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
+		dataHelper = new DataHelper();
 	}
 
 	@Test
 	public void givenAddDailySchedule_whenAddDailySchedules_thenAddDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.empty());
 
 		dailyScheduleService.add(dataHelper.getDailyScheduleForCreate());
 
+		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
 		verify(dailyScheduleDao, times(1)).create(dataHelper.getDailyScheduleForCreate());
 	}
 
 	@Test
 	public void givenUpdateDailySchedule_whenUpdateDailySchedules_thenUpdateDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
 		dailyScheduleService.update(dataHelper.getDailyScheduleForCreate());
 
+		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
 		verify(dailyScheduleDao, times(1)).update(dataHelper.getDailyScheduleForCreate());
 	}
 
 	@Test
 	public void givenDeleteDailySchedule_whenDeleteDailySchedules_thenDeleteDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
-		dailyScheduleService.delete(dataHelper.getDailyScheduleForCreate().getId());
+		dailyScheduleService.delete(dataHelper.getDailyScheduleForCreate());
 
+		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
 		verify(dailyScheduleDao, times(1)).delete(dataHelper.getDailyScheduleForCreate().getId());
 	}
 

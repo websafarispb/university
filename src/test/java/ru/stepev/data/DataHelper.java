@@ -20,7 +20,6 @@ import ru.stepev.model.Teacher;
 
 @Data
 @AllArgsConstructor
-//@NoArgsConstructor
 @Component
 public class DataHelper {
 
@@ -39,7 +38,17 @@ public class DataHelper {
 	private DailySchedule dailyScheduleForCreate;
 	private Student studentForTest;
 	private Course courseForTest;
-	private Lecture lectureForTest;
+	private Lecture correstLectureForTest;
+	private Lecture wrongLectureForTest;
+	private Lecture lectureWithNotAvaliableGroup;
+	private Lecture lectureWithAvaliableGroup;
+	private Lecture lectureWithAvaliableClassroom;
+	private Lecture lectureWithNotAvaliableClassroom;
+	private Teacher specialTeacher;
+	private Group sillyGroup;
+	private List<Student> sillyStudents;
+	private Classroom classroomSmall;
+	private ArrayList<Course> coursesForTeacher;
 
 	public DataHelper() {
 		classrooms = new ArrayList<>();
@@ -51,14 +60,22 @@ public class DataHelper {
 		classroomForCreate = new Classroom(5, "105", 10);
 		classroomForDelete = new Classroom(2, "102", 40);
 		classroomForUpdate = new Classroom(3, "303", 400);
+		classroomSmall = new Classroom(4, "503", 1);
 
 		courses = new ArrayList<>();
 		courses.add(new Course(1, "Mathematics", "Math"));
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
-		
+
 		courseForTest = new Course(5, "Geography", "Geo");
+		
+		coursesForTeacher = new ArrayList<>();
+		coursesForTeacher.add(new Course(1, "Mathematics", "Math"));
+		coursesForTeacher.add(new Course(2, "Biology", "Bio"));
+		coursesForTeacher.add(new Course(3, "Chemistry", "Chem"));
+		coursesForTeacher.add(new Course(4, "Physics", "Phy"));
+		coursesForTeacher.add( new Course(5, "Geography", "Geo"));
 
 		students = new ArrayList<>();
 		students.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
@@ -80,26 +97,38 @@ public class DataHelper {
 
 		teachers = new ArrayList<>();
 		teachers.add(new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
-				"City17", courses));
+				"City17", coursesForTeacher));
 		teachers.add(new Teacher(2, 124, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
-				Gender.MALE, "City10", courses));
+				Gender.MALE, "City10", coursesForTeacher));
 		teachers.add(new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru", Gender.FEMALE,
-				"City19", courses));
+				"City19", coursesForTeacher));
 		teachers.add(new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Stepanova@mail.ru",
-				Gender.FEMALE, "City11", courses));
+				Gender.FEMALE, "City11", coursesForTeacher));
 		teachers.add(new Teacher(6, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
-				Gender.MALE, "City10", courses));
+				Gender.MALE, "City10", coursesForTeacher));
 
 		teacherForTest = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
 				"City17", courses);
+		
+		specialTeacher = new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Stepanova@mail.ru",
+				Gender.FEMALE, "City11", courses.subList(0, 1));
 
 		groups = new ArrayList<>();
 		groups.add(new Group(1, "a2a2", students.subList(0, 1)));
 		groups.add(new Group(2, "b2b2", students.subList(2, 3)));
 		groups.add(new Group(3, "c2c2", students.subList(4, 5)));
 		groups.add(new Group(4, "d2d2", students.subList(6, 6)));
-
-		groupForTest = new Group(1, "a2a2", students.subList(0, 1));
+		
+		sillyStudents = new ArrayList<>();
+		sillyStudents.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
+				"City17", courses.subList(0, 1)));
+		sillyStudents.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses.subList(0, 1)));
+		
+		sillyGroup = new Group(1, "a2a2", sillyStudents);
+		
+		groupForTest = new Group(1, "a2a2", students.subList(0, 3));
+		
 
 		lectures = new ArrayList<>();
 		lectures.add(new Lecture(1, 1, LocalTime.of(9, 0, 0), courses.get(0), classrooms.get(0), groups.get(0),
@@ -122,9 +151,21 @@ public class DataHelper {
 				teachers.get(0)));
 		lectures.add(new Lecture(9, 5, LocalTime.of(10, 0, 0), courses.get(3), classrooms.get(0), groups.get(3),
 				teachers.get(1)));
+
+		correstLectureForTest = new Lecture(9, 5, LocalTime.of(10, 0, 0), courses.get(3), classrooms.get(1),
+				groups.get(1), teachers.get(0));
+		wrongLectureForTest = new Lecture(9, 5, LocalTime.of(9, 59, 59), courses.get(3), classrooms.get(0),
+				groups.get(3), teachers.get(1));
 		
-		lectureForTest = new Lecture(9, 5, LocalTime.of(10, 0, 0), courses.get(3), classrooms.get(0), groups.get(3),
-				teachers.get(1));
+		lectureWithAvaliableGroup = new Lecture(9, 5, LocalTime.of(10, 0, 0), courses.get(3), classrooms.get(2),
+				groups.get(1), teachers.get(3));
+		lectureWithNotAvaliableGroup = new Lecture(9, 5, LocalTime.of(9, 59, 59), courses.get(3), classrooms.get(0),
+				groups.get(3), teachers.get(3));
+		
+		lectureWithAvaliableClassroom = new Lecture(9, 5, LocalTime.of(10, 0, 0), courses.get(3), classrooms.get(1),
+				groups.get(1), teachers.get(3));
+		lectureWithNotAvaliableClassroom = new Lecture(9, 5, LocalTime.of(9, 59, 59), courses.get(3), classrooms.get(0),
+				groups.get(1), teachers.get(3));
 
 		dailySchedules = new ArrayList<>();
 		dailySchedules.add(new DailySchedule(1, LocalDate.of(2020, 9, 7), lectures.subList(0, 1)));

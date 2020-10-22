@@ -2,6 +2,13 @@ package ru.stepev.model;
 
 import java.util.*;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Group {
 
 	private int id;
@@ -17,44 +24,6 @@ public class Group {
 		this.id = id;
 		this.name = name;
 		this.students = new ArrayList<>();
-	}
-
-	public Group(int id, String name, List<Student> students) {
-		this.id = id;
-		this.name = name;
-		this.students = students;
-	}
-
-	public List<Student> getStudents() {
-		return students;
-	}
-
-	public void setStudents(List<Student> students) {
-		this.students = students;
-	}
-
-	public void addStudent(Student student) {
-		students.add(student);
-	}
-
-	public void deleteStudent(Student student) {
-		students.remove(student);
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	@Override

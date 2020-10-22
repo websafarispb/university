@@ -11,21 +11,14 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import ru.stepev.config.TestConfig;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Student;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 public class StudentServiceTest {
 	
 	@Mock
@@ -34,35 +27,41 @@ public class StudentServiceTest {
 	@InjectMocks
 	private StudentService studentService;
 
-	@Autowired
 	private DataHelper dataHelper;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
+		dataHelper = new DataHelper();
 	}
 
 	@Test
 	public void givenAddStudent_whenAddStudent_thenAddStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
 
 		studentService.add(dataHelper.getStudentForTest());
 		
+		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
 		verify(studentDao, times(1)).create(dataHelper.getStudentForTest());
 	}
 	
 	@Test
 	public void givenUpdateStudent_whenUpdateStudent_thenUpdateStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
 		studentService.update(dataHelper.getStudentForTest());
 		
+		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
 		verify(studentDao, times(1)).update(dataHelper.getStudentForTest());
 	}
 	
 	@Test
 	public void givenDeleteStudent_whenDeleteStudent_thenDeleteStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
-		studentService.delete(dataHelper.getStudentForTest().getId());
+		studentService.delete(dataHelper.getStudentForTest());
 		
+		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
 		verify(studentDao, times(1)).delete(dataHelper.getStudentForTest().getId());
 	}
 	

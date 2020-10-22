@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -12,11 +12,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.CourseDao;
-import ru.stepev.dao.rowmapper.CourseRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.CourseRowMapper;
 import ru.stepev.model.Course;
 
 @Component
-public class CourseDaoImpl implements CourseDao{
+public class JdbcCourseDao implements CourseDao {
 
 	private static final String CREATE_COURSE_QUERY = "INSERT INTO courses (course_name, course_description) values (?, ?)";
 	private static final String UPDATE_COURSE_BY_ID = "UPDATE courses SET course_name = ?, course_description = ? WHERE id = ?";
@@ -31,7 +31,7 @@ public class CourseDaoImpl implements CourseDao{
 	private CourseRowMapper courseRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public CourseDaoImpl(JdbcTemplate jdbcTemplate, CourseRowMapper courseRowMapper) {
+	public JdbcCourseDao(JdbcTemplate jdbcTemplate, CourseRowMapper courseRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.courseRowMapper = courseRowMapper;
 	}

@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import static java.util.function.Predicate.not;
 
@@ -15,15 +15,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.dao.StudentDao;
-import ru.stepev.dao.rowmapper.StudentRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.StudentRowMapper;
 import ru.stepev.model.Student;
 
 @Component
-public class StudentDaoImpl implements StudentDao {
+public class JdbcStudentDao implements StudentDao {
 	private static final String GET_ALL = "SELECT * FROM students";
 	private static final String CREATE_STUDENT_QUERY = "INSERT INTO students (personal_number, first_name, last_name, birthday, email, gender, address) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
 	private static final String ASSIGN_TO_COURSE = "INSERT INTO students_courses (student_id, course_id) VALUES (?, ?)";
-	private static final String RESIGN_FROM_COURSE = "DELETE FROM students_courses WHERE student_id = ? AND course_id = ?";
+	private static final String DELETE_FROM_COURSE = "DELETE FROM students_courses WHERE student_id = ? AND course_id = ?";
 	private static final String GET_STUDENT_ID = "SELECT * FROM students WHERE first_name = ? and last_name = ?";
 	private static final String FIND_STUDENT_BY_ID = "SELECT * FROM students WHERE id = ?";
 	private static final String DELETE_BY_STUDENT_ID = "DELETE FROM students WHERE id = ?";
@@ -33,7 +33,7 @@ public class StudentDaoImpl implements StudentDao {
 	private StudentRowMapper studentRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public StudentDaoImpl(JdbcTemplate jdbcTemplate, StudentRowMapper studentRowMapper) {
+	public JdbcStudentDao(JdbcTemplate jdbcTemplate, StudentRowMapper studentRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.studentRowMapper = studentRowMapper;
 	}
@@ -63,9 +63,9 @@ public class StudentDaoImpl implements StudentDao {
 		if (jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
 				student.getBirthday(), student.getEmail(), student.getGender().toString(), student.getAddress(),
 				student.getId()) != 0) {
-			Optional <Student> updatedSudent = findById(student.getId());
+			Optional<Student> updatedSudent = findById(student.getId());
 			updatedSudent.get().getCourses().stream().filter(not(student.getCourses()::contains))
-					.forEach(c -> jdbcTemplate.update(RESIGN_FROM_COURSE, student.getId(), c.getId()));
+					.forEach(c -> jdbcTemplate.update(DELETE_FROM_COURSE, student.getId(), c.getId()));
 			student.getCourses().stream().filter(not(updatedSudent.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 		}

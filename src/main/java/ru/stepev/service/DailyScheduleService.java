@@ -10,54 +10,62 @@ import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
-import ru.stepev.model.Student;
-import ru.stepev.model.Teacher;
 
 @Component
 public class DailyScheduleService {
-	
-	private DailyScheduleDao dailyScheduale;
+
+	private DailyScheduleDao dailyScheduleDao;
 	private GroupDao groupDao;
-	
+
 	public DailyScheduleService(DailyScheduleDao dailyScheduale, GroupDao groupDao) {
-		this.dailyScheduale = dailyScheduale;
+		this.dailyScheduleDao = dailyScheduale;
 		this.groupDao = groupDao;
 	}
-	
+
 	public void add(DailySchedule dailySchedule) {
-		dailyScheduale.create(dailySchedule);
+		if (!isDailyScheduleExist(dailySchedule)) {
+			dailyScheduleDao.create(dailySchedule);
+		}
 	}
-	
+
+	private boolean isDailyScheduleExist(DailySchedule dailySchedule) {
+		return dailyScheduleDao.findById(dailySchedule.getId()).isPresent();
+	}
+
 	public void update(DailySchedule dailySchedule) {
-		dailyScheduale.update(dailySchedule);
+		if (isDailyScheduleExist(dailySchedule)) {
+			dailyScheduleDao.update(dailySchedule);
+		}
 	}
-	
-	public void delete(int dailyScheduleId) {
-		dailyScheduale.delete(dailyScheduleId);
+
+	public void delete(DailySchedule dailySchedule) {
+		if (isDailyScheduleExist(dailySchedule)) {
+			dailyScheduleDao.delete(dailySchedule.getId());
+		}
 	}
-	
-	public Optional<DailySchedule> getById(int scheduleId){
-		return dailyScheduale.findById(scheduleId);
+
+	public Optional<DailySchedule> getById(int scheduleId) {
+		return dailyScheduleDao.findById(scheduleId);
 	}
-	
-	public Optional<DailySchedule> getByDate(LocalDate date){
-		return dailyScheduale.findByDate(date);
+
+	public Optional<DailySchedule> getByDate(LocalDate date) {
+		return dailyScheduleDao.findByDate(date);
 	}
-	
-	public List<DailySchedule> getAll(){
-		return dailyScheduale.findAll();
+
+	public List<DailySchedule> getAll() {
+		return dailyScheduleDao.findAll();
 	}
-	
-	public List<DailySchedule> getAllByDatePeriod(LocalDate firstDate, LocalDate lastDate){
-		return dailyScheduale.findAllByDatePeriod(firstDate, lastDate);
+
+	public List<DailySchedule> getAllByDatePeriod(LocalDate firstDate, LocalDate lastDate) {
+		return dailyScheduleDao.findAllByDatePeriod(firstDate, lastDate);
 	}
-	
-	public List<DailySchedule> getScheduleForTeacher(int teacherId, LocalDate firstDate, LocalDate lastDate){
-		return dailyScheduale.findByTeacherIdAndPeriodOfTime(teacherId, firstDate, lastDate);
+
+	public List<DailySchedule> getScheduleForTeacher(int teacherId, LocalDate firstDate, LocalDate lastDate) {
+		return dailyScheduleDao.findByTeacherIdAndPeriodOfTime(teacherId, firstDate, lastDate);
 	}
-	
-	public List<DailySchedule> getScheduleForStudent(int studentId, LocalDate firstDate, LocalDate lastDate){
+
+	public List<DailySchedule> getScheduleForStudent(int studentId, LocalDate firstDate, LocalDate lastDate) {
 		Group group = groupDao.findByStudentId(studentId).get();
-		return dailyScheduale.findByGroupAndPeriodOfTime(group, firstDate, lastDate);
+		return dailyScheduleDao.findByGroupAndPeriodOfTime(group, firstDate, lastDate);
 	}
 }

@@ -3,10 +3,10 @@ package ru.stepev.model;
 import java.time.LocalDate;
 import java.util.List;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class Student extends Person{
-	
-	public Student() {
-	}
 	
 	public Student(int id, int personalNumber,  String firstName, String lastName, LocalDate birthday, String email, Gender gender, String address,
 			List<Course> courses) {

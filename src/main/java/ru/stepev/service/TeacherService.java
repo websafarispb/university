@@ -10,7 +10,7 @@ import ru.stepev.model.Teacher;
 
 @Component
 public class TeacherService {
-	
+
 	private TeacherDao teacherDao;
 
 	public TeacherService(TeacherDao teacherDao) {
@@ -18,22 +18,32 @@ public class TeacherService {
 	}
 
 	public void add(Teacher teacher) {
-		teacherDao.create(teacher);
+		if (!isTeacherExist(teacher)) {
+			teacherDao.create(teacher);
+		}
+	}
+
+	private boolean isTeacherExist(Teacher teacher) {
+		return teacherDao.findById(teacher.getId()).isPresent();
 	}
 
 	public void update(Teacher teacher) {
-		teacherDao.update(teacher);
+		if (isTeacherExist(teacher)) {
+			teacherDao.update(teacher);
+		}
 	}
 
-	public void delete(int teacherId) {
-		teacherDao.delete(teacherId);
+	public void delete(Teacher teacher) {
+		if (isTeacherExist(teacher)) {
+			teacherDao.delete(teacher.getId());
+		}
 	}
 
-	public Optional<Teacher> getById(int teacherId){
+	public Optional<Teacher> getById(int teacherId) {
 		return teacherDao.findById(teacherId);
 	}
 
-	public List<Teacher> getAll(){
+	public List<Teacher> getAll() {
 		return teacherDao.findAll();
 	}
 }

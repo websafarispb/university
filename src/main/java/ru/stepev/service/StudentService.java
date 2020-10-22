@@ -10,38 +10,48 @@ import ru.stepev.model.Student;
 
 @Component
 public class StudentService {
-	
+
 	private StudentDao studentDao;
 
 	public StudentService(StudentDao studentDao) {
 		this.studentDao = studentDao;
 	}
-	
+
 	public void add(Student student) {
-		studentDao.create(student);
+		if (!isStudentExist(student)) {
+			studentDao.create(student);
+		}
+	}
+
+	private boolean isStudentExist(Student student) {
+		return studentDao.findById(student.getId()).isPresent();
 	}
 
 	public void update(Student student) {
-		studentDao.update(student);
+		if (isStudentExist(student)) {
+			studentDao.update(student);
+		}
 	}
 
-	public void delete(int studentId) {
-		studentDao.delete(studentId);
+	public void delete(Student student) {
+		if (isStudentExist(student)) {
+			studentDao.delete(student.getId());
+		}
 	}
 
-	public Optional<Student> getById(int studentId){
+	public Optional<Student> getById(int studentId) {
 		return studentDao.findById(studentId);
 	}
 
-	public List<Student> getAll(){
+	public List<Student> getAll() {
 		return studentDao.findAll();
 	}
 
-	public List<Student> getByFirstAndLastNames(String firstName, String lastName){
+	public List<Student> getByFirstAndLastNames(String firstName, String lastName) {
 		return studentDao.findByFirstAndLastNames(firstName, lastName);
 	}
 
-	public List<Student> getByGroupId(int groupId){
+	public List<Student> getByGroupId(int groupId) {
 		return studentDao.findByGroupId(groupId);
 	}
 }

@@ -17,19 +17,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.stepev.config.TestConfig;
-import ru.stepev.dao.impl.TeacherDaoImpl;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
 import ru.stepev.model.Teacher;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class TeacherDaoTest {
+public class JdbcTeacherDaoTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	@Autowired
-	private TeacherDaoImpl teacherDao;
+	private TeacherDao teacherDao;
 
 	@Test
 	public void givenCreateTeacher_whenCreateTeacher_thenTeacherWasCreated() {
@@ -44,11 +43,10 @@ public class TeacherDaoTest {
 				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
 				teacher.getId(), 1, teacher.getId(), 2, teacher.getId(), 3, teacher.getId(), 4);
 		int expectedRows = countRowsInTable(jdbcTemplate, "TEACHERS") + 1;
-		int expectedRowInTeachersCourses = countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES",
-				inquiry) + 4;
+		int expectedRowInTeachersCourses = countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES", inquiry) + 4;
 
 		teacherDao.create(teacher);
-		
+
 		int actualRows = countRowsInTable(jdbcTemplate, "TEACHERS");
 		assertEquals(expectedRows, actualRows);
 		int actualRowInTeachersCourses = countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES", inquiry);
@@ -88,20 +86,20 @@ public class TeacherDaoTest {
 	@Test
 	public void givenDelete_whenDeleteTeacherById_thenTeacherWasDeleted() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "TEACHERS") - 1;
-		
+
 		teacherDao.delete(4);
-		
+
 		int actualRows = countRowsInTable(jdbcTemplate, "TEACHERS");
 		assertEquals(expectedRows, actualRows);
 	}
 
 	@Test
-	public void givenFindTeacherByIdNotExist_whenNotFindTeacherById_thenGetEmptyOptional(){
-			Optional<Teacher> actual = teacherDao.findById(200);
-			
-			assertThat(actual).isEmpty();
+	public void givenFindTeacherByIdNotExist_whenNotFindTeacherById_thenGetEmptyOptional() {
+		Optional<Teacher> actual = teacherDao.findById(200);
+
+		assertThat(actual).isEmpty();
 	}
-	
+
 	@Test
 	public void givenFindTeacherById_whenFindTeacherById_thenTheacherWasFound() {
 		List<Course> courses = new ArrayList<>();
@@ -113,7 +111,7 @@ public class TeacherDaoTest {
 				Gender.FEMALE, "City19", courses);
 
 		Optional<Teacher> actual = teacherDao.findById(3);
-		
+
 		assertThat(actual).get().isEqualTo(expected);
 	}
 
@@ -127,9 +125,9 @@ public class TeacherDaoTest {
 		List<Course> coursesForUpdatedTeacher = new ArrayList<>();
 		coursesForUpdatedTeacher.add(new Course(3, "Chemistry", "Chem"));
 		coursesForUpdatedTeacher.add(new Course(4, "Physics", "Phy"));
-		
+
 		List<Teacher> actual = teacherDao.findAll();
-		
+
 		List<Teacher> expected = new ArrayList<>();
 		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
 				"City17", courses);
@@ -141,12 +139,12 @@ public class TeacherDaoTest {
 		teacher = new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru", Gender.FEMALE,
 				"City19", courses);
 		expected.add(teacher);
-		teacher = new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Stepanova@mail.ru", Gender.FEMALE,
-				"City11", courses);
-		expected.add(teacher);	
+		teacher = new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Stepanova@mail.ru",
+				Gender.FEMALE, "City11", courses);
+		expected.add(teacher);
 		teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru", Gender.MALE,
 				"City10", courses);
-		expected.add(teacher);	
+		expected.add(teacher);
 		assertThat(expected).isEqualTo(actual);
 	}
 }

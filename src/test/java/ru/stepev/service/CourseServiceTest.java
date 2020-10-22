@@ -10,58 +10,64 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import ru.stepev.config.TestConfig;
 import ru.stepev.dao.CourseDao;
+import ru.stepev.dao.TeacherDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Course;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 public class CourseServiceTest {
 
 	@Mock
 	private CourseDao courseDao;
+	@Mock
+	private TeacherDao teacherDao;
 
 	@InjectMocks
 	private CourseService courseService;
 
-	@Autowired
 	private DataHelper dataHelper;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
+		dataHelper = new DataHelper();
 	}
 
 	@Test
 	public void givenAddCourse_whenAddCourse_thenAddCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.empty());
+		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
 
 		courseService.add(dataHelper.getCourseForTest());
 
-		verify(courseDao, times(1)).create(dataHelper.getCourseForTest());
+		verify(teacherDao, times(1)).findAll();
+		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
+		verify(courseDao, times(1)).create(dataHelper.getCourseForTest());		
 	}
 
 	@Test
 	public void givenUpdateCourse_whenUpdateCourse_thenUpdateCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.of(dataHelper.getCourseForTest()));
+		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
 
 		courseService.update(dataHelper.getCourseForTest());
 
+		verify(teacherDao, times(1)).findAll();
+		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
 		verify(courseDao, times(1)).update(dataHelper.getCourseForTest());
 	}
 
 	@Test
 	public void givenDeleteCourse_whenDeleteCourse_thenDeleteCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.of(dataHelper.getCourseForTest()));
 
-		courseService.delete(dataHelper.getCourseForTest().getId());
+		courseService.delete(dataHelper.getCourseForTest());
 
+		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
 		verify(courseDao, times(1)).delete(dataHelper.getCourseForTest().getId());
 	}
 

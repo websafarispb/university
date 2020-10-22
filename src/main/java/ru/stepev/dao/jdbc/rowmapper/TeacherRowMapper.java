@@ -1,4 +1,4 @@
-package ru.stepev.dao.rowmapper;
+package ru.stepev.dao.jdbc.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class TeacherRowMapper implements RowMapper<Teacher> {
 		teacher.setBirthday(resultSet.getObject("birthday", LocalDate.class));
 		teacher.setEmail(resultSet.getString("email"));
 		teacher.setGender(resultSet.getString("gender"));
-		teacher.setAddres(resultSet.getString("address"));
+		teacher.setAddress(resultSet.getString("address"));
 		teacher.setCourses(courseDao.findByTeacherId(resultSet.getInt("id")));
 		return teacher;
 	}

@@ -1,4 +1,4 @@
-package ru.stepev.dao.impl;
+package ru.stepev.dao.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -12,11 +12,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.LectureDao;
-import ru.stepev.dao.rowmapper.LectureRowMapper;
+import ru.stepev.dao.jdbc.rowmapper.LectureRowMapper;
 import ru.stepev.model.Lecture;
 
 @Component
-public class LectureDaoImpl implements LectureDao{
+public class JdbcLectureDao implements LectureDao {
 
 	private static final String CREATE_LECTURE_QUERY = "INSERT INTO lectures (dailyschedule_id,  local_time, course_id, classroom_id, group_id, teacher_id) VALUES (?, ?, ?, ?, ?, ?)";
 	private static final String UPDATE_BY_LECTURE_ID = "UPDATE lectures SET dailyschedule_id = ?, local_time = ?, course_id = ?, classroom_id = ?, group_id = ?, teacher_id = ? WHERE id = ?";
@@ -28,7 +28,7 @@ public class LectureDaoImpl implements LectureDao{
 	private LectureRowMapper lectureRowMapper;
 	private JdbcTemplate jdbcTemplate;
 
-	public LectureDaoImpl(JdbcTemplate jdbcTemplate, LectureRowMapper lectureRowMapper) {
+	public JdbcLectureDao(JdbcTemplate jdbcTemplate, LectureRowMapper lectureRowMapper) {
 		this.jdbcTemplate = jdbcTemplate;
 		this.lectureRowMapper = lectureRowMapper;
 	}
@@ -50,14 +50,14 @@ public class LectureDaoImpl implements LectureDao{
 	}
 
 	public void update(Lecture lecture) {
-		jdbcTemplate.update(UPDATE_BY_LECTURE_ID, lecture.getDailyScheduleId(),
-				lecture.getTime(), lecture.getCourse().getId(), lecture.getClassRoom().getId(),
-				lecture.getGroup().getId(), lecture.getTeacher().getId(), lecture.getId());
+		jdbcTemplate.update(UPDATE_BY_LECTURE_ID, lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getCourse().getId(), lecture.getClassRoom().getId(), lecture.getGroup().getId(),
+				lecture.getTeacher().getId(), lecture.getId());
 	}
 
 	public void delete(int lectureId) {
 		jdbcTemplate.update(DELETE_LECTURE_BY_ID, lectureId);
-	
+
 	}
 
 	public Optional<Lecture> findById(int lectureId) {

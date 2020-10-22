@@ -10,21 +10,14 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import ru.stepev.config.TestConfig;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Teacher;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestConfig.class)
 public class TeacherServiceTest {
 
 	@Mock
@@ -33,35 +26,41 @@ public class TeacherServiceTest {
 	@InjectMocks
 	private TeacherService teacherService;
 
-	@Autowired
 	private DataHelper dataHelper;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
+		dataHelper = new DataHelper();
 	}
 
 	@Test
 	public void givenAddTeacher_whenAddTeacher_thenAddTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
 
 		teacherService.add(dataHelper.getTeacherForTest());
 
+		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
 		verify(teacherDao, times(1)).create(dataHelper.getTeacherForTest());
 	}
 
 	@Test
 	public void givenUpdateTeacher_whenUpdateTeacher_thenUpdateTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 
 		teacherService.update(dataHelper.getTeacherForTest());
 
+		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
 		verify(teacherDao, times(1)).update(dataHelper.getTeacherForTest());
 	}
 
 	@Test
 	public void givenDeleteTeacher_whenDeleteTeacher_thenDeleteTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 
-		teacherService.delete(dataHelper.getTeacherForTest().getId());
+		teacherService.delete(dataHelper.getTeacherForTest());
 
+		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
 		verify(teacherDao, times(1)).delete(dataHelper.getTeacherForTest().getId());
 	}
 
