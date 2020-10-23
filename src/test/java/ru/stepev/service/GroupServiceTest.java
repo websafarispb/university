@@ -10,15 +10,17 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Group;
 
+@ExtendWith(MockitoExtension.class)
 public class GroupServiceTest {
 
 	@Mock
@@ -33,12 +35,11 @@ public class GroupServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 
 	@Test
-	public void givenGetAllGroup_whenGetAllGroup_thenGetAllGroup() {
+	public void findAllGroup_whenFindAllGroup_thenGetAllGroup() {
 		List<Group> expected = dataHelper.getGroups();
 		when(groupDao.findAll()).thenReturn(dataHelper.getGroups());
 
@@ -49,7 +50,7 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenAddGroup_whenAddGroup_thenAddGroup() {
+	public void givenGroup_whenGroupDoesNotExist_thenAddGroup() {
 		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
 		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
 				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(0)));
@@ -68,7 +69,7 @@ public class GroupServiceTest {
 	}
 	
 	@Test
-	public void givenAddGroupWithWrongData_whenAddGroupWithWrongData_thenNotAddGroup() {
+	public void givenGroupWithWrongData_whenDataWrong_thenNotAddGroup() {
 		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
 		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
 				.thenReturn(Optional.empty());
@@ -87,7 +88,7 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenUpdateGroup_whenUpdateGroup_thenUpdateGroup() {
+	public void givenGroup_whenGroupExist_thenUpdateGroup() {
 		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
 				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
 		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
@@ -107,7 +108,7 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenDeleteGroup_whenDeleteGroup_thenDeleteGroup() {
+	public void givenGroup_whenGroupExist_thenDeleteGroup() {
 		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
 				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
 
@@ -118,7 +119,7 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenGetGroupById_whenGetGroupById_thenGetGroupById() {
+	public void givenGroupId_whenGroupExist_thenGetGroupById() {
 		Optional<Group> expected = Optional.of(dataHelper.getGroupForTest());
 		when(groupDao.findById(1)).thenReturn(Optional.of(dataHelper.getGroupForTest()));
 
@@ -129,7 +130,7 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenGetGroupByStudentId_whenGetGroupByStudentId_thenGetGroupByStudentId() {
+	public void givenStudentId_whenGetGroupExist_thenGetGroupByStudentId() {
 		Optional<Group> expected = Optional.of(dataHelper.getGroupForTest());
 		when(groupDao.findByStudentId(1)).thenReturn(Optional.of(dataHelper.getGroupForTest()));
 

@@ -10,14 +10,16 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Classroom;
 
+@ExtendWith(MockitoExtension.class)
 public class ClassroomServiceTest {
 
 	@Mock
@@ -30,34 +32,31 @@ public class ClassroomServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 
 	@Test
-	public void givenFindAllClassrooms_whenFindAllClassrooms_thenFindAllClassroom() {
+	public void findAllClassrooms_whenFindAllClassrooms_thenGetAllClassroom() {
 		List<Classroom> expected = dataHelper.getClassrooms();
 		when(classroomDao.findAll()).thenReturn(dataHelper.getClassrooms());
 
 		List<Classroom> actual = classroomService.getAll();
 
 		assertThat(actual).isEqualTo(expected);
-		verify(classroomDao).findAll();
 	}
 
 	@Test
-	public void givenFindClassroomById_whenFindClassroom_thenClassroomHasFound() {
+	public void givenClassroomId_whenFindClassroom_thenGetClassroom() {
 		Optional<Classroom> expected = Optional.of(dataHelper.getClassrooms().get(0));
 		when(classroomDao.findById(1)).thenReturn(Optional.of(dataHelper.getClassrooms().get(0)));
 
 		Optional<Classroom> actual = classroomService.getById(1);
 
 		assertThat(expected).isEqualTo(actual);
-		verify(classroomDao).findById(1);
 	}
 
 	@Test
-	public void givenAddClassroom_whenAddClassroom_thenClassroomHasAdded() {
+	public void givenClassroom_whenClassroomDoesNotExist_thenAddClassroom() {
 		when(classroomDao.findById(dataHelper.getClassroomForCreate().getId())).thenReturn(Optional.empty());
 
 		classroomService.add(dataHelper.getClassroomForCreate());
@@ -67,7 +66,7 @@ public class ClassroomServiceTest {
 	}
 
 	@Test
-	public void givenDeleteClassroom_whenDeleteClassroom_thenClassroomWasDeleted() {
+	public void givenClassroom_whenClassroomExist_thenDeleteClassroom() {
 		when(classroomDao.findById(dataHelper.getClassroomForDelete().getId())).thenReturn(Optional.of(dataHelper.getClassroomForDelete()));
 
 		classroomService.delete(dataHelper.getClassroomForDelete());
@@ -77,7 +76,7 @@ public class ClassroomServiceTest {
 	}
 
 	@Test
-	public void givenUpdateClassroom_whenUpdateClassroom_thenClassroomWasUpdated() {
+	public void givenClassroom_whenClassroomExist_thenUpdateClassroom() {
 		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForUpdate()));
 
 		classroomService.update(dataHelper.getClassroomForUpdate());

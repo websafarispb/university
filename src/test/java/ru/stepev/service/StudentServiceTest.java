@@ -11,14 +11,16 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.StudentDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Student;
 
+@ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
 	
 	@Mock
@@ -31,12 +33,11 @@ public class StudentServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 
 	@Test
-	public void givenAddStudent_whenAddStudent_thenAddStudent() {
+	public void givenStudent_whenStudentDoesNotExist_thenAddStudent() {
 		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
 
 		studentService.add(dataHelper.getStudentForTest());
@@ -46,7 +47,7 @@ public class StudentServiceTest {
 	}
 	
 	@Test
-	public void givenUpdateStudent_whenUpdateStudent_thenUpdateStudent() {
+	public void givenStudent_whenStudentExist_thenUpdateStudent() {
 		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
 		studentService.update(dataHelper.getStudentForTest());
@@ -56,7 +57,7 @@ public class StudentServiceTest {
 	}
 	
 	@Test
-	public void givenDeleteStudent_whenDeleteStudent_thenDeleteStudent() {
+	public void givenStudent_whenStudentExist_thenDeleteStudent() {
 		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
 		studentService.delete(dataHelper.getStudentForTest());
@@ -66,7 +67,7 @@ public class StudentServiceTest {
 	}
 	
 	@Test
-	public void givenGetAllStudents_whenGetAllStudents_thenGetAllStudents() {
+	public void findAllStudents_whenFindAllStudents_thenGetAllStudents() {
 
 		List<Student> expected = dataHelper.getStudents();
 		when(studentDao.findAll()).thenReturn(dataHelper.getStudents());
@@ -78,7 +79,7 @@ public class StudentServiceTest {
 	}
 	
 	@Test
-	public void givenGetStudentById_whenGetStudentById_thenGetStudentById() {
+	public void givenStudentId_whenStudentExist_thenGetStudentById() {
 
 		Optional<Student> expected = Optional.of(dataHelper.getStudentForTest());
 		when(studentDao.findById(1)).thenReturn(Optional.of(dataHelper.getStudentForTest()));
@@ -90,7 +91,7 @@ public class StudentServiceTest {
 	}
 	
 	@Test
-	public void givenGetStudentsByFirstAndLastNames_whenGetStudentsByFirstAndLastNames_thenGetStudentsByFirstAndLastNames() {
+	public void givenFirstAndLastNameOfStudents_whenStudentExist_thenGetStudentsByFirstAndLastNames() {
 		Student student = dataHelper.getStudentForTest();
 		List<Student> expected = new ArrayList<>();
 		expected.add(student);
@@ -103,7 +104,7 @@ public class StudentServiceTest {
 	}
 
 	@Test
-	public void givenGetStudentsByGroupId_whenGetStudentsByGroupId_thenGetStudentsByGroupId() {
+	public void givenGroupId_whenStudentsExistInThisGroup_thenGetStudentsByGroupId() {
 
 		List<Student> expected = dataHelper.getStudents().subList(0, 1);
 		when(studentDao.findByGroupId(1)).thenReturn(dataHelper.getStudents().subList(0, 1));

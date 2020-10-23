@@ -1,18 +1,19 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
 import ru.stepev.dao.CourseDao;
@@ -23,6 +24,7 @@ import ru.stepev.dao.TeacherDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Lecture;
 
+@ExtendWith(MockitoExtension.class)
 public class LectureServiceTest {
 
 	@Mock
@@ -45,12 +47,11 @@ public class LectureServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 	
 	@Test
-	public void givenCheckClassroomCanContainGroup_whenCheckClassroomCanContainGroup_thenReturnTrue() {
+	public void givenClassroomAndGroup_whenClassroomCanContainGroup_thenReturnTrue() {
 		boolean possibilityExpected = true;
 
 		boolean possibilityActual = lectureService.isClassroomHasQuiteCapacity(dataHelper.getClassroomForCreate(),
@@ -60,7 +61,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenCheckClassroomCanNotContainGroup_whenCheckClassroomCanNotContainGroup_thenReturnFalse() {
+	public void givenClassroomAndGroup_whenClassroomCanNotContainGroup_thenReturnFalse() {
 		boolean possibilityExpected = false;
 
 		boolean possibilityActual = lectureService.isClassroomHasQuiteCapacity(dataHelper.getClassroomSmall(),
@@ -70,47 +71,47 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenCheckGroupCanDoCourse_whenCheckGroupCanDoCourse_thenReturnTrue() {
+	public void givenGroupAndCourse_whenGroupCanStudyCourse_thenReturnTrue() {
 		boolean possibilityExpected = true;
 
-		boolean possibilityActual = lectureService.isGroupCanDoCourse(dataHelper.getGroupForTest(),
+		boolean possibilityActual = lectureService.isGroupCanStudyCourse(dataHelper.getGroupForTest(),
 				dataHelper.getCorrestLectureForTest().getCourse());
 
 		assertThat(possibilityActual).isEqualTo(possibilityExpected);
 	}
 
 	@Test
-	public void givenCheckGroupCanNotDoCourse_whenCheckGroupCanNotDoCourse_thenReturnFalse() {
+	public void givenGroupAndCourse_whenGroupCanNotStudyCourse_thenReturnFalse() {
 		boolean possibilityExpected = false;
 
-		boolean possibilityActual = lectureService.isGroupCanDoCourse(dataHelper.getSillyGroup(),
+		boolean possibilityActual = lectureService.isGroupCanStudyCourse(dataHelper.getSillyGroup(),
 				dataHelper.getCorrestLectureForTest().getCourse());
 
 		assertThat(possibilityActual).isEqualTo(possibilityExpected);
 	}
 
 	@Test
-	public void givenCheckTeacherCanDoCourse_whenCheckTeacherCanDoCourse_thenReturnTrue() {
+	public void givenTeacherAndCourse_whenTeacherCanTeachCourse_thenReturnTrue() {
 		boolean possibilityExpected = true;
 
-		boolean possibilityActual = lectureService.isTeacherCanDoCourse(
+		boolean possibilityActual = lectureService.isTeacherCanTeachCourse(
 				dataHelper.getCorrestLectureForTest().getTeacher(), dataHelper.getCorrestLectureForTest().getCourse());
 
 		assertThat(possibilityActual).isEqualTo(possibilityExpected);
 	}
 
 	@Test
-	public void givenCheckTeacherCanNotDoCourse_whenCheckTeacherCanNotDoCourse_thenReturnFalse() {
+	public void givenTeacherAndCourse_whenTeacherCanNotTeachCourse_thenReturnFalse() {
 		boolean possibilityExpected = false;
 
-		boolean possibilityActual = lectureService.isTeacherCanDoCourse(dataHelper.getSpecialTeacher(),
+		boolean possibilityActual = lectureService.isTeacherCanTeachCourse(dataHelper.getSpecialTeacher(),
 				dataHelper.getCorrestLectureForTest().getCourse());
 
 		assertThat(possibilityActual).isEqualTo(possibilityExpected);
 	}
 
 	@Test
-	public void givenAddLectureWithAvaliableClassroom_whenAddExistingLectureWithAvaliableClassroom_thenAddLecture() {
+	public void givenLectureWithAvaliableClassroom_whenClassroomIsAvaliable_thenAddLecture() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getLectureWithAvaliableClassroom().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getLectureWithAvaliableClassroom().getDailyScheduleId()))
@@ -126,7 +127,7 @@ public class LectureServiceTest {
 
 		lectureService.add(dataHelper.getLectureWithAvaliableClassroom());
 
-		verify(lectureDao, times(1))
+		verify(lectureDao, times(3))
 				.findByDailyScheduleId(dataHelper.getLectureWithAvaliableClassroom().getDailyScheduleId());
 		verify(dailyScheduleDao, times(1)).findById(dataHelper.getLectureWithAvaliableClassroom().getDailyScheduleId());
 		verify(courseDao, times(1)).findById(dataHelper.getLectureWithAvaliableClassroom().getCourse().getId());
@@ -137,7 +138,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddLectureWithNotAvaliableClassroom_whenAddExistingLectureWithNotAvaliableClassroom_thenLectureNotAdd() {
+	public void givenLectureWithNotAvaliableClassroom_whenClassroomIsNotAvaliable_thenLectureNotAdd() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getLectureWithNotAvaliableClassroom().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getDailyScheduleId()))
@@ -166,7 +167,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddLectureWithAvaliableGroup_whenAddExistingLectureWithAvaliableGroup_thenAddLecture() {
+	public void givenLectureWithAvaliableGroup_whenGroupIsAvaliable_thenAddLecture() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getLectureWithAvaliableGroup().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getLectureWithAvaliableGroup().getDailyScheduleId()))
@@ -182,13 +183,13 @@ public class LectureServiceTest {
 
 		lectureService.add(dataHelper.getLectureWithAvaliableGroup());
 
-		verify(lectureDao, times(1))
+		verify(lectureDao, times(3))
 				.findByDailyScheduleId(dataHelper.getLectureWithAvaliableGroup().getDailyScheduleId());
 		verify(lectureDao, times(1)).create(dataHelper.getLectureWithAvaliableGroup());
 	}
 
 	@Test
-	public void givenAddLectureWithNotAvaliableGroup_whenAddExistingLectureWithNotAvaliableGroup_thenLectureNotAdd() {
+	public void givenLectureWithNotAvaliableGroup_whenGroupIsNotAvaliable_thenLectureNotAdd() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getLectureWithNotAvaliableGroup().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getDailyScheduleId()))
@@ -210,7 +211,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddLectureWithAvaliableTeacher_whenAddExistingLectureWithAvaliableTeacher_thenAddLecture() {
+	public void givenLectureWithAvaliableTeacher_whenTeacherIsAvaliable_thenAddLecture() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
@@ -226,7 +227,7 @@ public class LectureServiceTest {
 
 		lectureService.add(dataHelper.getCorrestLectureForTest());
 
-		verify(lectureDao, times(1)).findByDailyScheduleId(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
+		verify(lectureDao, times(3)).findByDailyScheduleId(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
 		verify(dailyScheduleDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
 		verify(courseDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getCourse().getId());
 		verify(classroomDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId());
@@ -236,7 +237,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddLectureWithNotAvaliableTeacher_whenAddExistingLectureWithNotAvaliableTeacher_thenLectureNotAdd() {
+	public void givenLectureWithNotAvaliableTeacher_whenTeacherIsNotAvaliable_thenLectureNotAdd() {
 		when(lectureDao.findByDailyScheduleId(dataHelper.getWrongLectureForTest().getDailyScheduleId()))
 				.thenReturn(dataHelper.getLectures().subList(8, 10));
 		when(dailyScheduleDao.findById(dataHelper.getWrongLectureForTest().getDailyScheduleId()))
@@ -262,19 +263,9 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddExistingLecture_whenAddExistingLecture_thenLectureNotAdd() {
+	public void givenExistingLecture_whenExistingLecture_thenLectureNotAdd() {
 		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
 				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 
 		lectureService.add(dataHelper.getCorrestLectureForTest());
 
@@ -283,7 +274,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenAddLectureIsNotExist_whenAddLectureIsNotExist_thenAddLecture() {
+	public void givenLectureIsNotExist_whenLectureDoesNotExist_thenAddLecture() {
 		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId())).thenReturn(Optional.empty());
 		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
 				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
@@ -303,7 +294,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenUpdateLecture_whenUpdateLecture_thenUpdateLecture() {
+	public void givenLecture_whenLectureExist_thenUpdateLecture() {
 		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId())).thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
 		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
 				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
@@ -319,7 +310,7 @@ public class LectureServiceTest {
 
 		lectureService.update(dataHelper.getCorrestLectureForTest());
 
-		verify(lectureDao, times(1)).findByDailyScheduleId(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
+		verify(lectureDao, times(3)).findByDailyScheduleId(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
 		verify(dailyScheduleDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId());
 		verify(courseDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getCourse().getId());
 		verify(classroomDao, times(1)).findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId());
@@ -329,7 +320,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenDeleteLecture_whenDeleteLecture_thenDeleteLecture() {
+	public void givenLecture_whenLectureExist_thenDeleteLecture() {
 		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId())).thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
 
 		lectureService.delete(dataHelper.getCorrestLectureForTest());
@@ -339,18 +330,17 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenGetAllLectures_whenGetAllLectures_thenGetAllLectures() {
+	public void findAllLectures_whenFindAllLectures_thenGetAllLectures() {
 		List<Lecture> expected = dataHelper.getLectures();
 		when(lectureDao.findAll()).thenReturn(dataHelper.getLectures());
 
 		List<Lecture> actual = lectureService.getAll();
 
 		assertThat(actual).isEqualTo(expected);
-		verify(lectureDao, times(1)).findAll();
 	}
 
 	@Test
-	public void givenGetLectureById_whenGetLectureById_thenGetLectureById() {
+	public void givenLectureId_whenFindLectureById_thenGetLectureById() {
 		Optional<Lecture> expected = Optional.of(dataHelper.getCorrestLectureForTest());
 		when(lectureDao.findById(9)).thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
 
@@ -361,7 +351,7 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenGetLecturesByDailyScheduleId_whenGetLecturesByDailyScheduleId_thenGetLecturesByDailyScheduleId() {
+	public void givenDailyScheduleId_whenFindLecturesByDailyScheduleId_thenGetLecturesByDailyScheduleId() {
 		List<Lecture> expected = dataHelper.getLectures().subList(0, 1);
 		when(lectureDao.findByDailyScheduleId(1)).thenReturn(dataHelper.getLectures().subList(0, 1));
 

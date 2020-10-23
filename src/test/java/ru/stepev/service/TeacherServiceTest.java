@@ -10,14 +10,16 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.Teacher;
 
+@ExtendWith(MockitoExtension.class)
 public class TeacherServiceTest {
 
 	@Mock
@@ -30,12 +32,11 @@ public class TeacherServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 
 	@Test
-	public void givenAddTeacher_whenAddTeacher_thenAddTeacher() {
+	public void givenTeacher_whenTeacherDoesNotExist_thenAddTeacher() {
 		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
 
 		teacherService.add(dataHelper.getTeacherForTest());
@@ -45,7 +46,7 @@ public class TeacherServiceTest {
 	}
 
 	@Test
-	public void givenUpdateTeacher_whenUpdateTeacher_thenUpdateTeacher() {
+	public void givenTeacher_whenTeacherExist_thenUpdateTeacher() {
 		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 
 		teacherService.update(dataHelper.getTeacherForTest());
@@ -55,7 +56,7 @@ public class TeacherServiceTest {
 	}
 
 	@Test
-	public void givenDeleteTeacher_whenDeleteTeacher_thenDeleteTeacher() {
+	public void givenTeacher_whenTeacherExist_thenDeleteTeacher() {
 		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 
 		teacherService.delete(dataHelper.getTeacherForTest());
@@ -65,7 +66,7 @@ public class TeacherServiceTest {
 	}
 
 	@Test
-	public void givenGetAllTeachers_whenGetAllTeachers_thenGetAllTeachers() {
+	public void findAllTeachers_whenFindAllTeachers_thenGetAllTeachers() {
 		List<Teacher> expected = dataHelper.getTeachers();
 		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
 
@@ -76,7 +77,7 @@ public class TeacherServiceTest {
 	}
 
 	@Test
-	public void givenGetTeacherById_whenGetTeacherById_thenGetTeacherById() {
+	public void givenTeacherId_whenTeacherExist_thenGetTeacherById() {
 		Optional<Teacher> expected = Optional.of(dataHelper.getTeacherForTest());
 		when(teacherDao.findById(1)).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 

@@ -11,15 +11,17 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.jdbc.JdbcGroupDao;
 import ru.stepev.data.DataHelper;
 import ru.stepev.model.DailySchedule;
 
+@ExtendWith(MockitoExtension.class)
 public class DailyScheduleServiceTest {
 
 	@Mock
@@ -35,12 +37,11 @@ public class DailyScheduleServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		dataHelper = new DataHelper();
 	}
 
 	@Test
-	public void givenAddDailySchedule_whenAddDailySchedules_thenAddDailySchedules() {
+	public void givenDailySchedule_whenDailySchedulesDoeNotExist_thenAddDailySchedules() {
 		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.empty());
 
 		dailyScheduleService.add(dataHelper.getDailyScheduleForCreate());
@@ -50,7 +51,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenUpdateDailySchedule_whenUpdateDailySchedules_thenUpdateDailySchedules() {
+	public void givenDailySchedule_whenDailySchedulesExist_thenUpdateDailySchedules() {
 		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
 		dailyScheduleService.update(dataHelper.getDailyScheduleForCreate());
@@ -60,7 +61,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenDeleteDailySchedule_whenDeleteDailySchedules_thenDeleteDailySchedules() {
+	public void givenDailySchedule_whenDailySchedulesExist_thenDeleteDailySchedules() {
 		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
 		dailyScheduleService.delete(dataHelper.getDailyScheduleForCreate());
@@ -70,7 +71,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenFindAllDailySchedules_whenFindAllDailySchedules_thenFindAllDailySchedules() {
+	public void findAllDailySchedules_whenFindAllDailySchedules_thenGetAllDailySchedules() {
 		List<DailySchedule> expected = dataHelper.getDailySchedules();
 
 		when(dailyScheduleDao.findAll()).thenReturn(dataHelper.getDailySchedules());
@@ -78,11 +79,10 @@ public class DailyScheduleServiceTest {
 		List<DailySchedule> actual = dailyScheduleService.getAll();
 
 		assertThat(actual).isEqualTo(expected);
-		verify(dailyScheduleDao, times(1)).findAll();
 	}
 
 	@Test
-	public void givenGetSchedulesByDatePeriod_whenGetSchedulesByDatePeriod_thenGetSchedulesByDatePeriod() {
+	public void givenDatePeriod_whenSchedulesByDatePeriodExist_thenGetSchedulesByDatePeriod() {
 		LocalDate firstDate = LocalDate.of(2020, 9, 7);
 		LocalDate lastDate = LocalDate.of(2020, 9, 11);
 		List<DailySchedule> expected = dataHelper.getDailySchedules();
@@ -95,7 +95,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenGetScheduleForTeacher_whenGetScheduleForTeacher_thenGetScheduleForTeacher() {
+	public void givenTeacherId_whenScheduleForTeacherExist_thenGetScheduleForTeacher() {
 		LocalDate firstDate = LocalDate.of(2020, 9, 7);
 		LocalDate lastDate = LocalDate.of(2020, 9, 10);
 		List<DailySchedule> expected = dataHelper.getDailySchedules().subList(0, 2);
@@ -111,7 +111,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenGetScheduleForStudent_whenGetScheduleForStudent_thenGetScheduleForStudent() {
+	public void givenStudentId_whenScheduleForStudentExist_thenGetScheduleForStudent() {
 		LocalDate firstDate = LocalDate.of(2020, 9, 7);
 		LocalDate lastDate = LocalDate.of(2020, 9, 10);
 		List<DailySchedule> expected = dataHelper.getDailySchedules().subList(0, 3);
@@ -130,7 +130,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenGetScheduleById_whenGetScheduleById_thenGetScheduleById() {
+	public void givenScheduleId_whenScheduleByIdExist_thenGetScheduleById() {
 		DailySchedule expected = dataHelper.getDailySchedules().get(3);
 		when(dailyScheduleDao.findById(dataHelper.getDailySchedules().get(3).getId()))
 				.thenReturn(Optional.of(expected));
@@ -142,7 +142,7 @@ public class DailyScheduleServiceTest {
 	}
 
 	@Test
-	public void givenGetScheduleByDate_whenGetScheduleByDate_thenGetScheduleByDate() {
+	public void givenDate_whenScheduleByDateExist_thenGetScheduleByDate() {
 		LocalDate date = LocalDate.of(2020, 9, 10);
 		DailySchedule expected = dataHelper.getDailySchedules().get(3);
 		when(dailyScheduleDao.findByDate(date)).thenReturn(Optional.of(expected));
