@@ -13,4 +13,5 @@ public interface GroupDao {
 	public Optional<Group> findById(int groupId);
 	public List<Group> findAll();
 	public Optional<Group> findByStudentId(int studentId);
+	public Optional<Group> findByGroupIdAndCourseId(int groupId, int courseId);
 }

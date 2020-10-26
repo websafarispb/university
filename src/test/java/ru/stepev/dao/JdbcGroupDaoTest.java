@@ -124,7 +124,9 @@ public class JdbcGroupDaoTest {
 		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
 				"City18", courses));
 		Group expected = new Group(2, "b2b2", students);
+		
 		Optional<Group> actual = groupDao.findById(2);
+		
 		assertThat(actual).isPresent().get().isEqualTo(expected);
 	}
 
@@ -150,6 +152,23 @@ public class JdbcGroupDaoTest {
 		Group expected = new Group(2, "b2b2", students);
 
 		Optional<Group> actual = groupDao.findByStudentId(2);
+
+		assertThat(actual).get().isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenGroupIdAndCourseId_whenFindGroupByGroupIdAndCourseId_thenGetGroup() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses));
+		Group expected = new Group(2, "b2b2", students);
+		
+		Optional<Group> actual = groupDao.findByGroupIdAndCourseId(2, 1);
 
 		assertThat(actual).get().isEqualTo(expected);
 	}

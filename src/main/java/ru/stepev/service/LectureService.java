@@ -1,6 +1,5 @@
 package ru.stepev.service;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class LectureService {
 	}
 
 	public void add(Lecture lecture) {
-		if (!isLectureExist(lecture) && isDataCorrect(lecture) && isClassroomFree(lecture) && isGroupFree(lecture)
+		if (!isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && isClassroomFree(lecture) && isGroupFree(lecture)
 				&& isTeacherFree(lecture) && isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
 				&& isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse())
 				&& isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup())) {
@@ -48,78 +47,18 @@ public class LectureService {
 	}
 
 	private boolean isGroupFree(Lecture lecture) {
-		List<Lecture> lectures = lectureDao.findByDailyScheduleId(lecture.getDailyScheduleId());
-		if (lectures.size() == 0) {
-			return true;
-		} else {
-			for (Lecture lectureDB : lectures) {
-				LocalTime startTimeLectureDB = lectureDB.getTime();
-				LocalTime finishTimeLectureDB = lectureDB.getTime().plusHours(1);
-				LocalTime startTimeCreatedLecture = lecture.getTime();
-				LocalTime finishTimeCreatedLecture = lecture.getTime().plusHours(1);
-
-				Group groupDB = lectureDB.getGroup();
-				Group groupCreatedLecture = lecture.getGroup();
-
-				if (groupDB.equals(groupCreatedLecture)) {
-					if (startTimeCreatedLecture.isBefore(finishTimeLectureDB)
-							&& finishTimeCreatedLecture.isAfter(startTimeLectureDB)) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+		return lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(),
+				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getGroup().getId()).isEmpty();
 	}
 
 	private boolean isClassroomFree(Lecture lecture) {
-		List<Lecture> lectures = lectureDao.findByDailyScheduleId(lecture.getDailyScheduleId());
-		if (lectures.size() == 0) {
-			return true;
-		} else {
-			for (Lecture lectureDB : lectures) {
-				LocalTime startTimeLectureDB = lectureDB.getTime();
-				LocalTime finishTimeLectureDB = lectureDB.getTime().plusHours(1);
-				LocalTime startTimeCreatedLecture = lecture.getTime();
-				LocalTime finishTimeCreatedLecture = lecture.getTime().plusHours(1);
-
-				Classroom classroomDB = lectureDB.getClassRoom();
-				Classroom classroomCreateedLecture = lecture.getClassRoom();
-
-				if (classroomDB.equals(classroomCreateedLecture)) {
-					if (startTimeCreatedLecture.isBefore(finishTimeLectureDB)
-							&& finishTimeCreatedLecture.isAfter(startTimeLectureDB)) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+		return lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(),
+				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getClassRoom().getId()).isEmpty();
 	}
 
 	private boolean isTeacherFree(Lecture lecture) {
-		List<Lecture> lectures = lectureDao.findByDailyScheduleId(lecture.getDailyScheduleId());
-		if (lectures.size() == 0) {
-			return true;
-		} else {
-			for (Lecture lectureDB : lectures) {
-				LocalTime startTimeLectureDB = lectureDB.getTime();
-				LocalTime finishTimeLectureDB = lectureDB.getTime().plusHours(1);
-				LocalTime startTimeCreatedLecture = lecture.getTime();
-				LocalTime finishTimeCreatedLecture = lecture.getTime().plusHours(1);
-
-				Teacher teacherDB = lectureDB.getTeacher();
-				Teacher teacherCreatedLecture = lecture.getTeacher();
-
-				if (teacherDB.equals(teacherCreatedLecture)) {
-					if (startTimeCreatedLecture.isBefore(finishTimeLectureDB)
-							&& finishTimeCreatedLecture.isAfter(startTimeLectureDB)) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
+		return lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(),
+				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getTeacher().getId()).isEmpty();
 	}
 
 	public boolean isClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
@@ -127,17 +66,14 @@ public class LectureService {
 	}
 
 	public boolean isGroupCanStudyCourse(Group group, Course course) {
-		if (group.getStudents().size() == 0)
-			return false;
-		else
-			return group.getStudents().get(0).getCourses().contains(course);
+		return  groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isPresent();
 	}
 
 	public boolean isTeacherCanTeachCourse(Teacher teacher, Course course) {
 		return teacher.getCourses().contains(course);
 	}
 
-	public boolean isDataCorrect(Lecture lecture) {
+	public boolean checkAllFieldsOfLectureForExist(Lecture lecture) {
 		boolean dailyScheduleExist = dailyScheduleDao.findById(lecture.getDailyScheduleId()).isPresent();
 		boolean courseExist = courseDao.findById(lecture.getCourse().getId()).isPresent();
 		boolean classroomExist = classroomDao.findById(lecture.getClassRoom().getId()).isPresent();
@@ -151,8 +87,8 @@ public class LectureService {
 	}
 
 	public void update(Lecture lecture) {
-		if (isLectureExist(lecture) && isDataCorrect(lecture) && isClassroomFree(lecture) && isGroupFree(lecture)
-				&& isTeacherFree(lecture) && isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
+		if (isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && !isClassroomFree(lecture) && !isGroupFree(lecture)
+				&& !isTeacherFree(lecture) && isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
 				&& isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse())
 				&& isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup())) {
 			lectureDao.update(lecture);

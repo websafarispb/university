@@ -28,6 +28,8 @@ public class JdbcGroupDao implements GroupDao {
 	private static final String UPDATE_BY_GROUP_ID = "UPDATE groups SET group_name = ? WHERE id = ?";
 	private static final String DELETE_GROUP_BY_ID = "DELETE FROM groups WHERE id = ?";
 	private static final String FIND_GROUP_BY_ID = "SELECT * FROM groups WHERE id = ?";
+	private static final String FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID = "SELECT DISTINCT  groups.id, groups.group_name FROM groups,students_groups INNER JOIN  students_courses "
+			+ "ON students_courses.course_id = ?  WHERE students_groups.group_id = ? AND groups.id = ?";
 
 	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -80,6 +82,15 @@ public class JdbcGroupDao implements GroupDao {
 		Object[] objects = new Object[] { studentId };
 		try {
 			return Optional.of(jdbcTemplate.queryForObject(GET_BY_STUDENT_ID, objects, groupRowMapper));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+	}
+	
+	public Optional<Group> findByGroupIdAndCourseId(int groupId, int courseId) {
+		Object[] objects = new Object[] {  courseId, groupId, groupId };
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID, objects, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			return Optional.empty();
 		}

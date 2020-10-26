@@ -143,4 +143,102 @@ public class JdbcLectureDaoTest {
 
 		assertEquals(expected, actual);
 	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndGroupId_whenLectureExist_thenReturnLectureOptional() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
+
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses));
+
+		Course course = new Course(1, "Mathematics", "Math");
+		Classroom classroom = new Classroom(1, "101", 50);
+		Group group = new Group(2, "b2b2", students);
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses);
+		Lecture expected = new Lecture(1, 1, LocalTime.of(9, 0, 0), course, classroom, group, teacher);
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndGroupId(1, LocalTime.of(9, 0, 0),
+				LocalTime.of(9, 0, 0).plusHours(1), group.getId());
+
+		assertThat(actual).get().isEqualTo(expected);
+	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndGroupId_whenLectureDoesNotExist_thenReturnEmptyOptional() {
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndGroupId(1, LocalTime.of(9, 1, 0),
+				LocalTime.of(9, 0, 0).plusHours(1), 2);
+
+		assertThat(actual).isEqualTo(Optional.empty());
+	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndClassroomId_whenLectureExist_thenReturnLectureOptional() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
+
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses));
+
+		Course course = new Course(1, "Mathematics", "Math");
+		Classroom classroom = new Classroom(1, "101", 50);
+		Group group = new Group(2, "b2b2", students);
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses);
+		Lecture expected = new Lecture(1, 1, LocalTime.of(9, 0, 0), course, classroom, group, teacher);
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(1, LocalTime.of(9, 0, 0), LocalTime.of(9, 0, 0).plusHours(1), 1);
+
+		assertThat(actual).get().isEqualTo(expected);
+	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndClassroomId_whenLectureDoesNotExist_thenReturnEmptyOptional() {
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(1, LocalTime.of(9, 1, 0), LocalTime.of(9, 0, 0).plusHours(1), 1);
+
+		assertThat(actual).isEqualTo(Optional.empty());
+	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndTeacherId_whenLectureExist_thenReturnLectureOptional() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add(new Course(3, "Chemistry", "Chem"));
+		courses.add(new Course(4, "Physics", "Phy"));
+
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses));
+
+		Course course = new Course(1, "Mathematics", "Math");
+		Classroom classroom = new Classroom(1, "101", 50);
+		Group group = new Group(2, "b2b2", students);
+		Teacher teacher = new Teacher(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses);
+		Lecture expected = new Lecture(1, 1, LocalTime.of(9, 0, 0), course, classroom, group, teacher);
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(1, LocalTime.of(9, 0, 0), LocalTime.of(9, 0, 0).plusHours(1),  2);
+
+		assertThat(actual).get().isEqualTo(expected);
+	}
+
+	@Test
+	public void findLectureByDailyScheduleIdAndLocalTimeAndTeacherId_whenLectureDoesNotExist_thenReturnEmptyOptional() {
+
+		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(1, LocalTime.of(9, 1, 0), LocalTime.of(9, 0, 0).plusHours(1), 2);
+
+		assertThat(actual).isEqualTo(Optional.empty());
+	}
 }

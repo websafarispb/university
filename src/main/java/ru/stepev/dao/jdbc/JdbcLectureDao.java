@@ -2,6 +2,7 @@ package ru.stepev.dao.jdbc;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,9 @@ public class JdbcLectureDao implements LectureDao {
 	private static final String DELETE_LECTURE_BY_ID = "DELETE  FROM lectures WHERE id = ?";
 	private static final String GET_BY_DAILY_SCHEDULE = "SELECT * FROM lectures WHERE dailyschedule_id = ?";
 	private static final String FIND_LECTURE_BY_ID = "SELECT * FROM lectures WHERE id = ?";
+	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time >=  ? AND local_time < ? AND group_id = ? ";
+	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time >=  ? AND local_time < ? AND classroom_id = ? ";
+	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time>=  ? AND local_time < ? AND teacher_id = ? ";
 
 	private LectureRowMapper lectureRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -75,5 +79,36 @@ public class JdbcLectureDao implements LectureDao {
 
 	public List<Lecture> findAll() {
 		return jdbcTemplate.query(GET_ALL, lectureRowMapper);
+	}
+
+	public Optional<Lecture> findByDailyScheduleIdAndTimeAndGroupId(int dailyScheduleId, LocalTime startTime, LocalTime finishTime, int groupId) {
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, groupId));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public Optional<Lecture> findByDailyScheduleIdAndTimeAndClassroomId(int dailyScheduleId, LocalTime startTime, LocalTime finishTime,
+			int classroomId) {
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, classroomId));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
+	}
+
+	@Override
+	public Optional<Lecture> findByDailyScheduleIdAndTimeAndTeacherId(int dailyScheduleId, LocalTime startTime, LocalTime finishTime,
+			int teacherId) {
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, teacherId));
+		} catch (EmptyResultDataAccessException e) {
+			return Optional.empty();
+		}
 	}
 }
