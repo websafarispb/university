@@ -42,8 +42,16 @@ public class StudentServiceTest {
 
 		studentService.add(dataHelper.getStudentForTest());
 		
-		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
-		verify(studentDao, times(1)).create(dataHelper.getStudentForTest());
+		verify(studentDao).create(dataHelper.getStudentForTest());
+	}
+	
+	@Test
+	public void givenStudent_whenStudentExist_thenDoNotAddStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
+
+		studentService.add(dataHelper.getStudentForTest());
+		
+		verify(studentDao, times(0)).create(dataHelper.getStudentForTest());
 	}
 	
 	@Test
@@ -52,8 +60,16 @@ public class StudentServiceTest {
 
 		studentService.update(dataHelper.getStudentForTest());
 		
-		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
-		verify(studentDao, times(1)).update(dataHelper.getStudentForTest());
+		verify(studentDao).update(dataHelper.getStudentForTest());
+	}
+	
+	@Test
+	public void givenStudent_whenStudentDoesNotExist_thenDoNotUpdateStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
+
+		studentService.update(dataHelper.getStudentForTest());
+		
+		verify(studentDao, times(0)).update(dataHelper.getStudentForTest());
 	}
 	
 	@Test
@@ -62,8 +78,16 @@ public class StudentServiceTest {
 
 		studentService.delete(dataHelper.getStudentForTest());
 		
-		verify(studentDao, times(1)).findById(dataHelper.getStudentForTest().getId());
-		verify(studentDao, times(1)).delete(dataHelper.getStudentForTest().getId());
+		verify(studentDao).delete(dataHelper.getStudentForTest().getId());
+	}
+	
+	@Test
+	public void givenStudent_whenStudentDoeNotExist_thenDoNotDeleteStudent() {
+		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
+
+		studentService.delete(dataHelper.getStudentForTest());
+		
+		verify(studentDao, times(0)).delete(dataHelper.getStudentForTest().getId());
 	}
 	
 	@Test

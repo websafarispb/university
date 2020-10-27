@@ -25,26 +25,21 @@ public class CourseService {
 	}
 
 	public void add(Course course) {
-		if (!isCourseExist(course) && resorcesAreAvailable(course)) {
+		if (!isCourseExist(course) && isTeacherCanTheachCourse(course)) {
 			courseDao.create(course);
 		}
 	}
 
-	private boolean resorcesAreAvailable(Course course) {
-		List<Teacher> availableTeachers = teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course))
-				.collect(toList());
-		if (availableTeachers.size() > 0)
-			return true;
-		else
-			return false;
+	public boolean isTeacherCanTheachCourse(Course course) {
+		return teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() > 0;
 	}
 
-	private boolean isCourseExist(Course course) {
+	public boolean isCourseExist(Course course) {
 		return courseDao.findById(course.getId()).isPresent();
 	}
 
 	public void update(Course course) {
-		if (isCourseExist(course) && resorcesAreAvailable(course)) {
+		if (isCourseExist(course) && isTeacherCanTheachCourse(course)) {
 			courseDao.update(course);
 		}
 	}

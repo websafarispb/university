@@ -61,11 +61,22 @@ public class GroupServiceTest {
 
 		groupService.add(dataHelper.getGroupForTest());
 
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(0).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(1).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(2).getId());
-		verify(groupDao, times(1)).findById(dataHelper.getGroupForTest().getId());
-		verify(groupDao, times(1)).create(dataHelper.getGroupForTest());
+		verify(groupDao).create(dataHelper.getGroupForTest());
+	}
+	
+	@Test
+	public void givenGroup_whenGroupExist_thenDoNotAddGroup() {
+		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
+		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(0)));
+		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(1).getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(1)));
+		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(2).getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(2)));
+
+		groupService.add(dataHelper.getGroupForTest());
+
+		verify(groupDao, times(0)).create(dataHelper.getGroupForTest());
 	}
 	
 	@Test
@@ -80,10 +91,6 @@ public class GroupServiceTest {
 
 		groupService.add(dataHelper.getGroupForTest());
 
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(0).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(1).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(2).getId());
-		verify(groupDao, times(1)).findById(dataHelper.getGroupForTest().getId());
 		verify(groupDao, times(0)).create(dataHelper.getGroupForTest());
 	}
 
@@ -100,11 +107,17 @@ public class GroupServiceTest {
 
 		groupService.update(dataHelper.getGroupForTest());
 
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(0).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(1).getId());
-		verify(studentDao, times(1)).findById(dataHelper.getGroupForTest().getStudents().get(2).getId());
-		verify(groupDao, times(1)).findById(dataHelper.getGroupForTest().getId());
-		verify(groupDao, times(1)).update(dataHelper.getGroupForTest());
+		verify(groupDao).update(dataHelper.getGroupForTest());
+	}
+	
+	@Test
+	public void givenGroup_whenGroupDoesNotExist_thenDoNotUpdateGroup() {
+		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
+				.thenReturn(Optional.empty());
+
+		groupService.update(dataHelper.getGroupForTest());
+
+		verify(groupDao, times(0)).update(dataHelper.getGroupForTest());
 	}
 
 	@Test
@@ -114,8 +127,17 @@ public class GroupServiceTest {
 
 		groupService.delete(dataHelper.getGroupForTest());
 
-		verify(groupDao, times(1)).findById(dataHelper.getGroupForTest().getId());
-		verify(groupDao, times(1)).delete(dataHelper.getGroupForTest().getId());
+		verify(groupDao).delete(dataHelper.getGroupForTest().getId());
+	}
+	
+	@Test
+	public void givenGroup_whenGroupDoesNotExist_thenDoNotDeleteGroup() {
+		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
+				.thenReturn(Optional.empty());
+
+		groupService.delete(dataHelper.getGroupForTest());
+
+		verify(groupDao, times(0)).delete(dataHelper.getGroupForTest().getId());
 	}
 
 	@Test

@@ -41,9 +41,18 @@ public class TeacherServiceTest {
 
 		teacherService.add(dataHelper.getTeacherForTest());
 
-		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
-		verify(teacherDao, times(1)).create(dataHelper.getTeacherForTest());
+		verify(teacherDao).create(dataHelper.getTeacherForTest());
 	}
+	
+	@Test
+	public void givenTeacher_whenTeacherExist_thenDoNotAddTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+
+		teacherService.add(dataHelper.getTeacherForTest());
+
+		verify(teacherDao, times(0)).create(dataHelper.getTeacherForTest());
+	}
+
 
 	@Test
 	public void givenTeacher_whenTeacherExist_thenUpdateTeacher() {
@@ -51,8 +60,16 @@ public class TeacherServiceTest {
 
 		teacherService.update(dataHelper.getTeacherForTest());
 
-		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
-		verify(teacherDao, times(1)).update(dataHelper.getTeacherForTest());
+		verify(teacherDao).update(dataHelper.getTeacherForTest());
+	}
+	
+	@Test
+	public void givenTeacher_whenTeacherDoesNotExist_thenDoNotUpdateTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
+
+		teacherService.update(dataHelper.getTeacherForTest());
+
+		verify(teacherDao, times(0)).update(dataHelper.getTeacherForTest());
 	}
 
 	@Test
@@ -61,8 +78,16 @@ public class TeacherServiceTest {
 
 		teacherService.delete(dataHelper.getTeacherForTest());
 
-		verify(teacherDao, times(1)).findById(dataHelper.getTeacherForTest().getId());
-		verify(teacherDao, times(1)).delete(dataHelper.getTeacherForTest().getId());
+		verify(teacherDao).delete(dataHelper.getTeacherForTest().getId());
+	}
+	
+	@Test
+	public void givenTeacher_whenTeacherDoeNotExist_thenDoNotDeleteTeacher() {
+		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
+
+		teacherService.delete(dataHelper.getTeacherForTest());
+
+		verify(teacherDao, times(0)).delete(dataHelper.getTeacherForTest().getId());
 	}
 
 	@Test

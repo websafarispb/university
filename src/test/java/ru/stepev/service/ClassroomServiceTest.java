@@ -54,6 +54,15 @@ public class ClassroomServiceTest {
 
 		assertThat(expected).isEqualTo(actual);
 	}
+	
+	@Test
+	public void givenClassroom_whenClassroomExist_thenNotAddClassroom() {
+		when(classroomDao.findById(dataHelper.getClassroomForCreate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
+
+		classroomService.add(dataHelper.getClassroomForCreate());
+
+		verify(classroomDao, times(0)).create(dataHelper.getClassroomForCreate());
+	}
 
 	@Test
 	public void givenClassroom_whenClassroomDoesNotExist_thenAddClassroom() {
@@ -61,8 +70,7 @@ public class ClassroomServiceTest {
 
 		classroomService.add(dataHelper.getClassroomForCreate());
 
-		verify(classroomDao, times(1)).findById(dataHelper.getClassroomForCreate().getId());
-		verify(classroomDao, times(1)).create(dataHelper.getClassroomForCreate());
+		verify(classroomDao).create(dataHelper.getClassroomForCreate());
 	}
 
 	@Test
@@ -71,8 +79,16 @@ public class ClassroomServiceTest {
 
 		classroomService.delete(dataHelper.getClassroomForDelete());
 
-		verify(classroomDao, times(1)).findById(dataHelper.getClassroomForDelete().getId());
-		verify(classroomDao, times(1)).delete(dataHelper.getClassroomForDelete().getId());
+		verify(classroomDao).delete(dataHelper.getClassroomForDelete().getId());
+	}
+	
+	@Test
+	public void givenClassroom_whenClassroomDoesNotExist_thenNotDeleteClassroom() {
+		when(classroomDao.findById(dataHelper.getClassroomForDelete().getId())).thenReturn(Optional.empty());
+
+		classroomService.delete(dataHelper.getClassroomForDelete());
+
+		verify(classroomDao, times(0)).delete(dataHelper.getClassroomForDelete().getId());
 	}
 
 	@Test
@@ -81,8 +97,35 @@ public class ClassroomServiceTest {
 
 		classroomService.update(dataHelper.getClassroomForUpdate());
 
-		verify(classroomDao, times(1)).findById(dataHelper.getClassroomForUpdate().getId());
-		verify(classroomDao, times(1)).update(dataHelper.getClassroomForUpdate());
+		verify(classroomDao).update(dataHelper.getClassroomForUpdate());
+	}
+	
+	@Test
+	public void givenClassroom_whenClassroomDoesNotExist_thenNotUpdateClassroom() {
+		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.empty());
+
+		classroomService.update(dataHelper.getClassroomForUpdate());
+
+		verify(classroomDao, times(0)).update(dataHelper.getClassroomForUpdate());
 	}
 
+	@Test
+	public void givenClassroomId_whenClassroomExist_thenReturnTrue() {
+		boolean expected = true;
+		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForUpdate()));
+
+		boolean actual = classroomService.isClassroomExist(dataHelper.getClassroomForUpdate().getId());
+
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenClassroomId_whenClassroomDoesNotExist_thenReturnFalse() {
+		boolean expected = false;
+		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.empty());
+
+		boolean actual = classroomService.isClassroomExist(dataHelper.getClassroomForUpdate().getId());
+
+		assertThat(actual).isEqualTo(expected);
+	}
 }

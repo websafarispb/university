@@ -45,8 +45,16 @@ public class CourseServiceTest {
 
 		courseService.add(dataHelper.getCourseForTest());
 
-		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
-		verify(courseDao, times(1)).create(dataHelper.getCourseForTest());		
+		verify(courseDao).create(dataHelper.getCourseForTest());		
+	}
+	
+	@Test
+	public void givenCourse_whenCourseExist_thenDoNotAddCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.of(dataHelper.getCourseForTest()));
+
+		courseService.add(dataHelper.getCourseForTest());
+
+		verify(courseDao, times(0)).create(dataHelper.getCourseForTest());		
 	}
 
 	@Test
@@ -56,8 +64,16 @@ public class CourseServiceTest {
 
 		courseService.update(dataHelper.getCourseForTest());
 
-		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
-		verify(courseDao, times(1)).update(dataHelper.getCourseForTest());
+		verify(courseDao).update(dataHelper.getCourseForTest());
+	}
+	
+	@Test
+	public void givenCourse_whenCourseDoesNotExist_thenDoNotUpdateCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.empty());
+
+		courseService.update(dataHelper.getCourseForTest());
+
+		verify(courseDao, times(0)).update(dataHelper.getCourseForTest());
 	}
 
 	@Test
@@ -66,8 +82,16 @@ public class CourseServiceTest {
 
 		courseService.delete(dataHelper.getCourseForTest());
 
-		verify(courseDao, times(1)).findById(dataHelper.getCourseForTest().getId());
-		verify(courseDao, times(1)).delete(dataHelper.getCourseForTest().getId());
+		verify(courseDao).delete(dataHelper.getCourseForTest().getId());
+	}
+	
+	@Test
+	public void givenCourse_whenCourseDoesNotExist_thenDoNotDeleteCourse() {
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.empty());
+
+		courseService.delete(dataHelper.getCourseForTest());
+
+		verify(courseDao, times(0)).delete(dataHelper.getCourseForTest().getId());
 	}
 
 	@Test
@@ -78,7 +102,7 @@ public class CourseServiceTest {
 		Optional<Course> actual = courseService.getById(1);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(courseDao, times(1)).findById(1);
+		verify(courseDao).findById(1);
 	}
 
 	@Test
@@ -89,7 +113,7 @@ public class CourseServiceTest {
 		List<Course> actual = courseService.getByStudent(dataHelper.getStudentForTest());
 
 		assertThat(actual).isEqualTo(expected);
-		verify(courseDao, times(1)).findByStudentId(1);
+		verify(courseDao).findByStudentId(1);
 	}
 
 	@Test
@@ -100,6 +124,45 @@ public class CourseServiceTest {
 		List<Course> actual = courseService.getByTeacher(dataHelper.getTeacherForTest());
 
 		assertThat(actual).isEqualTo(expected);
-		verify(courseDao, times(1)).findByTeacherId(1);
+	}
+	
+	@Test
+	public void givenCourse_whenExistTecherCanTeachCourse_thenReturnTrue() {
+		boolean expected = true;
+		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
+		
+		boolean actual = courseService.isTeacherCanTheachCourse(dataHelper.getCourseForTest());
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenCourse_whenDoesNotExistTecherCanTeachCourse_thenReturnFalse() {
+		boolean expected = false;
+		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
+		
+		boolean actual = courseService.isTeacherCanTheachCourse(dataHelper.getSpecialCourse());
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenCourse_whenCourseExist_thenReturnTrue() {
+		boolean expected = true;
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.of(dataHelper.getCourseForTest()));
+		
+		boolean actual = courseService.isCourseExist(dataHelper.getCourseForTest());
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenCourse_whenCourseDoesNotExist_thenReturnFalse() {
+		boolean expected = false;
+		when(courseDao.findById(dataHelper.getCourseForTest().getId())).thenReturn(Optional.empty());
+		
+		boolean actual = courseService.isCourseExist(dataHelper.getCourseForTest());
+		
+		assertThat(actual).isEqualTo(expected);
 	}
 }

@@ -49,8 +49,11 @@ public class DataHelper {
 	private List<Student> sillyStudents;
 	private Classroom classroomSmall;
 	private ArrayList<Course> coursesForTeacher;
+	private String durationOfLecture;
+	private Course specialCourse;
 
 	public DataHelper() {
+		durationOfLecture = "60";
 		classrooms = new ArrayList<>();
 		classrooms.add(new Classroom(1, "101", 50));
 		classrooms.add(new Classroom(2, "102", 40));
@@ -69,6 +72,8 @@ public class DataHelper {
 		courses.add(new Course(4, "Physics", "Phy"));
 
 		courseForTest = new Course(5, "Geography", "Geo");
+		
+		specialCourse = new Course(6, "Informatica", "Inf");
 		
 		coursesForTeacher = new ArrayList<>();
 		coursesForTeacher.add(new Course(1, "Mathematics", "Math"));

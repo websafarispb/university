@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 
 import ru.stepev.dao.ClassroomDao;
 import ru.stepev.dao.CourseDao;
@@ -39,6 +40,9 @@ public class LectureServiceTest {
 	private GroupDao groupDao;
 	@Mock
 	private TeacherDao teacherDao;
+
+	@Mock
+	private Environment environment;
 
 	@InjectMocks
 	private LectureService lectureService;
@@ -318,20 +322,96 @@ public class LectureServiceTest {
 		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
 				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
+		when(environment.getProperty("durationOfLecture")).thenReturn(dataHelper.getDurationOfLecture());
 
 		lectureService.update(dataHelper.getCorrestLectureForTest());
 
 		verify(lectureDao).update(dataHelper.getCorrestLectureForTest());
+	}
+
+	@Test
+	public void givenLecture_whenLectureExistAndClassroomIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = dataHelper.getCorrestLectureForTest();
+		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
+				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
+				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
+		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
+				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
+		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
+		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
+				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getClassRoom().getId()))
+						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+
+		lectureService.update(dataHelper.getCorrestLectureForTest());
+
+		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
+	}
+
+	@Test
+	public void givenLecture_whenLectureExistAndGroupIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = dataHelper.getCorrestLectureForTest();
+		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
+				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
+				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
+		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
+				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
+		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
+		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
+				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getGroup().getId()))
+						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+
+		lectureService.update(dataHelper.getCorrestLectureForTest());
+
+		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
+	}
+
+	@Test
+	public void givenLecture_whenLectureExistAndTeacherIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = dataHelper.getCorrestLectureForTest();
+		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
+				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
+				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
+		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
+				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
+		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
+				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
+		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
+				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusHours(1), lecture.getTeacher().getId()))
+						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+
+		lectureService.update(dataHelper.getCorrestLectureForTest());
+
+		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
 	}
 
 	@Test

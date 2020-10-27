@@ -35,7 +35,7 @@ public class ClassroomService {
 		}
 	}
 
-	private boolean isClassroomExist(int classroomId) {
+	public boolean isClassroomExist(int classroomId) {
 		return classroomDao.findById(classroomId).isPresent();
 	}
 

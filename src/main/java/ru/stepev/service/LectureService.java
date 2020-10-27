@@ -3,6 +3,7 @@ package ru.stepev.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.ClassroomDao;
@@ -26,20 +27,23 @@ public class LectureService {
 	private ClassroomDao classroomDao;
 	private GroupDao groupDao;
 	private TeacherDao teacherDao;
+	private Environment environment;
 
 	public LectureService(DailyScheduleDao dailyScheduleDao, CourseDao courseDao, ClassroomDao classroomDao,
-			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao) {
+			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao, Environment environment) {
 		this.dailyScheduleDao = dailyScheduleDao;
 		this.courseDao = courseDao;
 		this.classroomDao = classroomDao;
 		this.groupDao = groupDao;
 		this.teacherDao = teacherDao;
 		this.lectureDao = lectureDao;
+		this.environment = environment;
 	}
 
 	public void add(Lecture lecture) {
-		if (!isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && isClassroomFree(lecture) && isGroupFree(lecture)
-				&& isTeacherFree(lecture) && isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
+		if (!isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && isClassroomFree(lecture)
+				&& isGroupFree(lecture) && isTeacherFree(lecture)
+				&& isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
 				&& isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse())
 				&& isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup())) {
 			lectureDao.create(lecture);
@@ -47,18 +51,21 @@ public class LectureService {
 	}
 
 	private boolean isGroupFree(Lecture lecture) {
-		return lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(),
-				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getGroup().getId()).isEmpty();
+		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
+		return lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isEmpty();
 	}
 
 	private boolean isClassroomFree(Lecture lecture) {
-		return lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(),
-				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getClassRoom().getId()).isEmpty();
+		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
+		return lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isEmpty();
 	}
 
 	private boolean isTeacherFree(Lecture lecture) {
-		return lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(),
-				lecture.getTime(), lecture.getTime().plusHours(1), lecture.getTeacher().getId()).isEmpty();
+		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
+		return lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isEmpty();
 	}
 
 	public boolean isClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
@@ -66,7 +73,7 @@ public class LectureService {
 	}
 
 	public boolean isGroupCanStudyCourse(Group group, Course course) {
-		return  groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isPresent();
+		return groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isPresent();
 	}
 
 	public boolean isTeacherCanTeachCourse(Teacher teacher, Course course) {
@@ -87,8 +94,9 @@ public class LectureService {
 	}
 
 	public void update(Lecture lecture) {
-		if (isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && !isClassroomFree(lecture) && !isGroupFree(lecture)
-				&& !isTeacherFree(lecture) && isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
+		if (isLectureExist(lecture) && checkAllFieldsOfLectureForExist(lecture) && isClassroomFree(lecture)
+				&& isGroupFree(lecture) && isTeacherFree(lecture)
+				&& isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse())
 				&& isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse())
 				&& isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup())) {
 			lectureDao.update(lecture);

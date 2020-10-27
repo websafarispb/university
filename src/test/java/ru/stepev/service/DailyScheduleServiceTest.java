@@ -46,28 +46,58 @@ public class DailyScheduleServiceTest {
 
 		dailyScheduleService.add(dataHelper.getDailyScheduleForCreate());
 
-		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
-		verify(dailyScheduleDao, times(1)).create(dataHelper.getDailyScheduleForCreate());
+		verify(dailyScheduleDao).create(dataHelper.getDailyScheduleForCreate());
+	}
+
+	@Test
+	public void givenDailySchedule_whenDailySchedulesExist_thenDoNotAddDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+
+		dailyScheduleService.add(dataHelper.getDailyScheduleForCreate());
+
+		verify(dailyScheduleDao, times(0)).create(dataHelper.getDailyScheduleForCreate());
 	}
 
 	@Test
 	public void givenDailySchedule_whenDailySchedulesExist_thenUpdateDailySchedules() {
-		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
 		dailyScheduleService.update(dataHelper.getDailyScheduleForCreate());
 
-		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
-		verify(dailyScheduleDao, times(1)).update(dataHelper.getDailyScheduleForCreate());
+		verify(dailyScheduleDao).update(dataHelper.getDailyScheduleForCreate());
 	}
+	
+	@Test
+	public void givenDailySchedule_whenDailySchedulesDoesNotExist_thenDoNotUpdateDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId()))
+				.thenReturn(Optional.empty());
+
+		dailyScheduleService.update(dataHelper.getDailyScheduleForCreate());
+
+		verify(dailyScheduleDao, times(0)).update(dataHelper.getDailyScheduleForCreate());
+	}
+
 
 	@Test
 	public void givenDailySchedule_whenDailySchedulesExist_thenDeleteDailySchedules() {
-		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId())).thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId()))
+				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
 
 		dailyScheduleService.delete(dataHelper.getDailyScheduleForCreate());
 
-		verify(dailyScheduleDao, times(1)).findById(dataHelper.getDailyScheduleForCreate().getId());
 		verify(dailyScheduleDao, times(1)).delete(dataHelper.getDailyScheduleForCreate().getId());
+	}
+	
+	@Test
+	public void givenDailySchedule_whenDailySchedulesDoesNotExist_thenDoNotDeleteDailySchedules() {
+		when(dailyScheduleDao.findById(dataHelper.getDailyScheduleForCreate().getId()))
+				.thenReturn(Optional.empty());
+
+		dailyScheduleService.delete(dataHelper.getDailyScheduleForCreate());
+
+		verify(dailyScheduleDao, times(0)).delete(dataHelper.getDailyScheduleForCreate().getId());
 	}
 
 	@Test

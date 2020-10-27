@@ -23,7 +23,7 @@ public class GroupService {
 	}
 
 	public void add(Group group) {
-		if (!isGroupExist(group) && isDataCorrect(group)) {
+		if (!isGroupExist(group) && areStudentsExist(group)) {
 			groupDao.create(group);
 		}
 	}
@@ -33,12 +33,12 @@ public class GroupService {
 	}
 
 	public void update(Group group) {
-		if (isGroupExist(group) && isDataCorrect(group)) {
+		if (isGroupExist(group) && areStudentsExist(group)) {
 			groupDao.update(group);
 		}
 	}
 
-	private boolean isDataCorrect(Group group) {
+	private boolean areStudentsExist(Group group) {
 		List<Student> correctStudents = group.getStudents().stream()
 				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
 		return correctStudents.equals(group.getStudents());
