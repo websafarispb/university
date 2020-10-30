@@ -30,14 +30,6 @@ public class CourseService {
 		}
 	}
 
-	public boolean isTeacherCanTheachCourse(Course course) {
-		return teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() > 0;
-	}
-
-	public boolean isCourseExist(Course course) {
-		return courseDao.findById(course.getId()).isPresent();
-	}
-
 	public void update(Course course) {
 		if (isCourseExist(course) && isTeacherCanTheachCourse(course)) {
 			courseDao.update(course);
@@ -66,4 +58,11 @@ public class CourseService {
 		return courseDao.findByStudentId(student.getId());
 	}
 
+	private boolean isTeacherCanTheachCourse(Course course) {
+		return teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() > 0;
+	}
+
+	private boolean isCourseExist(Course course) {
+		return courseDao.findById(course.getId()).isPresent();
+	}
 }

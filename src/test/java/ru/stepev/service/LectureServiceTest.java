@@ -1,20 +1,18 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.env.Environment;
 
 import ru.stepev.dao.ClassroomDao;
 import ru.stepev.dao.CourseDao;
@@ -22,8 +20,9 @@ import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.LectureDao;
 import ru.stepev.dao.TeacherDao;
-import ru.stepev.data.DataHelper;
 import ru.stepev.model.Lecture;
+
+import static ru.stepev.data.DataTest.*;
 
 @ExtendWith(MockitoExtension.class)
 public class LectureServiceTest {
@@ -41,403 +40,263 @@ public class LectureServiceTest {
 	@Mock
 	private TeacherDao teacherDao;
 
-	@Mock
-	private Environment environment;
-
 	@InjectMocks
 	private LectureService lectureService;
 
-	private DataHelper dataHelper;
-
-	@BeforeEach
-	void setUp() {
-		dataHelper = new DataHelper();
-	}
-
 	@Test
-	public void givenClassroomAndGroup_whenClassroomCanContainGroup_thenReturnTrue() {
-		boolean possibilityExpected = true;
-
-		boolean possibilityActual = lectureService.isClassroomHasQuiteCapacity(dataHelper.getClassroomForCreate(),
-				dataHelper.getCorrestLectureForTest().getGroup());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenClassroomAndGroup_whenClassroomCanNotContainGroup_thenReturnFalse() {
-		boolean possibilityExpected = false;
-
-		boolean possibilityActual = lectureService.isClassroomHasQuiteCapacity(dataHelper.getClassroomSmall(),
-				dataHelper.getGroupForTest());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenGroupAndCourse_whenGroupCanStudyCourse_thenReturnTrue() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		boolean possibilityExpected = true;
-		when(groupDao.findByGroupIdAndCourseId(dataHelper.getGroupForTest().getId(), lecture.getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-
-		boolean possibilityActual = lectureService.isGroupCanStudyCourse(dataHelper.getGroupForTest(),
-				dataHelper.getCorrestLectureForTest().getCourse());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenGroupAndCourse_whenGroupCanNotStudyCourse_thenReturnFalse() {
-		boolean possibilityExpected = false;
-
-		boolean possibilityActual = lectureService.isGroupCanStudyCourse(dataHelper.getSillyGroup(),
-				dataHelper.getCorrestLectureForTest().getCourse());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenTeacherAndCourse_whenTeacherCanTeachCourse_thenReturnTrue() {
-		boolean possibilityExpected = true;
-
-		boolean possibilityActual = lectureService.isTeacherCanTeachCourse(
-				dataHelper.getCorrestLectureForTest().getTeacher(), dataHelper.getCorrestLectureForTest().getCourse());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenTeacherAndCourse_whenTeacherCanNotTeachCourse_thenReturnFalse() {
-		boolean possibilityExpected = false;
-
-		boolean possibilityActual = lectureService.isTeacherCanTeachCourse(dataHelper.getSpecialTeacher(),
-				dataHelper.getCorrestLectureForTest().getCourse());
-
-		assertThat(possibilityActual).isEqualTo(possibilityExpected);
-	}
-
-	@Test
-	public void givenLectureWithAvaliableClassroom_whenClassroomIsAvaliable_thenAddLecture() {
-		Lecture lecture = dataHelper.getLectureWithAvaliableClassroom();
-		when(dailyScheduleDao.findById(dataHelper.getLectureWithAvaliableClassroom().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getLectureWithAvaliableClassroom().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getLectureWithAvaliableClassroom().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getLectureWithAvaliableClassroom().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getLectureWithAvaliableClassroom().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithAvaliableClassroom_whenAdd_thenAddLecture() {
+		Lecture lecture = lectureWithAvaliableClassroom;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		lectureService.add(dataHelper.getLectureWithAvaliableClassroom());
+		lectureService.add(lecture);
 
-		verify(lectureDao).create(dataHelper.getLectureWithAvaliableClassroom());
+		verify(lectureDao).create(lecture);
 	}
 
 	@Test
-	public void givenLectureWithNotAvaliableClassroom_whenClassroomIsNotAvaliable_thenLectureNotAdd() {
-		Lecture lecture = dataHelper.getLectureWithNotAvaliableClassroom();
-		when(dailyScheduleDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getLectureWithNotAvaliableClassroom().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithNotAvaliableClassroom_whenAdd_thenLectureNotAdd() {
+		Lecture lecture = lectureWithNotAvaliableClassroom;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId()))
-						.thenReturn(Optional.of(dataHelper.getLectureWithNotAvaliableClassroom()));
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
 
-		lectureService.add(dataHelper.getLectureWithNotAvaliableClassroom());
+		lectureService.add(lecture);
 
-		verify(lectureDao, times(0)).create(dataHelper.getLectureWithNotAvaliableClassroom());
+		verify(lectureDao, never()).create(lecture);
 	}
 
 	@Test
-	public void givenLectureWithAvaliableGroup_whenGroupIsAvaliable_thenAddLecture() {
-		Lecture lecture = dataHelper.getLectureWithAvaliableGroup();
-		when(dailyScheduleDao.findById(dataHelper.getLectureWithAvaliableGroup().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getLectureWithAvaliableGroup().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getLectureWithAvaliableGroup().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getLectureWithAvaliableGroup().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getLectureWithAvaliableGroup().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithAvaliableGroup_whenAdd_thenAddLecture() {
+		Lecture lecture = lectureWithAvaliableGroup;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		lectureService.add(dataHelper.getLectureWithAvaliableGroup());
+		lectureService.add(lecture);
 
-		verify(lectureDao).create(dataHelper.getLectureWithAvaliableGroup());
+		verify(lectureDao).create(lecture);
 	}
 
 	@Test
-	public void givenLectureWithNotAvaliableGroup_whenGroupIsNotAvaliable_thenLectureNotAdd() {
-		Lecture lecture = dataHelper.getLectureWithNotAvaliableGroup();
-		when(dailyScheduleDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getLectureWithNotAvaliableGroup().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithNotAvaliableGroup_whenAdd_thenLectureNotAdd() {
+		Lecture lecture = lectureWithNotAvaliableGroup;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId()))
-						.thenReturn(Optional.of(dataHelper.getLectureWithNotAvaliableClassroom()));
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId()))
+						.thenReturn(Optional.of(lectureWithNotAvaliableClassroom));
 
-		lectureService.add(dataHelper.getLectureWithNotAvaliableGroup());
+		lectureService.add(lecture);
 
-		verify(lectureDao, times(0)).create(dataHelper.getLectureWithNotAvaliableGroup());
+		verify(lectureDao, never()).create(lecture);
 	}
 
 	@Test
-	public void givenLectureWithAvaliableTeacher_whenTeacherIsAvaliable_thenAddLecture() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithAvaliableTeacher_whenAdd_thenAddLecture() {
+		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(correstLectureForTest.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		lectureService.add(dataHelper.getCorrestLectureForTest());
+		lectureService.add(lecture);
 
-		verify(lectureDao).create(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao).create(lecture);
 	}
 
 	@Test
-	public void givenLectureWithNotAvaliableTeacher_whenTeacherIsNotAvaliable_thenLectureNotAdd() {
-		Lecture lecture = dataHelper.getWrongLectureForTest();
-		when(dailyScheduleDao.findById(dataHelper.getWrongLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getWrongLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getWrongLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getWrongLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getWrongLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureWithNotAvaliableTeacher_whenAdd_thenLectureNotAdd() {
+		Lecture lecture = wrongLectureForTest;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId()))
-						.thenReturn(Optional.of(dataHelper.getWrongLectureForTest()));
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
 
-		lectureService.add(dataHelper.getWrongLectureForTest());
+		lectureService.add(lecture);
 
-		verify(lectureDao, times(0)).create(dataHelper.getWrongLectureForTest());
+		verify(lectureDao, never()).create(lecture);
 	}
 
 	@Test
-	public void givenExistingLecture_whenExistingLecture_thenLectureNotAdd() {
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+	public void givenExistingLecture_whenAdd_thenLectureNotAdd() {
+		when(lectureDao.findById(correstLectureForTest.getId())).thenReturn(Optional.of(correstLectureForTest));
 
-		lectureService.add(dataHelper.getCorrestLectureForTest());
+		lectureService.add(correstLectureForTest);
 
-		verify(lectureDao, times(0)).create(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao, never()).create(correstLectureForTest);
 	}
 
 	@Test
-	public void givenLectureIsNotExist_whenLectureDoesNotExist_thenAddLecture() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId())).thenReturn(Optional.empty());
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLectureIsNotExist_whenAdd_thenAddLecture() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.empty());
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		lectureService.add(dataHelper.getCorrestLectureForTest());
+		lectureService.add(lecture);
 
-		verify(lectureDao).create(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao).create(lecture);
 	}
 
 	@Test
-	public void givenLecture_whenLectureExist_thenUpdateLecture() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenExistingLecture_whenUpdate_thenUpdateLecture() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
-		when(environment.getProperty("durationOfLecture")).thenReturn(dataHelper.getDurationOfLecture());
 
-		lectureService.update(dataHelper.getCorrestLectureForTest());
+		lectureService.update(lecture);
 
-		verify(lectureDao).update(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao).update(lecture);
 	}
 
 	@Test
-	public void givenLecture_whenLectureExistAndClassroomIsBusy_thenLectureNotUpdate() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLecture_whenUpdateLectureExistAndClassroomIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
 
-		lectureService.update(dataHelper.getCorrestLectureForTest());
+		lectureService.update(lecture);
 
-		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao, never()).update(lecture);
 	}
 
 	@Test
-	public void givenLecture_whenLectureExistAndGroupIsBusy_thenLectureNotUpdate() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLecture_whenUpdateLectureExistAndGroupIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(correstLectureForTest.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(correstLectureForTest.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.of(lecture));
 
-		lectureService.update(dataHelper.getCorrestLectureForTest());
+		lectureService.update(lecture);
 
-		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao, never()).update(lecture);
 	}
 
 	@Test
-	public void givenLecture_whenLectureExistAndTeacherIsBusy_thenLectureNotUpdate() {
-		Lecture lecture = dataHelper.getCorrestLectureForTest();
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
-		when(dailyScheduleDao.findById(dataHelper.getCorrestLectureForTest().getDailyScheduleId()))
-				.thenReturn(Optional.of(dataHelper.getDailyScheduleForCreate()));
-		when(courseDao.findById(dataHelper.getCorrestLectureForTest().getCourse().getId()))
-				.thenReturn(Optional.of(dataHelper.getCourseForTest()));
-		when(classroomDao.findById(dataHelper.getCorrestLectureForTest().getClassRoom().getId()))
-				.thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
-		when(groupDao.findById(dataHelper.getCorrestLectureForTest().getGroup().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(teacherDao.findById(dataHelper.getCorrestLectureForTest().getTeacher().getId()))
-				.thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+	public void givenLecture_whenUpdateLectureExistAndTeacherIsBusy_thenLectureNotUpdate() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
+		when(dailyScheduleDao.findById(correstLectureForTest.getDailyScheduleId()))
+				.thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getGroup().getId())).thenReturn(Optional.empty());
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusHours(1), lecture.getTeacher().getId()))
-						.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
 
-		lectureService.update(dataHelper.getCorrestLectureForTest());
+		lectureService.update(lecture);
 
-		verify(lectureDao, times(0)).update(dataHelper.getCorrestLectureForTest());
+		verify(lectureDao, never()).update(lecture);
 	}
 
 	@Test
-	public void givenLecture_whenLectureExist_thenDeleteLecture() {
-		when(lectureDao.findById(dataHelper.getCorrestLectureForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+	public void givenLecture_whenDeleteLectureExist_thenDeleteLecture() {
+		when(lectureDao.findById(correstLectureForTest.getId())).thenReturn(Optional.of(correstLectureForTest));
 
-		lectureService.delete(dataHelper.getCorrestLectureForTest());
+		lectureService.delete(correstLectureForTest);
 
-		verify(lectureDao).delete(dataHelper.getCorrestLectureForTest().getId());
+		verify(lectureDao).delete(correstLectureForTest.getId());
 	}
 
 	@Test
-	public void findAllLectures_whenFindAllLectures_thenGetAllLectures() {
-		List<Lecture> expected = dataHelper.getLectures();
-		when(lectureDao.findAll()).thenReturn(dataHelper.getLectures());
+	public void findAllLectures_whenGetAll_thenGetAllLectures() {
+		when(lectureDao.findAll()).thenReturn(expectedLectures);
 
-		List<Lecture> actual = lectureService.getAll();
+		List<Lecture> actualLectures = lectureService.getAll();
 
-		assertThat(actual).isEqualTo(expected);
+		assertThat(actualLectures).isEqualTo(expectedLectures);
 	}
 
 	@Test
-	public void givenLectureId_whenFindLectureById_thenGetLectureById() {
-		Optional<Lecture> expected = Optional.of(dataHelper.getCorrestLectureForTest());
-		when(lectureDao.findById(9)).thenReturn(Optional.of(dataHelper.getCorrestLectureForTest()));
+	public void givenLectureId_whenGetById_thenGetLectureById() {
+		Optional<Lecture> expected = Optional.of(correstLectureForTest);
+		when(lectureDao.findById(9)).thenReturn(Optional.of(correstLectureForTest));
 
 		Optional<Lecture> actual = lectureService.getById(9);
 
@@ -445,9 +304,9 @@ public class LectureServiceTest {
 	}
 
 	@Test
-	public void givenDailyScheduleId_whenFindLecturesByDailyScheduleId_thenGetLecturesByDailyScheduleId() {
-		List<Lecture> expected = dataHelper.getLectures().subList(0, 1);
-		when(lectureDao.findByDailyScheduleId(1)).thenReturn(dataHelper.getLectures().subList(0, 1));
+	public void givenDailyScheduleId_whenGetByDailyScheduleId_thenGetLecturesByDailyScheduleId() {
+		List<Lecture> expected = expectedLectures.subList(0, 1);
+		when(lectureDao.findByDailyScheduleId(1)).thenReturn(expectedLectures.subList(0, 1));
 
 		List<Lecture> actual = lectureService.getByDailyScheduleId(1);
 

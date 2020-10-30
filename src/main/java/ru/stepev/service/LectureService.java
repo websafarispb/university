@@ -3,7 +3,7 @@ package ru.stepev.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import ru.stepev.dao.ClassroomDao;
@@ -27,17 +27,19 @@ public class LectureService {
 	private ClassroomDao classroomDao;
 	private GroupDao groupDao;
 	private TeacherDao teacherDao;
-	private Environment environment;
+	
+	@Value("${durationOfLecture}")
+	private int durationOfLecture;
+	
 
 	public LectureService(DailyScheduleDao dailyScheduleDao, CourseDao courseDao, ClassroomDao classroomDao,
-			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao, Environment environment) {
+			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao) {
 		this.dailyScheduleDao = dailyScheduleDao;
 		this.courseDao = courseDao;
 		this.classroomDao = classroomDao;
 		this.groupDao = groupDao;
 		this.teacherDao = teacherDao;
 		this.lectureDao = lectureDao;
-		this.environment = environment;
 	}
 
 	public void add(Lecture lecture) {
@@ -48,36 +50,6 @@ public class LectureService {
 				&& isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup())) {
 			lectureDao.create(lecture);
 		}
-	}
-
-	private boolean isGroupFree(Lecture lecture) {
-		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
-		return lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isEmpty();
-	}
-
-	private boolean isClassroomFree(Lecture lecture) {
-		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
-		return lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isEmpty();
-	}
-
-	private boolean isTeacherFree(Lecture lecture) {
-		int durationOfLecture = Integer.parseInt(environment.getProperty("durationOfLecture"));
-		return lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isEmpty();
-	}
-
-	public boolean isClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
-		return classRoom.getCapacity() >= group.getStudents().size();
-	}
-
-	public boolean isGroupCanStudyCourse(Group group, Course course) {
-		return groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isPresent();
-	}
-
-	public boolean isTeacherCanTeachCourse(Teacher teacher, Course course) {
-		return teacher.getCourses().contains(course);
 	}
 
 	public boolean checkAllFieldsOfLectureForExist(Lecture lecture) {
@@ -119,5 +91,32 @@ public class LectureService {
 
 	public List<Lecture> getAll() {
 		return lectureDao.findAll();
+	}
+
+	private boolean isGroupFree(Lecture lecture) {
+		return lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isEmpty();
+	}
+
+	private boolean isClassroomFree(Lecture lecture) {
+		return lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isEmpty();
+	}
+
+	private boolean isTeacherFree(Lecture lecture) {
+		return lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isEmpty();
+	}
+
+	private boolean isClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
+		return classRoom.getCapacity() >= group.getStudents().size();
+	}
+
+	private boolean isGroupCanStudyCourse(Group group, Course course) {
+		return groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isPresent();
+	}
+
+	private boolean isTeacherCanTeachCourse(Teacher teacher, Course course) {
+		return teacher.getCourses().contains(course);
 	}
 }

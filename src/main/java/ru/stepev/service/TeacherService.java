@@ -23,10 +23,6 @@ public class TeacherService {
 		}
 	}
 
-	private boolean isTeacherExist(Teacher teacher) {
-		return teacherDao.findById(teacher.getId()).isPresent();
-	}
-
 	public void update(Teacher teacher) {
 		if (isTeacherExist(teacher)) {
 			teacherDao.update(teacher);
@@ -45,5 +41,9 @@ public class TeacherService {
 
 	public List<Teacher> getAll() {
 		return teacherDao.findAll();
+	}
+	
+	private boolean isTeacherExist(Teacher teacher) {
+		return teacherDao.findById(teacher.getId()).isPresent();
 	}
 }

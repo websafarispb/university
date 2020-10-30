@@ -28,20 +28,10 @@ public class GroupService {
 		}
 	}
 
-	private boolean isGroupExist(Group group) {
-		return groupDao.findById(group.getId()).isPresent();
-	}
-
 	public void update(Group group) {
 		if (isGroupExist(group) && areStudentsExist(group)) {
 			groupDao.update(group);
 		}
-	}
-
-	private boolean areStudentsExist(Group group) {
-		List<Student> correctStudents = group.getStudents().stream()
-				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
-		return correctStudents.equals(group.getStudents());
 	}
 
 	public void delete(Group group) {
@@ -62,4 +52,13 @@ public class GroupService {
 		return groupDao.findByStudentId(studentId);
 	}
 
+	private boolean isGroupExist(Group group) {
+		return groupDao.findById(group.getId()).isPresent();
+	}
+
+	private boolean areStudentsExist(Group group) {
+		List<Student> correctStudents = group.getStudents().stream()
+				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
+		return correctStudents.equals(group.getStudents());
+	}
 }

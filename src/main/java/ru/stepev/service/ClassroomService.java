@@ -35,15 +35,15 @@ public class ClassroomService {
 		}
 	}
 
-	public boolean isClassroomExist(int classroomId) {
-		return classroomDao.findById(classroomId).isPresent();
-	}
-
 	public Optional<Classroom> getById(int classroomId) {
 		return classroomDao.findById(classroomId);
 	}
 
 	public List<Classroom> getAll() {
 		return classroomDao.findAll();
+	}
+
+	private boolean isClassroomExist(int classroomId) {
+		return classroomDao.findById(classroomId).isPresent();
 	}
 }

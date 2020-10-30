@@ -23,10 +23,6 @@ public class StudentService {
 		}
 	}
 
-	private boolean isStudentExist(Student student) {
-		return studentDao.findById(student.getId()).isPresent();
-	}
-
 	public void update(Student student) {
 		if (isStudentExist(student)) {
 			studentDao.update(student);
@@ -53,5 +49,9 @@ public class StudentService {
 
 	public List<Student> getByGroupId(int groupId) {
 		return studentDao.findByGroupId(groupId);
+	}
+
+	private boolean isStudentExist(Student student) {
+		return studentDao.findById(student.getId()).isPresent();
 	}
 }

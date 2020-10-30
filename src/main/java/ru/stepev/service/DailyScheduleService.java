@@ -28,10 +28,6 @@ public class DailyScheduleService {
 		}
 	}
 
-	private boolean isDailyScheduleExist(DailySchedule dailySchedule) {
-		return dailyScheduleDao.findById(dailySchedule.getId()).isPresent();
-	}
-
 	public void update(DailySchedule dailySchedule) {
 		if (isDailyScheduleExist(dailySchedule)) {
 			dailyScheduleDao.update(dailySchedule);
@@ -67,5 +63,9 @@ public class DailyScheduleService {
 	public List<DailySchedule> getScheduleForStudent(int studentId, LocalDate firstDate, LocalDate lastDate) {
 		Group group = groupDao.findByStudentId(studentId).get();
 		return dailyScheduleDao.findByGroupAndPeriodOfTime(group, firstDate, lastDate);
+	}
+	
+	private boolean isDailyScheduleExist(DailySchedule dailySchedule) {
+		return dailyScheduleDao.findById(dailySchedule.getId()).isPresent();
 	}
 }

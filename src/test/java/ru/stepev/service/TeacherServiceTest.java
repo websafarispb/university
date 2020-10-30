@@ -1,14 +1,13 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.TeacherDao;
-import ru.stepev.data.DataHelper;
 import ru.stepev.model.Teacher;
+
+import static ru.stepev.data.DataTest.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TeacherServiceTest {
@@ -28,87 +28,76 @@ public class TeacherServiceTest {
 	@InjectMocks
 	private TeacherService teacherService;
 
-	private DataHelper dataHelper;
-
-	@BeforeEach
-	void setUp() {
-		dataHelper = new DataHelper();
-	}
-
 	@Test
 	public void givenTeacher_whenTeacherDoesNotExist_thenAddTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.empty());
 
-		teacherService.add(dataHelper.getTeacherForTest());
+		teacherService.add(teacherForTest);
 
-		verify(teacherDao).create(dataHelper.getTeacherForTest());
+		verify(teacherDao).create(teacherForTest);
 	}
-	
+
 	@Test
 	public void givenTeacher_whenTeacherExist_thenDoNotAddTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.of(teacherForTest));
 
-		teacherService.add(dataHelper.getTeacherForTest());
+		teacherService.add(teacherForTest);
 
-		verify(teacherDao, times(0)).create(dataHelper.getTeacherForTest());
+		verify(teacherDao, never()).create(teacherForTest);
 	}
-
 
 	@Test
 	public void givenTeacher_whenTeacherExist_thenUpdateTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.of(teacherForTest));
 
-		teacherService.update(dataHelper.getTeacherForTest());
+		teacherService.update(teacherForTest);
 
-		verify(teacherDao).update(dataHelper.getTeacherForTest());
+		verify(teacherDao).update(teacherForTest);
 	}
-	
+
 	@Test
 	public void givenTeacher_whenTeacherDoesNotExist_thenDoNotUpdateTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.empty());
 
-		teacherService.update(dataHelper.getTeacherForTest());
+		teacherService.update(teacherForTest);
 
-		verify(teacherDao, times(0)).update(dataHelper.getTeacherForTest());
+		verify(teacherDao, never()).update(teacherForTest);
 	}
 
 	@Test
 	public void givenTeacher_whenTeacherExist_thenDeleteTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.of(teacherForTest));
 
-		teacherService.delete(dataHelper.getTeacherForTest());
+		teacherService.delete(teacherForTest);
 
-		verify(teacherDao).delete(dataHelper.getTeacherForTest().getId());
+		verify(teacherDao).delete(teacherForTest.getId());
 	}
-	
+
 	@Test
 	public void givenTeacher_whenTeacherDoeNotExist_thenDoNotDeleteTeacher() {
-		when(teacherDao.findById(dataHelper.getTeacherForTest().getId())).thenReturn(Optional.empty());
+		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.empty());
 
-		teacherService.delete(dataHelper.getTeacherForTest());
+		teacherService.delete(teacherForTest);
 
-		verify(teacherDao, times(0)).delete(dataHelper.getTeacherForTest().getId());
+		verify(teacherDao, never()).delete(teacherForTest.getId());
 	}
 
 	@Test
 	public void findAllTeachers_whenFindAllTeachers_thenGetAllTeachers() {
-		List<Teacher> expected = dataHelper.getTeachers();
-		when(teacherDao.findAll()).thenReturn(dataHelper.getTeachers());
+		when(teacherDao.findAll()).thenReturn(expectedTeachers);
 
-		List<Teacher> actual = teacherService.getAll();
+		List<Teacher> actualTeachers = teacherService.getAll();
 
-		assertThat(actual).isEqualTo(expected);
-		verify(teacherDao, times(1)).findAll();
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
 	}
 
 	@Test
 	public void givenTeacherId_whenTeacherExist_thenGetTeacherById() {
-		Optional<Teacher> expected = Optional.of(dataHelper.getTeacherForTest());
-		when(teacherDao.findById(1)).thenReturn(Optional.of(dataHelper.getTeacherForTest()));
+		Optional<Teacher> expected = Optional.of(teacherForTest);
+		when(teacherDao.findById(1)).thenReturn(Optional.of(teacherForTest));
 
 		Optional<Teacher> actual = teacherService.getById(1);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(teacherDao, times(1)).findById(1);
 	}
 }

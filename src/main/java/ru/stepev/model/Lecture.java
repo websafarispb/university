@@ -3,12 +3,14 @@ package ru.stepev.model;
 import java.time.LocalTime;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Lecture {
 
 	private int id;
@@ -18,12 +20,6 @@ public class Lecture {
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
-	
-	@Override
-	public String toString() {
-		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
-				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
-	}
 
 	@Override
 	public int hashCode() {

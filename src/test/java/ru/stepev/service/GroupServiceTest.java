@@ -3,12 +3,12 @@ package ru.stepev.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,8 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
-import ru.stepev.data.DataHelper;
 import ru.stepev.model.Group;
+
+import static ru.stepev.data.DataTest.*;
 
 @ExtendWith(MockitoExtension.class)
 public class GroupServiceTest {
@@ -31,119 +32,104 @@ public class GroupServiceTest {
 	@InjectMocks
 	private GroupService groupService;
 
-	private DataHelper dataHelper;
+	@Test
+	public void findAllGroup_whenGetAll_thenGetAllGroup() {
+		when(groupDao.findAll()).thenReturn(expectedGroups);
 
-	@BeforeEach
-	void setUp() {
-		dataHelper = new DataHelper();
+		List<Group> actualGroups = groupService.getAll();
+
+		assertThat(actualGroups).isEqualTo(expectedGroups);
 	}
 
 	@Test
-	public void findAllGroup_whenFindAllGroup_thenGetAllGroup() {
-		List<Group> expected = dataHelper.getGroups();
-		when(groupDao.findAll()).thenReturn(dataHelper.getGroups());
+	public void givenGroup_whenAddGroupDoesNotExist_thenAddGroup() {
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
+		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
+		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
 
-		List<Group> actual = groupService.getAll();
+		groupService.add(groupForTest);
 
-		assertThat(actual).isEqualTo(expected);
-		verify(groupDao, times(1)).findAll();
-	}
-
-	@Test
-	public void givenGroup_whenGroupDoesNotExist_thenAddGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(0)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(1).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(1)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(2).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(2)));
-
-		groupService.add(dataHelper.getGroupForTest());
-
-		verify(groupDao).create(dataHelper.getGroupForTest());
+		verify(groupDao).create(groupForTest);
 	}
 	
 	@Test
-	public void givenGroup_whenGroupExist_thenDoNotAddGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(0)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(1).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(1)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(2).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(2)));
+	public void givenGroup_whenAddGroupExist_thenDoNotAddGroup() {
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
 
-		groupService.add(dataHelper.getGroupForTest());
+		groupService.add(groupForTest);
 
-		verify(groupDao, times(0)).create(dataHelper.getGroupForTest());
+		verify(groupDao, never()).create(groupForTest);
 	}
 	
 	@Test
-	public void givenGroupWithWrongData_whenDataWrong_thenNotAddGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId())).thenReturn(Optional.empty());
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
+	public void givenGroupWithWrongData_whenAddDataWrong_thenNotAddGroup() {
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
 				.thenReturn(Optional.empty());
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(1).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(1)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(2).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(2)));
+		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
+		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
 
-		groupService.add(dataHelper.getGroupForTest());
+		groupService.add(groupForTest);
 
-		verify(groupDao, times(0)).create(dataHelper.getGroupForTest());
+		verify(groupDao, never()).create(groupForTest);
 	}
 
 	@Test
-	public void givenGroup_whenGroupExist_thenUpdateGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(0).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(0)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(1).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(1)));
-		when(studentDao.findById(dataHelper.getGroupForTest().getStudents().get(2).getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest().getStudents().get(2)));
+	public void givenGroup_whenUpdateGroupExist_thenUpdateGroup() {
+		when(groupDao.findById(groupForTest.getId()))
+				.thenReturn(Optional.of(groupForTest));
+		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
+		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
+		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
+				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
 
-		groupService.update(dataHelper.getGroupForTest());
+		groupService.update(groupForTest);
 
-		verify(groupDao).update(dataHelper.getGroupForTest());
+		verify(groupDao).update(groupForTest);
 	}
 	
 	@Test
-	public void givenGroup_whenGroupDoesNotExist_thenDoNotUpdateGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
+	public void givenGroup_whenUpdateGroupDoesNotExist_thenDoNotUpdateGroup() {
+		when(groupDao.findById(groupForTest.getId()))
 				.thenReturn(Optional.empty());
 
-		groupService.update(dataHelper.getGroupForTest());
+		groupService.update(groupForTest);
 
-		verify(groupDao, times(0)).update(dataHelper.getGroupForTest());
+		verify(groupDao, never()).update(groupForTest);
 	}
 
 	@Test
-	public void givenGroup_whenGroupExist_thenDeleteGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
-				.thenReturn(Optional.of(dataHelper.getGroupForTest()));
+	public void givenGroup_whenDeleteGroupExist_thenDeleteGroup() {
+		when(groupDao.findById(groupForTest.getId()))
+				.thenReturn(Optional.of(groupForTest));
 
-		groupService.delete(dataHelper.getGroupForTest());
+		groupService.delete(groupForTest);
 
-		verify(groupDao).delete(dataHelper.getGroupForTest().getId());
+		verify(groupDao).delete(groupForTest.getId());
 	}
 	
 	@Test
-	public void givenGroup_whenGroupDoesNotExist_thenDoNotDeleteGroup() {
-		when(groupDao.findById(dataHelper.getGroupForTest().getId()))
+	public void givenGroup_whenDeleteGroupDoesNotExist_thenDoNotDeleteGroup() {
+		when(groupDao.findById(groupForTest.getId()))
 				.thenReturn(Optional.empty());
 
-		groupService.delete(dataHelper.getGroupForTest());
+		groupService.delete(groupForTest);
 
-		verify(groupDao, times(0)).delete(dataHelper.getGroupForTest().getId());
+		verify(groupDao, never()).delete(groupForTest.getId());
 	}
 
 	@Test
-	public void givenGroupId_whenGroupExist_thenGetGroupById() {
-		Optional<Group> expected = Optional.of(dataHelper.getGroupForTest());
-		when(groupDao.findById(1)).thenReturn(Optional.of(dataHelper.getGroupForTest()));
+	public void givenGroupId_whenGetById_thenGetGroup() {
+		Optional<Group> expected = Optional.of(groupForTest);
+		when(groupDao.findById(1)).thenReturn(Optional.of(groupForTest));
 
 		Optional<Group> actual = groupService.getById(1);
 
@@ -152,9 +138,9 @@ public class GroupServiceTest {
 	}
 
 	@Test
-	public void givenStudentId_whenGetGroupExist_thenGetGroupByStudentId() {
-		Optional<Group> expected = Optional.of(dataHelper.getGroupForTest());
-		when(groupDao.findByStudentId(1)).thenReturn(Optional.of(dataHelper.getGroupForTest()));
+	public void givenStudentId_whenFindByStudentId_thenGetGroup() {
+		Optional<Group> expected = Optional.of(groupForTest);
+		when(groupDao.findByStudentId(1)).thenReturn(Optional.of(groupForTest));
 
 		Optional<Group> actual = groupService.findByStudentId(1);
 

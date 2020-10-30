@@ -3,12 +3,14 @@ package ru.stepev.model;
 import java.util.*;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Group {
 
 	private int id;

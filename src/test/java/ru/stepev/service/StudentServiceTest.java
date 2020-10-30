@@ -1,7 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,106 +16,95 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.StudentDao;
-import ru.stepev.data.DataHelper;
 import ru.stepev.model.Student;
+
+import static ru.stepev.data.DataTest.*;
 
 @ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
-	
+
 	@Mock
 	private StudentDao studentDao;
 
 	@InjectMocks
 	private StudentService studentService;
 
-	private DataHelper dataHelper;
+	@Test
+	public void givenStudent_whenAddStudentDoesNotExist_thenAddStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
 
-	@BeforeEach
-	void setUp() {
-		dataHelper = new DataHelper();
+		studentService.add(studentForTest);
+
+		verify(studentDao).create(studentForTest);
 	}
 
 	@Test
-	public void givenStudent_whenStudentDoesNotExist_thenAddStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
+	public void givenStudent_whenAddStudentExist_thenDoNotAddStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
 
-		studentService.add(dataHelper.getStudentForTest());
-		
-		verify(studentDao).create(dataHelper.getStudentForTest());
+		studentService.add(studentForTest);
+
+		verify(studentDao, never()).create(studentForTest);
 	}
-	
-	@Test
-	public void givenStudent_whenStudentExist_thenDoNotAddStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
-		studentService.add(dataHelper.getStudentForTest());
-		
-		verify(studentDao, times(0)).create(dataHelper.getStudentForTest());
+	@Test
+	public void givenStudent_whenUpdateStudentExist_thenUpdateStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
+
+		studentService.update(studentForTest);
+
+		verify(studentDao).update(studentForTest);
 	}
-	
-	@Test
-	public void givenStudent_whenStudentExist_thenUpdateStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
-		studentService.update(dataHelper.getStudentForTest());
-		
-		verify(studentDao).update(dataHelper.getStudentForTest());
+	@Test
+	public void givenStudent_whenUpdateStudentDoesNotExist_thenDoNotUpdateStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
+
+		studentService.update(studentForTest);
+
+		verify(studentDao, never()).update(studentForTest);
 	}
-	
-	@Test
-	public void givenStudent_whenStudentDoesNotExist_thenDoNotUpdateStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
 
-		studentService.update(dataHelper.getStudentForTest());
-		
-		verify(studentDao, times(0)).update(dataHelper.getStudentForTest());
+	@Test
+	public void givenStudent_whenDeleteStudentExist_thenDeleteStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
+
+		studentService.delete(studentForTest);
+
+		verify(studentDao).delete(studentForTest.getId());
 	}
-	
-	@Test
-	public void givenStudent_whenStudentExist_thenDeleteStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.of(dataHelper.getStudentForTest()));
 
-		studentService.delete(dataHelper.getStudentForTest());
-		
-		verify(studentDao).delete(dataHelper.getStudentForTest().getId());
+	@Test
+	public void givenStudent_whenDeleteStudentDoeNotExist_thenDoNotDeleteStudent() {
+		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
+
+		studentService.delete(studentForTest);
+
+		verify(studentDao, never()).delete(studentForTest.getId());
 	}
-	
-	@Test
-	public void givenStudent_whenStudentDoeNotExist_thenDoNotDeleteStudent() {
-		when(studentDao.findById(dataHelper.getStudentForTest().getId())).thenReturn(Optional.empty());
 
-		studentService.delete(dataHelper.getStudentForTest());
-		
-		verify(studentDao, times(0)).delete(dataHelper.getStudentForTest().getId());
+	@Test
+	public void findAllStudents_whenGetAll_thenGetAllStudents() {
+		when(studentDao.findAll()).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAll();
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
 	}
-	
+
 	@Test
-	public void findAllStudents_whenFindAllStudents_thenGetAllStudents() {
-
-		List<Student> expected = dataHelper.getStudents();
-		when(studentDao.findAll()).thenReturn(dataHelper.getStudents());
-
-		List<Student> actual = studentService.getAll();
-
-		assertThat(actual).isEqualTo(expected);
-		verify(studentDao, times(1)).findAll();
-	}
-	
-	@Test
-	public void givenStudentId_whenStudentExist_thenGetStudentById() {
-
-		Optional<Student> expected = Optional.of(dataHelper.getStudentForTest());
-		when(studentDao.findById(1)).thenReturn(Optional.of(dataHelper.getStudentForTest()));
+	public void givenStudentId_whenGetById_thenGetStudentById() {
+		Optional<Student> expected = Optional.of(studentForTest);
+		when(studentDao.findById(1)).thenReturn(Optional.of(studentForTest));
 
 		Optional<Student> actual = studentService.getById(1);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(studentDao, times(1)).findById(1);
 	}
-	
+
 	@Test
-	public void givenFirstAndLastNameOfStudents_whenStudentExist_thenGetStudentsByFirstAndLastNames() {
-		Student student = dataHelper.getStudentForTest();
+	public void givenFirstAndLastNameOfStudents_whenGetByFirstAndLastNames_thenGetStudentsByFirstAndLastNames() {
+		Student student = studentForTest;
 		List<Student> expected = new ArrayList<>();
 		expected.add(student);
 		when(studentDao.findByFirstAndLastNames(student.getFirstName(), student.getLastName())).thenReturn(expected);
@@ -124,18 +112,15 @@ public class StudentServiceTest {
 		List<Student> actual = studentService.getByFirstAndLastNames(student.getFirstName(), student.getLastName());
 
 		assertThat(actual).isEqualTo(expected);
-		verify(studentDao, times(1)).findByFirstAndLastNames(student.getFirstName(), student.getLastName());
 	}
 
 	@Test
-	public void givenGroupId_whenStudentsExistInThisGroup_thenGetStudentsByGroupId() {
-
-		List<Student> expected = dataHelper.getStudents().subList(0, 1);
-		when(studentDao.findByGroupId(1)).thenReturn(dataHelper.getStudents().subList(0, 1));
+	public void givenGroupId_whenGetByGroupId_thenGetStudentsByGroupId() {
+		List<Student> expected = expectedStudents.subList(0, 1);
+		when(studentDao.findByGroupId(1)).thenReturn(expectedStudents.subList(0, 1));
 
 		List<Student> actual = studentService.getByGroupId(1);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(studentDao, times(1)).findByGroupId(1);
 	}
 }

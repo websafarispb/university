@@ -3,12 +3,11 @@ package ru.stepev.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
-import ru.stepev.data.DataHelper;
 import ru.stepev.model.Classroom;
+
+import static ru.stepev.data.DataTest.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ClassroomServiceTest {
@@ -28,27 +28,19 @@ public class ClassroomServiceTest {
 	@InjectMocks
 	private ClassroomService classroomService;
 
-	private DataHelper dataHelper;
+	@Test
+	public void findAllClassrooms_whenGetAllClassrooms_thenGetAllClassroom() {
+		when(classroomDao.findAll()).thenReturn(expectedClassrooms);
 
-	@BeforeEach
-	void setUp() {
-		dataHelper = new DataHelper();
+		List<Classroom> actualClassrooms = classroomService.getAll();
+
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
 	}
 
 	@Test
-	public void findAllClassrooms_whenFindAllClassrooms_thenGetAllClassroom() {
-		List<Classroom> expected = dataHelper.getClassrooms();
-		when(classroomDao.findAll()).thenReturn(dataHelper.getClassrooms());
-
-		List<Classroom> actual = classroomService.getAll();
-
-		assertThat(actual).isEqualTo(expected);
-	}
-
-	@Test
-	public void givenClassroomId_whenFindClassroom_thenGetClassroom() {
-		Optional<Classroom> expected = Optional.of(dataHelper.getClassrooms().get(0));
-		when(classroomDao.findById(1)).thenReturn(Optional.of(dataHelper.getClassrooms().get(0)));
+	public void givenClassroomId_whenGetByIdClassroom_thenGetClassroom() {
+		Optional<Classroom> expected = Optional.of(expectedClassrooms.get(0));
+		when(classroomDao.findById(1)).thenReturn(Optional.of(expectedClassrooms.get(0)));
 
 		Optional<Classroom> actual = classroomService.getById(1);
 
@@ -56,76 +48,56 @@ public class ClassroomServiceTest {
 	}
 	
 	@Test
-	public void givenClassroom_whenClassroomExist_thenNotAddClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForCreate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForCreate()));
+	public void givenClassroom_whenAddClassroomExist_thenNotAddClassroom() {
+		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.of(classroomForCreate));
 
-		classroomService.add(dataHelper.getClassroomForCreate());
+		classroomService.add(classroomForCreate);
 
-		verify(classroomDao, times(0)).create(dataHelper.getClassroomForCreate());
+		verify(classroomDao, never()).create(classroomForCreate);
 	}
 
 	@Test
-	public void givenClassroom_whenClassroomDoesNotExist_thenAddClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForCreate().getId())).thenReturn(Optional.empty());
+	public void givenClassroom_whenAddClassroomDoesNotExist_thenAddClassroom() {
+		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.empty());
 
-		classroomService.add(dataHelper.getClassroomForCreate());
+		classroomService.add(classroomForCreate);
 
-		verify(classroomDao).create(dataHelper.getClassroomForCreate());
+		verify(classroomDao).create(classroomForCreate);
 	}
 
 	@Test
-	public void givenClassroom_whenClassroomExist_thenDeleteClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForDelete().getId())).thenReturn(Optional.of(dataHelper.getClassroomForDelete()));
+	public void givenClassroom_whenDeleteClassroomExist_thenDeleteClassroom() {
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
 
-		classroomService.delete(dataHelper.getClassroomForDelete());
+		classroomService.delete(classroomForDelete);
 
-		verify(classroomDao).delete(dataHelper.getClassroomForDelete().getId());
-	}
-	
-	@Test
-	public void givenClassroom_whenClassroomDoesNotExist_thenNotDeleteClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForDelete().getId())).thenReturn(Optional.empty());
-
-		classroomService.delete(dataHelper.getClassroomForDelete());
-
-		verify(classroomDao, times(0)).delete(dataHelper.getClassroomForDelete().getId());
-	}
-
-	@Test
-	public void givenClassroom_whenClassroomExist_thenUpdateClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForUpdate()));
-
-		classroomService.update(dataHelper.getClassroomForUpdate());
-
-		verify(classroomDao).update(dataHelper.getClassroomForUpdate());
+		verify(classroomDao).delete(classroomForDelete.getId());
 	}
 	
 	@Test
-	public void givenClassroom_whenClassroomDoesNotExist_thenNotUpdateClassroom() {
-		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.empty());
+	public void givenClassroom_whenDeleteClassroomDoesNotExist_thenNotDeleteClassroom() {
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.empty());
 
-		classroomService.update(dataHelper.getClassroomForUpdate());
+		classroomService.delete(classroomForDelete);
 
-		verify(classroomDao, times(0)).update(dataHelper.getClassroomForUpdate());
+		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
 	@Test
-	public void givenClassroomId_whenClassroomExist_thenReturnTrue() {
-		boolean expected = true;
-		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.of(dataHelper.getClassroomForUpdate()));
+	public void givenClassroom_whenUpdateClassroomExist_thenUpdateClassroom() {
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
 
-		boolean actual = classroomService.isClassroomExist(dataHelper.getClassroomForUpdate().getId());
+		classroomService.update(classroomForDelete);
 
-		assertThat(actual).isEqualTo(expected);
+		verify(classroomDao).update(classroomForDelete);
 	}
 	
 	@Test
-	public void givenClassroomId_whenClassroomDoesNotExist_thenReturnFalse() {
-		boolean expected = false;
-		when(classroomDao.findById(dataHelper.getClassroomForUpdate().getId())).thenReturn(Optional.empty());
+	public void givenClassroom_whenUpdateClassroomDoesNotExist_thenNotUpdateClassroom() {
+		when(classroomDao.findById(classroomForUpdate.getId())).thenReturn(Optional.empty());
 
-		boolean actual = classroomService.isClassroomExist(dataHelper.getClassroomForUpdate().getId());
+		classroomService.update(classroomForUpdate);
 
-		assertThat(actual).isEqualTo(expected);
+		verify(classroomDao, never()).update(classroomForUpdate);
 	}
 }
