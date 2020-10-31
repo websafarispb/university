@@ -2,6 +2,15 @@ package ru.stepev.model;
 
 import java.time.LocalTime;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Lecture {
 
 	private int id;
@@ -11,82 +20,6 @@ public class Lecture {
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
-	
-	public Lecture() {
-	}
-	
-	public Lecture(int id, int dailyScheduleId,  LocalTime time, Course course, Classroom classRoom, Group group,
-			Teacher teacher) {
-		this.id = id;
-		this.dailyScheduleId = dailyScheduleId;
-		this.time = time;
-		this.course = course;
-		this.classRoom = classRoom;
-		this.group = group;
-		this.teacher = teacher;
-	}
-	
-	public int getDailyScheduleId() {
-		return dailyScheduleId;
-	}
-
-	public void setDailyScheduleId(int dailyScheduleId) {
-		this.dailyScheduleId = dailyScheduleId;
-	}
-
-	public LocalTime getTime() {
-		return time;
-	}
-
-	public void setTime(LocalTime time) {
-		this.time = time;
-	}
-
-	public Course getCourse() {
-		return course;
-	}
-
-	public void setCourse(Course course) {
-		this.course = course;
-	}
-
-	public Classroom getClassRoom() {
-		return classRoom;
-	}
-
-	public void setClassRoom(Classroom classRoom) {
-		this.classRoom = classRoom;
-	}
-
-	public Group getGroup() {
-		return group;
-	}
-
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	public Teacher getTeacher() {
-		return teacher;
-	}
-
-	public void setTeacher(Teacher teacher) {
-		this.teacher = teacher;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-	
-	@Override
-	public String toString() {
-		return "Lecture [id=" + id + ", dailyScheduleId=" + dailyScheduleId + ", time=" + time
-				+ ", course=" + course.getName() + ", classRoom=" + classRoom.getAddress() + ", group=" + group + ", teacher=" + teacher.lastName + "]"  + System.lineSeparator();
-	}
 
 	@Override
 	public int hashCode() {

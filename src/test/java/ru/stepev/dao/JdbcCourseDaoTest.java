@@ -15,14 +15,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-
 import ru.stepev.config.TestConfig;
-import ru.stepev.dao.CourseDao;
 import ru.stepev.model.Course;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class CourseDaoTest {
+public class JdbcCourseDaoTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -47,9 +45,10 @@ public class CourseDaoTest {
 		Course updatedCourse = new Course(4, "History", "History description");
 		int expectedRows = countRowsInTableWhere(jdbcTemplate, "COURSES",
 				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
-						updatedCourse.getName(), updatedCourse.getDescription())) + 1;
+						updatedCourse.getName(), updatedCourse.getDescription()))
+				+ 1;
 
-		courseDao.update(updatedCourse, 4);
+		courseDao.update(updatedCourse);
 
 		int actualRows = countRowsInTableWhere(jdbcTemplate, "COURSES",
 				String.format("id = %d AND course_name = '%s' AND course_description = '%s'", updatedCourse.getId(),
@@ -86,7 +85,7 @@ public class CourseDaoTest {
 	@Test
 	public void givenFindCourseByIdNotExist_whenNotFindCourseByIdNotExist_thenGetEmptyOptional() {
 		Optional<Course> actual = courseDao.findById(200);
-		
+
 		assertThat(actual).isEmpty();
 	}
 

@@ -19,7 +19,7 @@ import ru.stepev.model.Classroom;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class ClassroomDaoTest {
+public class JdbcClassroomDaoTest {
 
 	@Autowired
 	private ClassroomDao classroomDao;
@@ -27,7 +27,7 @@ public class ClassroomDaoTest {
 	private JdbcTemplate jdbcTemplate;
 
 	@Test
-	public void givenCreateNewClassroom_whenCreate_thenCreated()  {
+	public void givenCreateNewClassroom_whenCreate_thenCreated() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "CLASSROOMS") + 1;
 		Classroom expectedClassroom = new Classroom(5, "105", 10);
 		Classroom actualClassroom = new Classroom("105", 10);
@@ -44,7 +44,8 @@ public class ClassroomDaoTest {
 		Classroom updatedClassroom = new Classroom(4, "205", 200);
 		int expectedRows = countRowsInTableWhere(jdbcTemplate, "CLASSROOMS",
 				String.format("id = %d AND classroom_address = '%s' AND classroom_capacity = %d",
-						updatedClassroom.getId(), updatedClassroom.getAddress(), updatedClassroom.getCapacity())) + 1;
+						updatedClassroom.getId(), updatedClassroom.getAddress(), updatedClassroom.getCapacity()))
+				+ 1;
 
 		classroomDao.update(updatedClassroom);
 
@@ -55,7 +56,7 @@ public class ClassroomDaoTest {
 	}
 
 	@Test
-	public void givenFindAllClassrooms_whenFindAllClassrooms_thenFindAllClassroom()  {
+	public void givenFindAllClassrooms_whenFindAllClassrooms_thenFindAllClassroom() {
 		List<Classroom> expectedClassrooms = new ArrayList<>();
 		expectedClassrooms.add(new Classroom(1, "101", 50));
 		expectedClassrooms.add(new Classroom(2, "102", 40));
@@ -68,7 +69,7 @@ public class ClassroomDaoTest {
 	}
 
 	@Test
-	public void givenDeleteClassroomById_whenDeleteClassroomById_thenTableWillNotHaveGivenClassroom()  {
+	public void givenDeleteClassroomById_whenDeleteClassroomById_thenTableWillNotHaveGivenClassroom() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "CLASSROOMS") - 1;
 
 		classroomDao.delete(3);
@@ -78,7 +79,7 @@ public class ClassroomDaoTest {
 	}
 
 	@Test
-	public void givenFindClassroomById_whenFindClassroomById_thenFindClassroomById()  {
+	public void givenFindClassroomById_whenFindClassroomById_thenFindClassroomById() {
 		Classroom expectedClassroom = new Classroom(2, "102", 40);
 		Optional<Classroom> actualClassroom = classroomDao.findById(2);
 

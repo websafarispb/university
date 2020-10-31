@@ -1,5 +1,14 @@
 package ru.stepev.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Classroom {
 
 	private int id;
@@ -9,35 +18,6 @@ public class Classroom {
 	public Classroom(String address, int capacity) {
 		this.address = address;
 		this.capacity = capacity;
-	}
-	
-	public Classroom(int id, String address, int capacity) {
-		this(address, capacity);
-		this.id = id;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public int getCapacity() {
-		return capacity;
-	}
-
-	public void setCapacity(int capacity) {
-		this.capacity = capacity;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import ru.stepev.model.Student;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class GroupDaoTest {
+public class JdbcGroupDaoTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -42,8 +42,8 @@ public class GroupDaoTest {
 		students.add(new Student(6, 527, "Daria", "Ivanova", LocalDate.of(2020, 9, 7), "Ivanova@mail.ru", Gender.FEMALE,
 				"City20", courses));
 		students.add(new Student(7, 528, "Igor", "Petrov", LocalDate.of(2020, 9, 7), "Stepanov@mail.ru", Gender.MALE,
-				"City20", courses));	
-		
+				"City20", courses));
+
 		int expectedRows = countRowsInTable(jdbcTemplate, "GROUPS") + 1;
 		Group newGroup = new Group(5, "e2e2", students);
 		String inquryForOneGroup = String.format("id = %d AND group_name = '%s' ", newGroup.getId(),
@@ -51,17 +51,14 @@ public class GroupDaoTest {
 		String inquryForStudentsGroups = String.format(
 				"student_id = %d AND group_id = %d OR student_id = %d AND group_id = %d", 6, newGroup.getId(), 7,
 				newGroup.getId());
-		int expectedCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS",
-				inquryForOneGroup) + 1;
+		int expectedCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS", inquryForOneGroup) + 1;
 		int expectedRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
 				inquryForStudentsGroups) + 2;
 
 		groupDao.create(newGroup);
 
-		int actualCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS",
-				inquryForOneGroup);
-		int actualRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
-				inquryForStudentsGroups);
+		int actualCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS", inquryForOneGroup);
+		int actualRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS", inquryForStudentsGroups);
 		int actualRows = countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRows);
 		assertEquals(expectedCountRowsWichHaveOneGroup, actualCountRowsWichHaveOneGroup);
@@ -85,17 +82,14 @@ public class GroupDaoTest {
 		String inquryForStudentsGroups = String.format(
 				"student_id = %d AND group_id = %d OR student_id = %d AND group_id = %d", 3, updatedGroup.getId(), 5,
 				updatedGroup.getId());
-		int expectedCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS",
-				inquryForOneGroup);
+		int expectedCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS", inquryForOneGroup);
 		int expectedRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
 				inquryForStudentsGroups) + 2;
 
 		groupDao.update(updatedGroup);
 
-		int actualCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS",
-				inquryForOneGroup);
-		int actualRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS",
-				inquryForStudentsGroups);
+		int actualCountRowsWichHaveOneGroup = countRowsInTableWhere(jdbcTemplate, "GROUPS", inquryForOneGroup);
+		int actualRowInStudentsGroups = countRowsInTableWhere(jdbcTemplate, "STUDENTS_GROUPS", inquryForStudentsGroups);
 		int actualRows = countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRows);
 		assertEquals(expectedCountRowsWichHaveOneGroup, actualCountRowsWichHaveOneGroup);
@@ -105,9 +99,9 @@ public class GroupDaoTest {
 	@Test
 	public void givenDeleteGroup_whenDeleteGroupById_thenGroupWasDeleted() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "GROUPS") - 1;
-		
+
 		groupDao.delete(3);
-		
+
 		int actualRow = countRowsInTable(jdbcTemplate, "GROUPS");
 		assertEquals(expectedRows, actualRow);
 	}
@@ -115,7 +109,7 @@ public class GroupDaoTest {
 	@Test
 	public void givenFindGroupByIdNotExist_whenFindGroupById_thenGetObjectNotFoundException() {
 		Optional<Group> actual = groupDao.findById(200);
-		
+
 		assertThat(actual).isEmpty();
 	}
 
@@ -130,16 +124,18 @@ public class GroupDaoTest {
 		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
 				"City18", courses));
 		Group expected = new Group(2, "b2b2", students);
-		Optional <Group> actual = groupDao.findById(2);
+		
+		Optional<Group> actual = groupDao.findById(2);
+		
 		assertThat(actual).isPresent().get().isEqualTo(expected);
 	}
 
 	@Test
 	public void givenFindAll_whenFindAllGroups_whenAllGroupWasFound() {
 		int expectedRow = 4;
-		
+
 		int actualRow = groupDao.findAll().size();
-		
+
 		assertThat(expectedRow).isEqualTo(actualRow);
 	}
 
@@ -156,6 +152,23 @@ public class GroupDaoTest {
 		Group expected = new Group(2, "b2b2", students);
 
 		Optional<Group> actual = groupDao.findByStudentId(2);
+
+		assertThat(actual).get().isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenGroupIdAndCourseId_whenFindGroupByGroupIdAndCourseId_thenGetGroup() {
+		List<Course> courses = new ArrayList<>();
+		courses.add(new Course(1, "Mathematics", "Math"));
+		courses.add(new Course(2, "Biology", "Bio"));
+		courses.add((new Course(3, "Chemistry", "Chem")));
+		courses.add((new Course(4, "Physics", "Phy")));
+		List<Student> students = new ArrayList<>();
+		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", courses));
+		Group expected = new Group(2, "b2b2", students);
+		
+		Optional<Group> actual = groupDao.findByGroupIdAndCourseId(2, 1);
 
 		assertThat(actual).get().isEqualTo(expected);
 	}

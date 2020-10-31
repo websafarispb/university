@@ -23,7 +23,7 @@ import ru.stepev.model.Student;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
-public class StudentDaoTest {
+public class JdbcStudentDaoTest {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -48,8 +48,7 @@ public class StudentDaoTest {
 				"student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d",
 				student.getId(), 1, student.getId(), 2, student.getId(), 3, student.getId(), 4);
 		int expectedRowsInStudentsTable = countRowsInTable(jdbcTemplate, "STUDENTS") + 1;
-		int expectedCountRowsWichHaveOneStudent = countRowsInTableWhere(jdbcTemplate, "STUDENTS",
-				inquryForOneStudent) + 1;
+		int expectedCountRowsWichHaveOneStudent = countRowsInTableWhere(jdbcTemplate, "STUDENTS", inquryForOneStudent) + 1;
 		int expectedRowInStudentsCourses = countRowsInTableWhere(jdbcTemplate, "STUDENTS_COURSES",
 				inquryForStudentsCourses) + 4;
 
@@ -57,8 +56,7 @@ public class StudentDaoTest {
 
 		int actualRowsInStudentsTable = countRowsInTable(jdbcTemplate, "STUDENTS");
 		assertEquals(expectedRowsInStudentsTable, actualRowsInStudentsTable);
-		int actualCountRowsWichHaveOneStudent = countRowsInTableWhere(jdbcTemplate, "STUDENTS",
-				inquryForOneStudent);
+		int actualCountRowsWichHaveOneStudent = countRowsInTableWhere(jdbcTemplate, "STUDENTS", inquryForOneStudent);
 		assertEquals(expectedCountRowsWichHaveOneStudent, actualCountRowsWichHaveOneStudent);
 		int actualRowInStudentsCourses = countRowsInTableWhere(jdbcTemplate, "STUDENTS_COURSES",
 				inquryForStudentsCourses);
@@ -72,8 +70,8 @@ public class StudentDaoTest {
 		coursesForStudent.add(new Course(2, "Biology", "Bio"));
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
-		Student student = new Student(3, 328, "Ivan", "Stepanov", LocalDate.of(2020, 9, 1), "Stepanov@mail.ru", Gender.MALE, "City11",
-				coursesForStudent);
+		Student student = new Student(3, 328, "Ivan", "Stepanov", LocalDate.of(2020, 9, 1), "Stepanov@mail.ru",
+				Gender.MALE, "City11", coursesForStudent);
 		String inqury = String.format(
 				"id = %d AND first_name = '%s' AND last_name = '%s' "
 						+ "AND  birthday = '%s' AND email = '%s' AND gender = '%s' AND address = '%s' ",
@@ -87,24 +85,24 @@ public class StudentDaoTest {
 		int actual = countRowsInTableWhere(jdbcTemplate, "STUDENTS", inqury);
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void givenDeleteStudent_whenDeleteStudentById_thenStudentWasDeleted() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "STUDENTS") - 1;
-		
+
 		studentDao.delete(4);
-		
+
 		int actualRows = countRowsInTable(jdbcTemplate, "STUDENTS");
 		assertEquals(expectedRows, actualRows);
 	}
-	
+
 	@Test
 	public void givenFindStudentByIdNotExist_whenFindStudentById_thenGetEmptyOptional() {
-			Optional <Student> actual = studentDao.findById(200);
-			
-			assertThat(actual).isEmpty();
+		Optional<Student> actual = studentDao.findById(200);
+
+		assertThat(actual).isEmpty();
 	}
-	
+
 	@Test
 	public void givenFindStudentById_whenFindStudentById_thenStudentWasFound() {
 		List<Course> coursesForStudent = new ArrayList<>();
@@ -112,11 +110,11 @@ public class StudentDaoTest {
 		coursesForStudent.add(new Course(2, "Biology", "Bio"));
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
-		Student expected = new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE, "City18",
-				coursesForStudent);
-		
+		Student expected = new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", coursesForStudent);
+
 		Optional<Student> actual = studentDao.findById(2);
-		
+
 		assertThat(actual).get().isEqualTo(expected);
 	}
 
@@ -128,23 +126,23 @@ public class StudentDaoTest {
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
 		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE, "City17",
-				coursesForStudent));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE, "City18",
-				coursesForStudent));
-		expected.add(new Student(3, 125, "Ivan", "Stepanov", LocalDate.of(2020, 9, 1), "Stepanov@mail.ru", Gender.MALE, "City11",
-				coursesForStudent));
-		expected.add(new Student(4, 126, "Peter", "Smirnov", LocalDate.of(2020, 9, 6), "webPS@mail.ru", Gender.MALE, "City17",
-				coursesForStudent));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Ivanov@mail.ru", Gender.FEMALE, "City11",
-				coursesForStudent));
+		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
+				"City17", coursesForStudent));
+		expected.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
+				"City18", coursesForStudent));
+		expected.add(new Student(3, 125, "Ivan", "Stepanov", LocalDate.of(2020, 9, 1), "Stepanov@mail.ru", Gender.MALE,
+				"City11", coursesForStudent));
+		expected.add(new Student(4, 126, "Peter", "Smirnov", LocalDate.of(2020, 9, 6), "webPS@mail.ru", Gender.MALE,
+				"City17", coursesForStudent));
+		expected.add(new Student(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Ivanov@mail.ru",
+				Gender.FEMALE, "City11", coursesForStudent));
 		expected.add(new Student(6, 527, "Daria", "Ivanova", LocalDate.of(2020, 9, 7), "Ivanova@mail.ru", Gender.FEMALE,
 				"City20", coursesForStudent));
 		expected.add(new Student(7, 528, "Igor", "Stepanov", LocalDate.of(2020, 9, 7), "Stepanov@mail.ru", Gender.MALE,
-				"City20", coursesForStudent));	
-		
+				"City20", coursesForStudent));
+
 		List<Student> actual = studentDao.findAll();
-	
+
 		assertThat(expected).isEqualTo(actual);
 	}
 
@@ -156,11 +154,11 @@ public class StudentDaoTest {
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
 		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE, "City17",
-				coursesForStudent));
+		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
+				"City17", coursesForStudent));
 
 		List<Student> actual = studentDao.findByFirstAndLastNames("Peter", "Petrov");
-		
+
 		assertThat(expected).isEqualTo(actual);
 	}
 }

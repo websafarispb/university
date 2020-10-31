@@ -1,4 +1,4 @@
-package ru.stepev.dao.rowmapper;
+package ru.stepev.dao.jdbc.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

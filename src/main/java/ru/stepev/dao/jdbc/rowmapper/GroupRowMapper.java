@@ -1,4 +1,4 @@
-package ru.stepev.dao.rowmapper;
+package ru.stepev.dao.jdbc.rowmapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,15 +11,16 @@ import ru.stepev.model.Group;
 
 @Component
 public class GroupRowMapper implements RowMapper<Group> {
-	
+
 	private StudentDao studentDao;
-	
+
 	public GroupRowMapper(StudentDao studentDao) {
 		this.studentDao = studentDao;
 	}
 
 	@Override
 	public Group mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		return new Group(resultSet.getInt("id"), resultSet.getString("group_name"), studentDao.findByGroupId(resultSet.getInt("id")));
+		return new Group(resultSet.getInt("id"), resultSet.getString("group_name"),
+				studentDao.findByGroupId(resultSet.getInt("id")));
 	}
 }

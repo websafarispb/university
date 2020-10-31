@@ -1,10 +1,17 @@
 package ru.stepev.model;
 
-import static java.util.stream.Collectors.joining;
-
 import java.time.LocalDate;
 import java.util.*;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class DailySchedule {
 
 	private int id;
@@ -14,39 +21,6 @@ public class DailySchedule {
 	public DailySchedule(LocalDate date, List<Lecture> lectures) {
 		this.date = date;
 		this.lectures = lectures;
-	}
-
-	public DailySchedule(int id, LocalDate date, List<Lecture> lectures) {
-		this(date, lectures);
-		this.id = id;
-	}
-	
-	public LocalDate getDate() {
-		return date;
-	}
-
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
-
-	public List<Lecture> getLectures() {
-		return lectures;
-	}
-
-	public void setLectures(List<Lecture> lectures) {
-		this.lectures = lectures;
-	}
-
-	public String showAllLectures() {
-		return lectures.stream().map(Lecture::toString).collect(joining(System.lineSeparator()));
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	@Override
