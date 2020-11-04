@@ -11,11 +11,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.jdbc.rowmapper.CourseRowMapper;
+import ru.stepev.exception.EntityCouldNotBeenCreatedException;
+import ru.stepev.exception.EntityCouldNotBeenDeletedException;
+import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.Course;
 
 @Component
+@Slf4j
 public class JdbcCourseDao implements CourseDao {
 
 	private static final String CREATE_COURSE_QUERY = "INSERT INTO courses (course_name, course_description) values (?, ?)";
@@ -38,42 +43,58 @@ public class JdbcCourseDao implements CourseDao {
 
 	public void create(Course course) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcTemplate.update(connection -> {
+		if (jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(CREATE_COURSE_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, course.getName());
 			statement.setString(2, course.getDescription());
 			return statement;
-		}, keyHolder);
+		}, keyHolder) == 0) {
+			log.warn("Course with name {} could not been created", course.getName());
+			throw new EntityCouldNotBeenCreatedException("Course could not been created!!!");
+		}
 		course.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Course course) {
-		jdbcTemplate.update(UPDATE_COURSE_BY_ID, course.getName(), course.getDescription(), course.getId());
+		if (jdbcTemplate.update(UPDATE_COURSE_BY_ID, course.getName(), course.getDescription(), course.getId()) == 0) {
+			log.warn("Course with name {} could not been updated", course.getName());
+			throw new EntityCouldNotBeenUpdatedException("Course could not been updated!!!");
+		}
 	}
 
 	public void delete(int courseId) {
-		jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId);
+		if (jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId) == 0) {
+			log.warn("Course with Id {} could not been deleted", courseId);
+			throw new EntityCouldNotBeenDeletedException("Course could not been deleted!!!");
+		}
 	}
 
 	public Optional<Course> findById(int courseId) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
+			Optional<Course> course = Optional
+					.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
+			log.debug("Course with id {} was found", courseId);
+			return course;
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Course with id {} was not found", courseId);
 			return Optional.empty();
 		}
 
 	}
 
 	public List<Course> findAll() {
+		log.debug("Finding all courses...");
 		return jdbcTemplate.query(GET_ALL, courseRowMapper);
 	}
 
 	public List<Course> findByTeacherId(int teacherId) {
+		log.debug("Finding course by teacher ID ...");
 		return jdbcTemplate.query(FIND_ALL_COURSE_BY_TEACHER_ID, courseRowMapper, teacherId);
 	}
 
 	public List<Course> findByStudentId(int studentId) {
+		log.debug("Finding course by student ID ...");
 		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
 	}
 }

@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.StudentDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Student;
 
 import static ru.stepev.data.DataTest.*;
@@ -41,9 +44,12 @@ public class StudentServiceTest {
 	@Test
 	public void givenStudent_whenAddStudentExist_thenDoNotAddStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> 	studentService.add(studentForTest));
 
-		studentService.add(studentForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create student with name %s student already exist",
+				studentForTest.getFirstName() + " " + studentForTest.getLastName());
 		verify(studentDao, never()).create(studentForTest);
 	}
 
@@ -59,9 +65,12 @@ public class StudentServiceTest {
 	@Test
 	public void givenStudent_whenUpdateStudentDoesNotExist_thenDoNotUpdateStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> 	studentService.update(studentForTest));
 
-		studentService.update(studentForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not update student with name %s student doesn't exist",
+				studentForTest.getFirstName() + " " + studentForTest.getLastName());
 		verify(studentDao, never()).update(studentForTest);
 	}
 
@@ -77,9 +86,12 @@ public class StudentServiceTest {
 	@Test
 	public void givenStudent_whenDeleteStudentDoeNotExist_thenDoNotDeleteStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> 	studentService.delete(studentForTest));
 
-		studentService.delete(studentForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not delete student with name %s student doesn't exist",
+				studentForTest.getFirstName() + " " + studentForTest.getLastName());
 		verify(studentDao, never()).delete(studentForTest.getId());
 	}
 

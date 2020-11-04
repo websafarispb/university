@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -16,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Course;
 
 import static ru.stepev.data.DataTest.*;
@@ -44,9 +47,12 @@ public class CourseServiceTest {
 	@Test
 	public void givenCourse_whenAddCourseExist_thenDoNotAddCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> courseService.add(courseForTest));
 
-		courseService.add(courseForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create course with name %s course already exist",
+				courseForTest.getName());
 		verify(courseDao, never()).create(courseForTest);		
 	}
 
@@ -63,9 +69,12 @@ public class CourseServiceTest {
 	@Test
 	public void givenCourse_whenUpdateCourseDoesNotExist_thenDoNotUpdateCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> courseService.update(courseForTest));
 
-		courseService.update(courseForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not update course with name %s course doesn't exist",
+				courseForTest.getName());
 		verify(courseDao, never()).update(courseForTest);
 	}
 
@@ -81,9 +90,12 @@ public class CourseServiceTest {
 	@Test
 	public void givenCourse_whenDeleteCourseDoesNotExist_thenDoNotDeleteCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> courseService.delete(courseForTest));
 
-		courseService.delete(courseForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not deleted course with name %s course doesn't exist",
+				courseForTest.getName());
 		verify(courseDao, never()).delete(courseForTest.getId());
 	}
 

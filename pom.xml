@@ -20,6 +20,8 @@
 		<mockito-junit-jupiter>3.5.15</mockito-junit-jupiter>
 		<assertj-core.version>3.12.2</assertj-core.version>
 		<lombok.version>1.18.12</lombok.version>
+		<logback.version>1.2.3</logback.version>
+		<jcl.slf4j.version>1.7.30</jcl.slf4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -31,6 +33,16 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
 			<version>${springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${jcl.slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -76,12 +88,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
 			<version>${mockito-junit-jupiter}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${springframework.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

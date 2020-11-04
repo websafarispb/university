@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 
 import static ru.stepev.data.DataTest.*;
@@ -51,8 +54,11 @@ public class ClassroomServiceTest {
 	public void givenClassroom_whenAddClassroomExist_thenNotAddClassroom() {
 		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.of(classroomForCreate));
 
-		classroomService.add(classroomForCreate);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> classroomService.add(classroomForCreate));
 
+		assertThat(exception.getMessage()).isEqualTo("Can not create classroom with address %s classroom already exist",
+				classroomForCreate.getAddress());
 		verify(classroomDao, never()).create(classroomForCreate);
 	}
 
@@ -77,9 +83,12 @@ public class ClassroomServiceTest {
 	@Test
 	public void givenClassroom_whenDeleteClassroomDoesNotExist_thenNotDeleteClassroom() {
 		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> classroomService.delete(classroomForDelete));
 
-		classroomService.delete(classroomForDelete);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not delete classroom with address %s classroom doesn't exist",
+				classroomForDelete.getAddress());
 		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
@@ -95,8 +104,12 @@ public class ClassroomServiceTest {
 	@Test
 	public void givenClassroom_whenUpdateClassroomDoesNotExist_thenNotUpdateClassroom() {
 		when(classroomDao.findById(classroomForUpdate.getId())).thenReturn(Optional.empty());
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> classroomService.update(classroomForUpdate));
 
-		classroomService.update(classroomForUpdate);
+		assertThat(exception.getMessage()).isEqualTo("Can not update classroom with address %s classroom doesn't exist",
+				classroomForUpdate.getAddress());		
 
 		verify(classroomDao, never()).update(classroomForUpdate);
 	}

@@ -2,13 +2,16 @@ package ru.stepev.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.ClassroomDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 
 @Component
+@Slf4j
 public class ClassroomService {
 
 	private ClassroomDao classroomDao;
@@ -18,20 +21,38 @@ public class ClassroomService {
 	}
 
 	public void add(Classroom classroom) {
+		log.debug("Creating classroom with address {}", classroom.getAddress());
 		if (!isClassroomExist(classroom.getId())) {
 			classroomDao.create(classroom);
+			log.debug("Classroom with address {} was created", classroom.getAddress());
+		} else {
+			log.warn("Classroom with address {} is already exist", classroom.getAddress());
+			throw new EntityAlreadyExistException(String.format(
+					"Can not create classroom with address %s classroom already exist", classroom.getAddress()));
 		}
 	}
 
 	public void update(Classroom classroom) {
+		log.debug("Updating classroom with address {}", classroom.getAddress());
 		if (isClassroomExist(classroom.getId())) {
 			classroomDao.update(classroom);
+			log.debug("Classroom with address {} was updated", classroom.getAddress());
+		} else {
+			log.warn("Classroom with address {} doesn't exist", classroom.getAddress());
+			throw new EntityNotFoundException(String.format(
+					"Can not update classroom with address %s classroom doesn't exist", classroom.getAddress()));
 		}
 	}
 
 	public void delete(Classroom classroom) {
+		log.debug("Delete classroom with address {}", classroom.getAddress());
 		if (isClassroomExist(classroom.getId())) {
 			classroomDao.delete(classroom.getId());
+			log.debug("Classroom with address {} was deleted", classroom.getAddress());
+		} else {
+			log.warn("Classroom with address {} doesn't exist", classroom.getAddress());
+			throw new EntityNotFoundException(String.format(
+					"Can not delete classroom with address %s classroom doesn't exist", classroom.getAddress()));
 		}
 	}
 
@@ -44,6 +65,7 @@ public class ClassroomService {
 	}
 
 	private boolean isClassroomExist(int classroomId) {
+		log.debug("Is classroom with ID {} exist?", classroomId);
 		return classroomDao.findById(classroomId).isPresent();
 	}
 }

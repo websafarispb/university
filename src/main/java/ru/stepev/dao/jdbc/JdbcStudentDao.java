@@ -14,11 +14,15 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.dao.jdbc.rowmapper.StudentRowMapper;
+import ru.stepev.exception.EntityCouldNotBeenCreatedException;
+import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.Student;
 
 @Component
+@Slf4j
 public class JdbcStudentDao implements StudentDao {
 	private static final String GET_ALL = "SELECT * FROM students";
 	private static final String CREATE_STUDENT_QUERY = "INSERT INTO students (personal_number, first_name, last_name, birthday, email, gender, address) VALUES ( ?, ?, ?, ?, ?, ?, ?)";
@@ -41,7 +45,7 @@ public class JdbcStudentDao implements StudentDao {
 	@Transactional
 	public void create(Student student) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcTemplate.update(connection -> {
+		if(jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(CREATE_STUDENT_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, student.getPersonalNumber());
@@ -52,14 +56,17 @@ public class JdbcStudentDao implements StudentDao {
 			statement.setString(6, student.getGender());
 			statement.setString(7, student.getAddress());
 			return statement;
-		}, keyHolder);
+		}, keyHolder) == 0 ) {
+			log.warn("Student with name {} could not been created", student.getFirstName() + " " + student.getLastName());
+			throw new EntityCouldNotBeenCreatedException("Student could not been created!!!");
+		}
 		student.setId((int) keyHolder.getKeys().get("id"));
 		student.getCourses().forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
+		log.debug("Student  was created");
 	}
 
 	@Transactional
 	public void update(Student student) {
-
 		if (jdbcTemplate.update(UPDATE_BY_STUDENT_ID, student.getFirstName(), student.getLastName(),
 				student.getBirthday(), student.getEmail(), student.getGender().toString(), student.getAddress(),
 				student.getId()) != 0) {
@@ -68,31 +75,45 @@ public class JdbcStudentDao implements StudentDao {
 					.forEach(c -> jdbcTemplate.update(DELETE_FROM_COURSE, student.getId(), c.getId()));
 			student.getCourses().stream().filter(not(updatedSudent.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
+			log.debug("Student with name {} was updated", student.getFirstName() + " " + student.getLastName());
+		} else {
+			log.warn("Student with name {} could not been updated", student.getFirstName() + " " + student.getLastName());
+			throw new EntityCouldNotBeenUpdatedException("Student could not been updated!!!");
 		}
 	}
 
 	public void delete(int studentId) {
-		jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId);
+		if(jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId) == 0) {
+			log.warn("Student with id {} could not been deleted", studentId);
+			throw new EntityCouldNotBeenUpdatedException("Student could not been updated!!!");
+		}
+		log.debug("Student with id {} was deleted", studentId);
 	}
 
 	public Optional<Student> findById(int studentId) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId));
+			Optional <Student> student = Optional.of(jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId));
+			log.debug("Student with id {} was found", studentId);
+			return student;
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Student with id {} was not found", studentId);
 			return Optional.empty();
 		}
 	}
 
 	public List<Student> findAll() {
+		log.debug("Finding all students ... ");
 		return jdbcTemplate.query(GET_ALL, studentRowMapper);
 	}
 
 	public List<Student> findByFirstAndLastNames(String firstName, String lastName) {
+		log.debug("Finding student by first and last name ... ");
 		Object[] objects = new Object[] { firstName, lastName };
 		return jdbcTemplate.query(GET_STUDENT_ID, objects, studentRowMapper);
 	}
 
 	public List<Student> findByGroupId(int groupId) {
+		log.debug("Finding student by group ID ... ");
 		return jdbcTemplate.query(GET_STUDENT_BY_GROUP_ID, studentRowMapper, groupId);
 	}
 }

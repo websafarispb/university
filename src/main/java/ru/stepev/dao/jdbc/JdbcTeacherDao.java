@@ -14,11 +14,15 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.dao.jdbc.rowmapper.TeacherRowMapper;
+import ru.stepev.exception.EntityCouldNotBeenCreatedException;
+import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.Teacher;
 
 @Component
+@Slf4j
 public class JdbcTeacherDao implements TeacherDao {
 
 	private static final String GET_ALL = "SELECT * FROM teachers";
@@ -40,7 +44,7 @@ public class JdbcTeacherDao implements TeacherDao {
 	@Transactional
 	public void create(Teacher teacher) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcTemplate.update(connection -> {
+		if (jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(CREATE_TEACHER_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, teacher.getPersonalNumber());
@@ -51,9 +55,14 @@ public class JdbcTeacherDao implements TeacherDao {
 			statement.setString(6, teacher.getGender());
 			statement.setString(7, teacher.getAddress());
 			return statement;
-		}, keyHolder);
+		}, keyHolder) == 0) {
+			log.warn("Teacher with name {} could not been created",
+					teacher.getFirstName() + " " + teacher.getLastName());
+			throw new EntityCouldNotBeenCreatedException("Teacher could not been created!!!");
+		}
 		teacher.setId((int) keyHolder.getKeys().get("id"));
 		teacher.getCourses().forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
+		log.debug("Teacher  was created");
 	}
 
 	@Transactional
@@ -66,22 +75,35 @@ public class JdbcTeacherDao implements TeacherDao {
 					.forEach(c -> jdbcTemplate.update(DELETE_COURSE, teacher.getId(), c.getId()));
 			teacher.getCourses().stream().filter(not(updatedTeacher.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
+			log.debug("Teacher with name {} was updated", teacher.getFirstName() + " " + teacher.getLastName());
+		} else {
+			log.warn("Teacher with name {} could not been updated",
+					teacher.getFirstName() + " " + teacher.getLastName());
+			throw new EntityCouldNotBeenUpdatedException("Teacher could not been updated!!!");
 		}
 	}
 
 	public void delete(int teacherId) {
-		jdbcTemplate.update(DELETE_TEACHER_QUERY, teacherId);
+		if (jdbcTemplate.update(DELETE_TEACHER_QUERY, teacherId) == 0) {
+			log.warn("Teacher with id {} could not been deleted", teacherId);
+			throw new EntityCouldNotBeenUpdatedException("Teacher could not been updated!!!");
+		}
+		log.debug("Teacher with id {} was deleted", teacherId);
 	}
 
 	public Optional<Teacher> findById(int teacherId) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
+			Optional<Teacher> teacher = Optional.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
+			log.debug("Teacher was found by ID {}", teacherId);
+			return teacher;
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Teacher was not found by ID {}", teacherId);
 			return Optional.empty();
 		}
 	}
 
 	public List<Teacher> findAll() {
+		log.debug("Finding all teachers ... ");
 		return jdbcTemplate.query(GET_ALL, teacherRowMapper);
 	}
 }

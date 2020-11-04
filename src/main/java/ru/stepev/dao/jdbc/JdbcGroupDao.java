@@ -11,11 +11,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.jdbc.rowmapper.GroupRowMapper;
+import ru.stepev.exception.EntityCouldNotBeenCreatedException;
+import ru.stepev.exception.EntityCouldNotBeenDeletedException;
+import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.Group;
 
 @Component
+@Slf4j
 public class JdbcGroupDao implements GroupDao {
 
 	private static final String GET_ALL_GROUPS = "SELECT * FROM GROUPS ";
@@ -41,12 +46,15 @@ public class JdbcGroupDao implements GroupDao {
 
 	public void create(Group group) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		jdbcTemplate.update(connection -> {
+		if (jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(CREATE_GROUP_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setString(1, group.getName());
 			return statement;
-		}, keyHolder);
+		}, keyHolder) == 0) {
+			log.warn("Group with name {} could not been created", group.getName());
+			throw new EntityCouldNotBeenCreatedException("Group could not been created!!!");
+		}
 		group.setId((int) (keyHolder.getKeys().get("id")));
 		group.getStudents().stream().forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));
 	}
@@ -59,39 +67,56 @@ public class JdbcGroupDao implements GroupDao {
 
 			group.getStudents().stream().filter(s -> !updatedGroup.get().getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));
+		} else {
+			log.warn("Group with name {} could not been updated", group.getName());
+			throw new EntityCouldNotBeenUpdatedException("Group could not been updated!!!");
 		}
 	}
 
 	public void delete(int groupId) {
-		jdbcTemplate.update(DELETE_GROUP_BY_ID, groupId);
+		if (jdbcTemplate.update(DELETE_GROUP_BY_ID, groupId) == 0) {
+			log.warn("Group with Id {} could not been deleted", groupId);
+			throw new EntityCouldNotBeenDeletedException("Group could not been deleted!!!");
+		}
 	}
 
 	public Optional<Group> findById(int groupId) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_ID, groupRowMapper, groupId));
+			Optional<Group> group = Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_ID, groupRowMapper, groupId));
+			log.debug("Group with id {} was found", groupId);
+			return group;
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Group with id {} was not found", groupId);
 			return Optional.empty();
 		}
 	}
 
 	public List<Group> findAll() {
+		log.debug("Finding all groups...");
 		return jdbcTemplate.query(GET_ALL_GROUPS, groupRowMapper);
 	}
 
 	public Optional<Group> findByStudentId(int studentId) {
 		Object[] objects = new Object[] { studentId };
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(GET_BY_STUDENT_ID, objects, groupRowMapper));
+			Optional<Group> group = Optional
+					.of(jdbcTemplate.queryForObject(GET_BY_STUDENT_ID, objects, groupRowMapper));
+			log.debug("Group with Student id {} was found", studentId);
+			return group;
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Group with Student id {} was not found", studentId);
 			return Optional.empty();
 		}
 	}
-	
+
 	public Optional<Group> findByGroupIdAndCourseId(int groupId, int courseId) {
-		Object[] objects = new Object[] {  courseId, groupId, groupId };
+		Object[] objects = new Object[] { courseId, groupId, groupId };
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID, objects, groupRowMapper));
+			log.debug("Group with id {} was found", groupId);
+			return Optional
+					.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID, objects, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {
+			log.warn("Group with id {} was not found", groupId);
 			return Optional.empty();
 		}
 	}

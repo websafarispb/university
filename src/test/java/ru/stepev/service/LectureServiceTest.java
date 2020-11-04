@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,8 @@ import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.LectureDao;
 import ru.stepev.dao.TeacherDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Lecture;
 
 import static ru.stepev.data.DataTest.*;
@@ -75,9 +78,12 @@ public class LectureServiceTest {
 		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> lectureService.add(lecture));
 
-		lectureService.add(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
+				lecture.getTime());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -114,9 +120,12 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId()))
 						.thenReturn(Optional.of(lectureWithNotAvaliableClassroom));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> lectureService.add(lecture));
 
-		lectureService.add(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
+				lecture.getTime());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -156,18 +165,24 @@ public class LectureServiceTest {
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> lectureService.add(lecture));
 
-		lectureService.add(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
+				lecture.getTime());
 		verify(lectureDao, never()).create(lecture);
 	}
 
 	@Test
 	public void givenExistingLecture_whenAdd_thenLectureNotAdd() {
 		when(lectureDao.findById(correstLectureForTest.getId())).thenReturn(Optional.of(correstLectureForTest));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> lectureService.add(correstLectureForTest));
 
-		lectureService.add(correstLectureForTest);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
+				correstLectureForTest.getTime());
 		verify(lectureDao, never()).create(correstLectureForTest);
 	}
 
@@ -228,9 +243,12 @@ public class LectureServiceTest {
 		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
+	
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> lectureService.update(lecture));
 
-		lectureService.update(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
+				lecture.getTime());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -247,9 +265,12 @@ public class LectureServiceTest {
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.of(lecture));
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> lectureService.update(lecture));
 
-		lectureService.update(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
+				lecture.getTime());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -269,9 +290,12 @@ public class LectureServiceTest {
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
+		
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> lectureService.update(lecture));
 
-		lectureService.update(lecture);
-
+		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
+				lecture.getTime());
 		verify(lectureDao, never()).update(lecture);
 	}
 
