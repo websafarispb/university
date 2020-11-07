@@ -18,8 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.exception.StudentdsNotFoundException;
 import ru.stepev.model.Group;
 
 import static ru.stepev.data.DataTest.*;
@@ -63,11 +63,8 @@ public class GroupServiceTest {
 	public void givenGroup_whenAddGroupExist_thenDoNotAddGroup() {
 		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> groupService.add(groupForTest));
+		groupService.add(groupForTest);
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create group with name %s group already exist",
-				groupForTest.getName());
 		verify(groupDao, never()).create(groupForTest);
 	}
 
@@ -80,10 +77,10 @@ public class GroupServiceTest {
 		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
 
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+		StudentdsNotFoundException exception = assertThrows(StudentdsNotFoundException.class,
 				() -> groupService.add(groupForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create group with name %s group already exist",
+		assertThat(exception.getMessage()).isEqualTo("Students don't exist",
 				groupForTest.getName());
 		verify(groupDao, never()).create(groupForTest);
 	}
@@ -110,7 +107,7 @@ public class GroupServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.update(groupForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update group with name %s group doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("Group with name %s doesn't exist",
 				groupForTest.getName());
 		verify(groupDao, never()).update(groupForTest);
 	}
@@ -131,7 +128,7 @@ public class GroupServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.delete(groupForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not delete group with name %s group doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("Group with name %s doesn't exist",
 				groupForTest.getName());
 		verify(groupDao, never()).delete(groupForTest.getId());
 	}

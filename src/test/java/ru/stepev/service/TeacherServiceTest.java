@@ -68,7 +68,7 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.update(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update teacher with name %s teacher doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s doesn't exist",
 				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
 		verify(teacherDao, never()).update(teacherForTest);
 	}
@@ -89,7 +89,7 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.delete(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not delete teacher with name %s teacher doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s doesn't exist",
 				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
 		verify(teacherDao, never()).delete(teacherForTest.getId());
 	}

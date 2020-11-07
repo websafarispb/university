@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.exception.StudentdsNotFoundException;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 
@@ -27,14 +27,14 @@ public class GroupService {
 	}
 
 	public void add(Group group) {
-		if (!isGroupExist(group) && areStudentsExist(group)) {
-			groupDao.create(group);
-			log.debug("Group with name {} was created ", group.getName());
-
-		} else {
+		try {
+			isGroupExist(group);
 			log.warn("Group with name {} is already exist", group.getName());
-			throw new EntityAlreadyExistException(String.format(
-					"Can not create group with name %s group already exist", group.getName()));
+		} catch (EntityNotFoundException e) {
+			if (areStudentsExist(group)) {
+				groupDao.create(group);
+				log.debug("Group with name {} was created ", group.getName());
+			}
 		}
 	}
 
@@ -42,10 +42,6 @@ public class GroupService {
 		if (isGroupExist(group) && areStudentsExist(group)) {
 			groupDao.update(group);
 			log.debug("Group with name {} was updated ", group.getName());
-		} else {
-			log.warn("Group with name {} doesn't exist", group.getName());
-			throw new EntityNotFoundException(String.format(
-					"Can not update group with name %s group doesn't exist", group.getName()));
 		}
 	}
 
@@ -53,10 +49,6 @@ public class GroupService {
 		if (isGroupExist(group)) {
 			groupDao.delete(group.getId());
 			log.debug("Group with name {} was deleted ", group.getName());
-		}  else {
-			log.warn("Group with address {} doesn't exist",  group.getName());
-			throw new EntityNotFoundException(String.format(
-					"Can not delete group with name %s group doesn't exist",  group.getName()));
 		}
 	}
 
@@ -73,14 +65,20 @@ public class GroupService {
 	}
 
 	private boolean isGroupExist(Group group) {
-		log.debug("Are group with name {} exist?", group.getName());
-		return groupDao.findById(group.getId()).isPresent();
+		if (groupDao.findById(group.getId()).isPresent()) {
+			return true;
+		} else {
+			throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
+		}
 	}
 
 	private boolean areStudentsExist(Group group) {
-		log.debug("Are students exist in group with name {} ?", group.getName());
 		List<Student> correctStudents = group.getStudents().stream()
 				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
-		return correctStudents.equals(group.getStudents());
+		if (correctStudents.equals(group.getStudents())) {
+			return true;
+		} else {
+			throw new StudentdsNotFoundException(String.format("Students don't exist"));
+		}
 	}
 }

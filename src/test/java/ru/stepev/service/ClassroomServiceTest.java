@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 
@@ -54,11 +53,8 @@ public class ClassroomServiceTest {
 	public void givenClassroom_whenAddClassroomExist_thenNotAddClassroom() {
 		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.of(classroomForCreate));
 
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> classroomService.add(classroomForCreate));
+		classroomService.add(classroomForCreate);
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create classroom with address %s classroom already exist",
-				classroomForCreate.getAddress());
 		verify(classroomDao, never()).create(classroomForCreate);
 	}
 
@@ -87,8 +83,8 @@ public class ClassroomServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.delete(classroomForDelete));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not delete classroom with address %s classroom doesn't exist",
-				classroomForDelete.getAddress());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist",
+				classroomForDelete.getId());
 		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
@@ -108,8 +104,8 @@ public class ClassroomServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.update(classroomForUpdate));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update classroom with address %s classroom doesn't exist",
-				classroomForUpdate.getAddress());		
+		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist",
+				classroomForUpdate.getId());		
 
 		verify(classroomDao, never()).update(classroomForUpdate);
 	}

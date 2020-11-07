@@ -21,8 +21,11 @@ import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.LectureDao;
 import ru.stepev.dao.TeacherDao;
-import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.ClassroomHasNotQuiteCapacity;
+import ru.stepev.exception.ClassroomIsNotFreeException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.exception.GroupIsNotFreeException;
+import ru.stepev.exception.TeacherIsNotFreeException;
 import ru.stepev.model.Lecture;
 
 import static ru.stepev.data.DataTest.*;
@@ -79,11 +82,11 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+		ClassroomIsNotFreeException exception = assertThrows(ClassroomIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s is not free",
+				lecture.getClassRoom().getAddress());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -113,6 +116,7 @@ public class LectureServiceTest {
 	public void givenLectureWithNotAvaliableGroup_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = lectureWithNotAvaliableGroup;
 		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.empty());
 		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
 		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
 		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
@@ -121,11 +125,11 @@ public class LectureServiceTest {
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId()))
 						.thenReturn(Optional.of(lectureWithNotAvaliableClassroom));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+		GroupIsNotFreeException exception = assertThrows(GroupIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free",
+				lecture.getGroup().getName());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -166,11 +170,11 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+		TeacherIsNotFreeException exception = assertThrows(TeacherIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free",
+				lecture.getTeacher().getLastName());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -178,11 +182,8 @@ public class LectureServiceTest {
 	public void givenExistingLecture_whenAdd_thenLectureNotAdd() {
 		when(lectureDao.findById(correstLectureForTest.getId())).thenReturn(Optional.of(correstLectureForTest));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> lectureService.add(correstLectureForTest));
+		lectureService.add(correstLectureForTest);
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create lecture with time %s lecture already exist",
-				correstLectureForTest.getTime());
 		verify(lectureDao, never()).create(correstLectureForTest);
 	}
 
@@ -244,11 +245,11 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
 	
-		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+		ClassroomIsNotFreeException exception = assertThrows(ClassroomIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s is not free",
+				lecture.getClassRoom().getAddress());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -266,11 +267,11 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.of(lecture));
 		
-		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+		GroupIsNotFreeException exception = assertThrows(GroupIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free",
+				lecture.getGroup().getName());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -291,11 +292,11 @@ public class LectureServiceTest {
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
 		
-		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+		TeacherIsNotFreeException exception = assertThrows(TeacherIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update lecture with time %s lecture doesn't exist",
-				lecture.getTime());
+		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free",
+				lecture.getTeacher().getLastName());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -335,5 +336,47 @@ public class LectureServiceTest {
 		List<Lecture> actual = lectureService.getByDailyScheduleId(1);
 
 		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenClassroomWithNotQuiteCapacity_whenAddLecture_thenNotAddLecture() {
+		Lecture lecture = lectureWithSmallClassroom;
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomSmall));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(bigGroup));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
+		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
+				.thenReturn(Optional.of(lecture.getGroup()));
+		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
+		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
+		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
+				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
+
+		ClassroomHasNotQuiteCapacity exception = assertThrows(ClassroomHasNotQuiteCapacity.class,
+				() -> lectureService.add(lecture));
+		
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't have quite capacity",
+				lecture.getClassRoom().getAddress());
+		verify(lectureDao, never()).create(lecture);
+	}
+
+	@Test
+	public void givenLectureWithNotExistFilds_whenAdd_thenNotAddLecture() {
+		Lecture lecture = correstLectureForTest;
+		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.empty());
+		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.empty());
+		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
+		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomSmall));
+		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(bigGroup));
+		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.empty());
+
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> lectureService.add(lecture));
+		
+		assertThat(exception.getMessage()).isEqualTo("This filds of lecture doesn't exist: DailySchedule, Teacher");
+		verify(lectureDao, never()).create(lecture);
 	}
 }

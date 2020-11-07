@@ -22,13 +22,16 @@ public class StudentService {
 	}
 
 	public void add(Student student) {
-		if (!isStudentExist(student)) {
-			studentDao.create(student);
-			log.warn("Student with name {} was added", student.getFirstName() + " " + student.getLastName());
-		} else {
+		try {
+			isStudentExist(student);
 			log.warn("Student with name {} is already exist", student.getFirstName() + " " + student.getLastName());
-			throw new EntityAlreadyExistException(String.format(
-					"Can not create student with name %s student already exist", student.getFirstName() + " " + student.getLastName()));
+			throw new EntityAlreadyExistException(
+					String.format("Can not create student with name %s student already exist",
+							student.getFirstName() + " " + student.getLastName()));
+
+		} catch (EntityNotFoundException e) {
+			studentDao.create(student);
+			log.debug("Student with name {} was added", student.getFirstName() + " " + student.getLastName());
 		}
 	}
 
@@ -36,10 +39,6 @@ public class StudentService {
 		if (isStudentExist(student)) {
 			studentDao.update(student);
 			log.warn("Student with name {} was updated", student.getFirstName() + " " + student.getLastName());
-		} else {
-			log.warn("Student with name {} doesn't exist", student.getFirstName() + " " + student.getLastName());
-			throw new EntityNotFoundException(String.format(
-					"Can not update student with name %s student doesn't exist", student.getFirstName() + " " + student.getLastName()));
 		}
 	}
 
@@ -47,10 +46,6 @@ public class StudentService {
 		if (isStudentExist(student)) {
 			studentDao.delete(student.getId());
 			log.warn("Student with name {} was deleted", student.getFirstName() + " " + student.getLastName());
-		} else {
-			log.warn("Student with name {} doesn't exist", student.getFirstName() + " " + student.getLastName());
-			throw new EntityNotFoundException(String.format(
-					"Can not delete student with name %s student doesn't exist", student.getFirstName() + " " + student.getLastName()));
 		}
 	}
 
@@ -71,7 +66,11 @@ public class StudentService {
 	}
 
 	private boolean isStudentExist(Student student) {
-		log.debug("Is student with ID {} exist?", student.getId());
-		return studentDao.findById(student.getId()).isPresent();
+		if (studentDao.findById(student.getId()).isPresent()) {
+			return true;
+		} else {
+			throw new EntityNotFoundException(
+					String.format("Student with name %s doesn't exist", student.getFirstName() + " " + student.getLastName()));
+		}
 	}
 }

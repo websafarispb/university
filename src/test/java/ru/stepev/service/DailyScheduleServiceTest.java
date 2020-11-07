@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.jdbc.JdbcGroupDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.DailySchedule;
 
@@ -51,11 +50,8 @@ public class DailyScheduleServiceTest {
 		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
 				.thenReturn(Optional.of(dailyScheduleForCreate));
 		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> dailyScheduleService.add(dailyScheduleForCreate));
+		dailyScheduleService.add(dailyScheduleForCreate);
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create DailySchedule with date %s DailySchedule already exist",
-				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).create(dailyScheduleForCreate);
 	}
 
@@ -77,7 +73,7 @@ public class DailyScheduleServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> dailyScheduleService.update(dailyScheduleForCreate));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not update DailySchedule with date %s DailySchedule doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("DailySchedule with date %s doesn't exist",
 				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).update(dailyScheduleForCreate);
 	}
@@ -101,7 +97,7 @@ public class DailyScheduleServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> dailyScheduleService.delete(dailyScheduleForCreate));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not delete DailySchedule with date %s DailySchedule doesn't exist",
+		assertThat(exception.getMessage()).isEqualTo("DailySchedule with date %s doesn't exist",
 				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).delete(dailyScheduleForCreate.getId());
 	}

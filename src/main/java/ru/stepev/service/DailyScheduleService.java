@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.GroupDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
@@ -27,14 +26,12 @@ public class DailyScheduleService {
 	}
 
 	public void add(DailySchedule dailySchedule) {
-		if (!isDailyScheduleExist(dailySchedule)) {
+		try {
+			isDailyScheduleExist(dailySchedule);
+			log.warn("DailySchedule with date {} is already exist", dailySchedule.getDate());
+		} catch (EntityNotFoundException e) {
 			dailyScheduleDao.create(dailySchedule);
 			log.debug("DailySchedule with date {} was created", dailySchedule.getDate());
-		} else {
-			log.warn("DailySchedule with date {} is already exist", dailySchedule.getDate());
-			throw new EntityAlreadyExistException(
-					String.format("Can not create DailySchedule with date %s DailySchedule already exist",
-							dailySchedule.getDate().toString()));
 		}
 	}
 
@@ -42,11 +39,6 @@ public class DailyScheduleService {
 		log.debug("Updating DailySchedule with date {}", dailySchedule.getDate());
 		if (isDailyScheduleExist(dailySchedule)) {
 			dailyScheduleDao.update(dailySchedule);
-		} else {
-			log.warn("DailySchedule with date {} doesn't exist", dailySchedule.getDate());
-			throw new EntityNotFoundException(
-					String.format("Can not update DailySchedule with date %s DailySchedule doesn't exist",
-							dailySchedule.getDate().toString()));
 		}
 	}
 
@@ -54,11 +46,6 @@ public class DailyScheduleService {
 		log.debug("Delete DailySchedule with date {}", dailySchedule.getDate());
 		if (isDailyScheduleExist(dailySchedule)) {
 			dailyScheduleDao.delete(dailySchedule.getId());
-		} else {
-			log.warn("Classroom with address {} doesn't exist", dailySchedule.getDate());
-			throw new EntityNotFoundException(
-					String.format("Can not delete DailySchedule with date %s DailySchedule doesn't exist",
-							dailySchedule.getDate().toString()));
 		}
 	}
 
@@ -88,7 +75,11 @@ public class DailyScheduleService {
 	}
 
 	private boolean isDailyScheduleExist(DailySchedule dailySchedule) {
-		log.debug("Is DailySchedule with date {} exist?", dailySchedule.getDate());
-		return dailyScheduleDao.findById(dailySchedule.getId()).isPresent();
+		if (dailyScheduleDao.findById(dailySchedule.getId()).isPresent()) {
+			return true;
+		} else {
+			throw new EntityNotFoundException(
+					String.format("DailySchedule with date %s doesn't exist", dailySchedule.getDate().toString()));
+		}
 	}
 }

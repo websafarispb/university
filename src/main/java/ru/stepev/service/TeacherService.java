@@ -22,14 +22,16 @@ public class TeacherService {
 	}
 
 	public void add(Teacher teacher) {
-		if (!isTeacherExist(teacher)) {
+		try {
+			isTeacherExist(teacher);
+			log.warn("Teacher with name {} is already exist", teacher.getFirstName() + " " + teacher.getLastName());
+			throw new EntityAlreadyExistException(
+					String.format("Can not create teacher with name %s teacher already exist",
+							teacher.getFirstName() + " " + teacher.getLastName()));
+
+		} catch (EntityNotFoundException e) {
 			teacherDao.create(teacher);
 			log.warn("Teacher with name {} was added", teacher.getFirstName() + " " + teacher.getLastName());
-
-		}  else {
-			log.warn("Teacher with name {} is already exist", teacher.getFirstName() + " " + teacher.getLastName());
-			throw new EntityAlreadyExistException(String.format(
-					"Can not create teacher with name %s teacher already exist", teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 	}
 
@@ -37,10 +39,6 @@ public class TeacherService {
 		if (isTeacherExist(teacher)) {
 			teacherDao.update(teacher);
 			log.warn("Teacher with name {} was updated", teacher.getFirstName() + " " + teacher.getLastName());
-		} else {
-			log.warn("Teacher with name {} doesn't exist", teacher.getFirstName() + " " + teacher.getLastName());
-			throw new EntityNotFoundException(String.format(
-					"Can not update teacher with name %s teacher doesn't exist", teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 	}
 
@@ -48,10 +46,6 @@ public class TeacherService {
 		if (isTeacherExist(teacher)) {
 			teacherDao.delete(teacher.getId());
 			log.warn("Teacher with name {} was deleted", teacher.getFirstName() + " " + teacher.getLastName());
-		} else {
-			log.warn("Teacher with name {} doesn't exist", teacher.getFirstName() + " " + teacher.getLastName());
-			throw new EntityNotFoundException(String.format(
-					"Can not delete teacher with name %s teacher doesn't exist", teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 	}
 
@@ -62,9 +56,14 @@ public class TeacherService {
 	public List<Teacher> getAll() {
 		return teacherDao.findAll();
 	}
-	
+
 	private boolean isTeacherExist(Teacher teacher) {
-		log.debug("Is teacher with ID {} exist?", teacher.getId());
-		return teacherDao.findById(teacher.getId()).isPresent();
+
+		if (teacherDao.findById(teacher.getId()).isPresent()) {
+			return true;
+		} else {
+			throw new EntityNotFoundException(String.format("Teacher with name %s doesn't exist",
+					teacher.getFirstName() + " " + teacher.getLastName()));
+		}
 	}
 }
