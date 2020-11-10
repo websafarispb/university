@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
+import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.exception.TecherIsNotAbleTheachCourseException;
 import ru.stepev.model.Course;
@@ -31,28 +32,26 @@ public class CourseService {
 	public void add(Course course) {
 		log.debug("Creating course {}", course.getName());
 		try {
-			isCourseExist(course);
+			isCourseNotExist(course);
+			isTeacherCanTheachCourse(course);
+			courseDao.create(course);
+			log.debug("Course with name {} was created", course.getName());
+		} catch (EntityAlreadyExistException e) {
 			log.warn("Course with name {} is already exist", course.getName());
-		} catch (EntityNotFoundException e) {
-			if (isTeacherCanTheachCourse(course)) {
-				courseDao.create(course);
-				log.debug("Course with name {} was created", course.getName());
-			}
 		}
 	}
 
 	public void update(Course course) {
-		if (isCourseExist(course) && isTeacherCanTheachCourse(course)) {
-			courseDao.update(course);
-			log.debug("Course with name {} was updated", course.getName());
-		}
+		isCourseExist(course);
+		isTeacherCanTheachCourse(course);
+		courseDao.update(course);
+		log.debug("Course with name {} was updated", course.getName());
 	}
 
 	public void delete(Course course) {
-		if (isCourseExist(course)) {
-			courseDao.delete(course.getId());
-			log.debug("Course with name {} was deleted", course.getName());
-		}
+		isCourseExist(course);
+		courseDao.delete(course.getId());
+		log.debug("Course with name {} was deleted", course.getName());
 	}
 
 	public Optional<Course> getById(int courseId) {
@@ -71,18 +70,19 @@ public class CourseService {
 		return courseDao.findByStudentId(student.getId());
 	}
 
-	private boolean isTeacherCanTheachCourse(Course course) {
-		if (teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() > 0)
-			return true;
-		else
+	private void isTeacherCanTheachCourse(Course course) {
+		if (teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() <= 0)
 			throw new TecherIsNotAbleTheachCourseException(
 					String.format("Teacher can't teach course name %s", course.getName()));
 	}
 
-	private boolean isCourseExist(Course course) {
+	private void isCourseNotExist(Course course) {
 		if (courseDao.findById(course.getId()).isPresent())
-			return true;
-		else
+			throw new EntityAlreadyExistException(String.format("Course with name %s already exist", course.getName()));
+	}
+
+	private void isCourseExist(Course course) {
+		if (courseDao.findById(course.getId()).isEmpty())
 			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", course.getName()));
 	}
 }

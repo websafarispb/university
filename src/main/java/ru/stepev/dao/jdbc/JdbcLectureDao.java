@@ -91,7 +91,7 @@ public class JdbcLectureDao implements LectureDao {
 	}
 
 	public List<Lecture> findByDailyScheduleId(int dailyScheduleId) {
-		log.debug("Finding by dailyscheduale ID");
+		log.debug("Finding by dailyscheduleId - {}", dailyScheduleId);
 		Object[] objects = new Object[] { dailyScheduleId };
 		return jdbcTemplate.query(GET_BY_DAILY_SCHEDULE, objects, lectureRowMapper);
 	}
@@ -107,7 +107,6 @@ public class JdbcLectureDao implements LectureDao {
 			Optional<Lecture> lecture = Optional
 					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID,
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, groupId));
-			log.debug("Lecture was found");
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Lecture  was not found");
@@ -122,7 +121,6 @@ public class JdbcLectureDao implements LectureDao {
 			Optional<Lecture> lecture = Optional
 					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID,
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, classroomId));
-			log.debug("Lecture  was found");
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Lecture was not found");
@@ -137,7 +135,6 @@ public class JdbcLectureDao implements LectureDao {
 			Optional<Lecture> lecture = Optional
 					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID,
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, teacherId));
-			log.debug("Lecture was found");
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Lecture was not found");

@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.TeacherDao;
-import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Teacher;
 
@@ -43,12 +42,9 @@ public class TeacherServiceTest {
 	@Test
 	public void givenTeacher_whenTeacherExist_thenDoNotAddTeacher() {
 		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.of(teacherForTest));
-		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> teacherService.add(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Can not create teacher with name %s teacher already exist",
-				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
+		teacherService.add(teacherForTest);
+
 		verify(teacherDao, never()).create(teacherForTest);
 	}
 
@@ -64,7 +60,7 @@ public class TeacherServiceTest {
 	@Test
 	public void givenTeacher_whenTeacherDoesNotExist_thenDoNotUpdateTeacher() {
 		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.empty());
-		
+
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.update(teacherForTest));
 
@@ -85,7 +81,7 @@ public class TeacherServiceTest {
 	@Test
 	public void givenTeacher_whenTeacherDoeNotExist_thenDoNotDeleteTeacher() {
 		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.empty());
-		
+
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.delete(teacherForTest));
 
