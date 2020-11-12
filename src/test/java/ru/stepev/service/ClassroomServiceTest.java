@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
+import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 
@@ -48,12 +49,15 @@ public class ClassroomServiceTest {
 
 		assertThat(expected).isEqualTo(actual);
 	}
-	
+
 	@Test
 	public void givenClassroom_whenAddClassroomExist_thenNotAddClassroom() {
 		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.of(classroomForCreate));
 
-		classroomService.add(classroomForCreate);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> classroomService.add(classroomForCreate));
+
+		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s already exist", classroomForCreate.getId());
 
 		verify(classroomDao, never()).create(classroomForCreate);
 	}
@@ -75,16 +79,15 @@ public class ClassroomServiceTest {
 
 		verify(classroomDao).delete(classroomForDelete.getId());
 	}
-	
+
 	@Test
 	public void givenClassroom_whenDeleteClassroomDoesNotExist_thenNotDeleteClassroom() {
 		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.empty());
-		
+
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.delete(classroomForDelete));
 
-		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist",
-				classroomForDelete.getId());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist", classroomForDelete.getId());
 		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
@@ -96,16 +99,15 @@ public class ClassroomServiceTest {
 
 		verify(classroomDao).update(classroomForDelete);
 	}
-	
+
 	@Test
 	public void givenClassroom_whenUpdateClassroomDoesNotExist_thenNotUpdateClassroom() {
 		when(classroomDao.findById(classroomForUpdate.getId())).thenReturn(Optional.empty());
-		
+
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.update(classroomForUpdate));
 
-		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist",
-				classroomForUpdate.getId());		
+		assertThat(exception.getMessage()).isEqualTo("Classroom with ID %s doesn't exist", classroomForUpdate.getId());
 
 		verify(classroomDao, never()).update(classroomForUpdate);
 	}

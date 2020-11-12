@@ -52,8 +52,7 @@ public class JdbcGroupDao implements GroupDao {
 			statement.setString(1, group.getName());
 			return statement;
 		}, keyHolder) == 0) {
-			log.warn("Group with name {} could not been created", group.getName());
-			throw new EntityCouldNotBeenCreatedException("Group could not been created!!!");
+			throw new EntityCouldNotBeenCreatedException(String.format("Group with name %s could not been created", group.getName()));
 		}
 		group.setId((int) (keyHolder.getKeys().get("id")));
 		group.getStudents().stream().forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));
@@ -68,22 +67,19 @@ public class JdbcGroupDao implements GroupDao {
 			group.getStudents().stream().filter(s -> !updatedGroup.get().getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));
 		} else {
-			log.warn("Group with name {} could not been updated", group.getName());
-			throw new EntityCouldNotBeenUpdatedException("Group could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(String.format("Group with name %s could not been updated", group.getName()));
 		}
 	}
 
 	public void delete(int groupId) {
 		if (jdbcTemplate.update(DELETE_GROUP_BY_ID, groupId) == 0) {
-			log.warn("Group with Id {} could not been deleted", groupId);
-			throw new EntityCouldNotBeenDeletedException("Group could not been deleted!!!");
+			throw new EntityCouldNotBeenDeletedException(String.format("Group with name %s could not been deleted", groupId));
 		}
 	}
 
 	public Optional<Group> findById(int groupId) {
 		try {
 			Optional<Group> group = Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_ID, groupRowMapper, groupId));
-			log.debug("Group with id {} was found", groupId);
 			return group;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Group with id {} was not found", groupId);
@@ -101,7 +97,6 @@ public class JdbcGroupDao implements GroupDao {
 		try {
 			Optional<Group> group = Optional
 					.of(jdbcTemplate.queryForObject(GET_BY_STUDENT_ID, objects, groupRowMapper));
-			log.debug("Group with Student id {} was found", studentId);
 			return group;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Group with Student id {} was not found", studentId);
@@ -112,7 +107,6 @@ public class JdbcGroupDao implements GroupDao {
 	public Optional<Group> findByGroupIdAndCourseId(int groupId, int courseId) {
 		Object[] objects = new Object[] { courseId, groupId, groupId };
 		try {
-			log.debug("Group with id {} was found", groupId);
 			return Optional
 					.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID, objects, groupRowMapper));
 		} catch (EmptyResultDataAccessException e) {

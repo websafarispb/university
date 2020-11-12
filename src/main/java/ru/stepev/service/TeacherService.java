@@ -22,23 +22,19 @@ public class TeacherService {
 	}
 
 	public void add(Teacher teacher) {
-		try {
-			isTeacherNotExist(teacher);
-			teacherDao.create(teacher);
-			log.debug("Teacher with name {} was added", teacher.getFirstName() + " " + teacher.getLastName());
-		} catch (EntityAlreadyExistException e) {
-			log.warn("Teacher with name {} is already exist", teacher.getFirstName() + " " + teacher.getLastName());
-		}
+		checkTeacherNotExist(teacher);
+		teacherDao.create(teacher);
+		log.debug("Teacher with name {} was added", teacher.getFirstName() + " " + teacher.getLastName());
 	}
 
 	public void update(Teacher teacher) {
-		isTeacherExist(teacher);
+		checkTeacherExist(teacher);
 		teacherDao.update(teacher);
 		log.debug("Teacher with name {} was updated", teacher.getFirstName() + " " + teacher.getLastName());
 	}
 
 	public void delete(Teacher teacher) {
-		isTeacherExist(teacher);
+		checkTeacherExist(teacher);
 		teacherDao.delete(teacher.getId());
 		log.debug("Teacher with name {} was deleted", teacher.getFirstName() + " " + teacher.getLastName());
 	}
@@ -51,14 +47,14 @@ public class TeacherService {
 		return teacherDao.findAll();
 	}
 
-	private void isTeacherExist(Teacher teacher) {
+	public void checkTeacherExist(Teacher teacher) {
 		if (teacherDao.findById(teacher.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Teacher with name %s doesn't exist",
 					teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 	}
 
-	private void isTeacherNotExist(Teacher teacher) {
+	public void checkTeacherNotExist(Teacher teacher) {
 		if (teacherDao.findById(teacher.getId()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Teacher with name %s already exist",
 					teacher.getFirstName() + " " + teacher.getLastName()));

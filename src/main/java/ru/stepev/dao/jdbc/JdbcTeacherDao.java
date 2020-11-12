@@ -56,13 +56,11 @@ public class JdbcTeacherDao implements TeacherDao {
 			statement.setString(7, teacher.getAddress());
 			return statement;
 		}, keyHolder) == 0) {
-			log.warn("Teacher with name {} could not been created",
-					teacher.getFirstName() + " " + teacher.getLastName());
-			throw new EntityCouldNotBeenCreatedException("Teacher could not been created!!!");
+			throw new EntityCouldNotBeenCreatedException(String.format("Teacher with name %s could not been created",
+					teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 		teacher.setId((int) keyHolder.getKeys().get("id"));
 		teacher.getCourses().forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
-		log.debug("Teacher  was created");
 	}
 
 	@Transactional
@@ -75,25 +73,23 @@ public class JdbcTeacherDao implements TeacherDao {
 					.forEach(c -> jdbcTemplate.update(DELETE_COURSE, teacher.getId(), c.getId()));
 			teacher.getCourses().stream().filter(not(updatedTeacher.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ADD_COURSE, teacher.getId(), c.getId()));
-			log.debug("Teacher with name {} was updated", teacher.getFirstName() + " " + teacher.getLastName());
 		} else {
-			log.warn("Teacher with name {} could not been updated",
-					teacher.getFirstName() + " " + teacher.getLastName());
-			throw new EntityCouldNotBeenUpdatedException("Teacher could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(String.format("Teacher with name %s could not been updated",
+					teacher.getFirstName() + " " + teacher.getLastName()));
 		}
 	}
 
 	public void delete(int teacherId) {
 		if (jdbcTemplate.update(DELETE_TEACHER_QUERY, teacherId) == 0) {
-			log.warn("Teacher with id {} could not been deleted", teacherId);
-			throw new EntityCouldNotBeenUpdatedException("Teacher could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("Teacher with Id %s could not been delete", teacherId));
 		}
-		log.debug("Teacher with id {} was deleted", teacherId);
 	}
 
 	public Optional<Teacher> findById(int teacherId) {
 		try {
-			Optional<Teacher> teacher = Optional.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
+			Optional<Teacher> teacher = Optional
+					.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
 			log.debug("Teacher was found by ID {}", teacherId);
 			return teacher;
 		} catch (EmptyResultDataAccessException e) {

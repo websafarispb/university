@@ -27,25 +27,22 @@ public class DailyScheduleService {
 	}
 
 	public void add(DailySchedule dailySchedule) {
-		try {
-			isDailyScheduleNotExist(dailySchedule);
-			dailyScheduleDao.create(dailySchedule);
-			log.debug("DailySchedule with date {} was created", dailySchedule.getDate());
-		} catch (EntityAlreadyExistException e) {
-			log.warn("DailySchedule with date {} is already exist", dailySchedule.getDate());
-		}
+		checkDailyScheduleNotExist(dailySchedule.getId());
+		dailyScheduleDao.create(dailySchedule);
+		log.debug("DailySchedule with date {} was created", dailySchedule.getDate());
+
 	}
 
 	public void update(DailySchedule dailySchedule) {
-		log.debug("Updating DailySchedule with date {}", dailySchedule.getDate());
-		isDailyScheduleExist(dailySchedule);
+		checkDailyScheduleExist(dailySchedule.getId());
 		dailyScheduleDao.update(dailySchedule);
+		log.debug("DailySchedule with date {} was updated", dailySchedule.getDate());
 	}
 
 	public void delete(DailySchedule dailySchedule) {
-		log.debug("Delete DailySchedule with date {}", dailySchedule.getDate());
-		isDailyScheduleExist(dailySchedule);
+		checkDailyScheduleExist(dailySchedule.getId());
 		dailyScheduleDao.delete(dailySchedule.getId());
+		log.debug("Delete DailySchedule with date {}  was deleted", dailySchedule.getDate());
 	}
 
 	public Optional<DailySchedule> getById(int scheduleId) {
@@ -73,17 +70,17 @@ public class DailyScheduleService {
 		return dailyScheduleDao.findByGroupAndPeriodOfTime(group, firstDate, lastDate);
 	}
 
-	private void isDailyScheduleNotExist(DailySchedule dailySchedule) {
-		if (dailyScheduleDao.findById(dailySchedule.getId()).isPresent()) {
+	public void checkDailyScheduleNotExist(int dailyScheduleId) {
+		if (dailyScheduleDao.findById(dailyScheduleId).isPresent()) {
 			throw new EntityAlreadyExistException(
-					String.format("DailySchedule with date %s already exist", dailySchedule.getDate().toString()));
+					String.format("DailySchedule with Id %s already exist", dailyScheduleId));
 		}
 	}
 
-	private void isDailyScheduleExist(DailySchedule dailySchedule) {
-		if (dailyScheduleDao.findById(dailySchedule.getId()).isEmpty()) {
+	public void checkDailyScheduleExist(int dailyScheduleId) {
+		if (dailyScheduleDao.findById(dailyScheduleId).isEmpty()) {
 			throw new EntityNotFoundException(
-					String.format("DailySchedule with date %s doesn't exist", dailySchedule.getDate().toString()));
+					String.format("DailySchedule with Id %s doesn't exist", dailyScheduleId));
 		}
 	}
 }

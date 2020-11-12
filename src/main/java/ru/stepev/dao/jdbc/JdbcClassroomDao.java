@@ -46,30 +46,26 @@ public class JdbcClassroomDao implements ClassroomDao {
 			statement.setInt(2, classroom.getCapacity());
 			return statement;
 		}, keyHolder) == 0) {
-			log.warn("Classroom with getAddress {} could not been created", classroom.getAddress());
-			throw new EntityCouldNotBeenCreatedException("Classroom could not been created!!!");
+			throw new EntityCouldNotBeenCreatedException(String.format("Classroom  with address %s could not been created!!!",classroom.getAddress()));
 		}
 		classroom.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Classroom classroom) {
 		if(jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId())==0) {
-			log.warn("Classroom with getAddress {} could not been updated", classroom.getAddress());
-			throw new EntityCouldNotBeenUpdatedException("Classroom could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(String.format("Classroom  with address %s could not been updated!!!",classroom.getAddress()));
 		}
 	}
 
 	public void delete(int classroomId) {
 		if(jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId)==0) {
-			log.warn("Classroom with Id {} could not been deleted", classroomId);
-			throw new EntityCouldNotBeenDeletedException("Classroom could not been deleted!!!");
+			throw new EntityCouldNotBeenDeletedException(String.format("Classroom  with Id %s could not been deleted!!!",classroomId));
 		}
 	}
 
 	public Optional<Classroom> findById(int classroomId) {
 		try {
 			Optional<Classroom> classroom = Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId));
-			log.debug("Classroom with id {} was found", classroomId);
 			return classroom;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Classroom with id {} was not found", classroomId);

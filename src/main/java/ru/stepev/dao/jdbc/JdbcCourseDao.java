@@ -50,23 +50,20 @@ public class JdbcCourseDao implements CourseDao {
 			statement.setString(2, course.getDescription());
 			return statement;
 		}, keyHolder) == 0) {
-			log.warn("Course with name {} could not been created", course.getName());
-			throw new EntityCouldNotBeenCreatedException("Course could not been created!!!");
+			throw new EntityCouldNotBeenCreatedException(String.format("Course with name %s could not been created!!!", course.getName()));
 		}
 		course.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Course course) {
 		if (jdbcTemplate.update(UPDATE_COURSE_BY_ID, course.getName(), course.getDescription(), course.getId()) == 0) {
-			log.warn("Course with name {} could not been updated", course.getName());
-			throw new EntityCouldNotBeenUpdatedException("Course could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(String.format("Course with name %s could not been update!!!",course.getName()));
 		}
 	}
 
 	public void delete(int courseId) {
 		if (jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId) == 0) {
-			log.warn("Course with Id {} could not been deleted", courseId);
-			throw new EntityCouldNotBeenDeletedException("Course could not been deleted!!!");
+			throw new EntityCouldNotBeenDeletedException(String.format("Course with Id %s could not been delete!!!",courseId));
 		}
 	}
 
@@ -74,7 +71,6 @@ public class JdbcCourseDao implements CourseDao {
 		try {
 			Optional<Course> course = Optional
 					.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
-			log.debug("Course with id {} was found", courseId);
 			return course;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Course with id {} was not found", courseId);

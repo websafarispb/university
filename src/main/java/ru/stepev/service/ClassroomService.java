@@ -21,27 +21,21 @@ public class ClassroomService {
 	}
 
 	public void add(Classroom classroom) {
-		log.debug("Creating classroom with address {}", classroom.getAddress());
-		try {
-			isClassroomNotExist(classroom.getId());
-			classroomDao.create(classroom);
-			log.debug("Classroom with address {} was created", classroom.getAddress());
-		} catch (EntityAlreadyExistException e) {
-			log.warn("Classroom with address {} was not created", classroom.getAddress());
-		}
+		checkClassroomNotExist(classroom.getId());
+		classroomDao.create(classroom);
+		log.debug("Classroom with address {} was created", classroom.getAddress());
+
 	}
 
 	public void update(Classroom classroom) {
-		log.debug("Updating classroom with address {}", classroom.getAddress());
-		isClassroomExist(classroom.getId());
+		checkClassroomExist(classroom.getId());
 		classroomDao.update(classroom);
 		log.debug("Classroom with address {} was updated", classroom.getAddress());
 
 	}
 
 	public void delete(Classroom classroom) {
-		log.debug("Delete classroom with address {}", classroom.getAddress());
-		isClassroomExist(classroom.getId());
+		checkClassroomExist(classroom.getId());
 		classroomDao.delete(classroom.getId());
 		log.debug("Classroom with address {} was deleted", classroom.getAddress());
 
@@ -55,12 +49,12 @@ public class ClassroomService {
 		return classroomDao.findAll();
 	}
 
-	private void isClassroomNotExist(int classroomId) {
+	public void checkClassroomNotExist(int classroomId) {
 		if (classroomDao.findById(classroomId).isPresent())
 			throw new EntityAlreadyExistException(String.format("Classroom with ID %s already exist", classroomId));
 	}
 
-	private void isClassroomExist(int classroomId) {
+	public void checkClassroomExist(int classroomId) {
 		if (classroomDao.findById(classroomId).isEmpty())
 			throw new EntityNotFoundException(String.format("Classroom with ID %s doesn't exist", classroomId));
 	}

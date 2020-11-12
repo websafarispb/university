@@ -15,8 +15,8 @@ import ru.stepev.dao.LectureDao;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.ClassroomHasNotQuiteCapacity;
 import ru.stepev.exception.ClassroomIsNotFreeException;
+import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.exception.FildsNotFoundException;
 import ru.stepev.exception.GroupCanNotStudyCourseException;
 import ru.stepev.exception.GroupIsNotFreeException;
 import ru.stepev.exception.TeacherIsNotFreeException;
@@ -37,72 +37,81 @@ public class LectureService {
 	private ClassroomDao classroomDao;
 	private GroupDao groupDao;
 	private TeacherDao teacherDao;
+	private DailyScheduleService dailyScheduleSerive;
+	private CourseService courseSerice;
+	private ClassroomService classroomService;
+	private GroupService groupService;
+	private TeacherService teacherService;
 
 	@Value("${durationOfLecture}")
 	private int durationOfLecture;
 
 	public LectureService(DailyScheduleDao dailyScheduleDao, CourseDao courseDao, ClassroomDao classroomDao,
-			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao) {
+			GroupDao groupDao, TeacherDao teacherDao, LectureDao lectureDao, DailyScheduleService dailyScheduleSerive,
+			CourseService courseSerice, ClassroomService classroomService, GroupService groupService,
+			TeacherService teacherService) {
 		this.dailyScheduleDao = dailyScheduleDao;
 		this.courseDao = courseDao;
 		this.classroomDao = classroomDao;
 		this.groupDao = groupDao;
 		this.teacherDao = teacherDao;
 		this.lectureDao = lectureDao;
+		this.dailyScheduleSerive = dailyScheduleSerive;
+		this.courseSerice = courseSerice;
+		this.classroomService = classroomService;
+		this.groupService = groupService;
+		this.teacherService = teacherService;
 	}
 
-	public void add(Lecture lecture) {
-		try {
-			checkAllFieldsOfLectureForExist(lecture);
-			isClassroomFree(lecture);
-			isGroupFree(lecture);
-			isTeacherFree(lecture);
-			isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse());
-			isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse());
-			isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup());
-			isLectureExist(lecture);
-			log.warn("Lecture with time {} was not created", lecture.getTime());
-		} catch (EntityNotFoundException e) {
-			lectureDao.create(lecture);
-			log.debug("Lecture with time {} was created", lecture.getTime());
-		}
-	}
-
-	public void checkAllFieldsOfLectureForExist(Lecture lecture) {
-		boolean dailyScheduleExist = dailyScheduleDao.findById(lecture.getDailyScheduleId()).isPresent();
-		boolean courseExist = courseDao.findById(lecture.getCourse().getId()).isPresent();
-		boolean classroomExist = classroomDao.findById(lecture.getClassRoom().getId()).isPresent();
-		boolean groupExist = groupDao.findById(lecture.getGroup().getId()).isPresent();
-		boolean teacherExist = teacherDao.findById(lecture.getTeacher().getId()).isPresent();
-
-		if (!(dailyScheduleExist && courseExist && classroomExist && groupExist && teacherExist)) {
-			throw new FildsNotFoundException(
-					String.format("Some filds of lecture doesn't exist!"));
-		} 
-	}
-
-	public void isLectureExist(Lecture lecture) {
+	public void checkLectureExist(Lecture lecture) {
 		if (lectureDao.findById(lecture.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Lecture with ID %s doesn't exist", lecture.getId()));
 		}
 	}
 
-	public void update(Lecture lecture) {
-		isLectureExist(lecture);
-		isGroupFree(lecture);
+	public void checkLectureNotExist(Lecture lecture) {
+		if (lectureDao.findById(lecture.getId()).isPresent()) {
+			throw new EntityAlreadyExistException(String.format("Lecture with ID %s already exist", lecture.getId()));
+		}
+	}
+
+	public void add(Lecture lecture) {
+		checkLectureNotExist(lecture);
 		checkAllFieldsOfLectureForExist(lecture);
-		isClassroomFree(lecture);
-		isTeacherFree(lecture);
-		isTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse());
-		isGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse());
-		isClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup());
+		checkClassroomFree(lecture);
+		checkGroupFree(lecture);
+		checkTeacherFree(lecture);
+		checkTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse());
+		checkGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse());
+		checkClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup());
+		lectureDao.create(lecture);
+		log.debug("Lecture with time {} was created", lecture.getTime());
+	}
+
+	public void checkAllFieldsOfLectureForExist(Lecture lecture) {
+		dailyScheduleSerive.checkDailyScheduleExist(lecture.getDailyScheduleId());
+		courseSerice.checkCourseExist(lecture.getCourse());
+		classroomService.checkClassroomExist(lecture.getClassRoom().getId());
+		teacherService.checkTeacherExist(lecture.getTeacher());
+		groupService.checkGroupExist(lecture.getGroup());
+	}
+
+	public void update(Lecture lecture) {
+		checkLectureExist(lecture);
+		checkGroupFree(lecture);
+		checkAllFieldsOfLectureForExist(lecture);
+		checkClassroomFree(lecture);
+		checkTeacherFree(lecture);
+		checkTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse());
+		checkGroupCanStudyCourse(lecture.getGroup(), lecture.getCourse());
+		checkClassroomHasQuiteCapacity(lecture.getClassRoom(), lecture.getGroup());
 		lectureDao.update(lecture);
 		log.debug("Lecture with time {} was updated", lecture.getTime());
 
 	}
 
 	public void delete(Lecture lecture) {
-		isLectureExist(lecture);
+		checkLectureExist(lecture);
 		lectureDao.delete(lecture.getId());
 		log.debug("Lecture with time {} was deleted", lecture.getTime());
 
@@ -120,14 +129,14 @@ public class LectureService {
 		return lectureDao.findAll();
 	}
 
-	private void isGroupFree(Lecture lecture) {
+	private void checkGroupFree(Lecture lecture) {
 		if (lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isPresent()) {
 			throw new GroupIsNotFreeException(String.format("Group name %s is not free", lecture.getGroup().getName()));
 		}
 	}
 
-	private void isClassroomFree(Lecture lecture) {
+	private void checkClassroomFree(Lecture lecture) {
 		if (lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isPresent()) {
 			throw new ClassroomIsNotFreeException(
@@ -135,7 +144,7 @@ public class LectureService {
 		}
 	}
 
-	private void isTeacherFree(Lecture lecture) {
+	private void checkTeacherFree(Lecture lecture) {
 		if (lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isPresent()) {
 			throw new TeacherIsNotFreeException(
@@ -143,21 +152,21 @@ public class LectureService {
 		}
 	}
 
-	private void isClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
+	private void checkClassroomHasQuiteCapacity(Classroom classRoom, Group group) {
 		if (classRoom.getCapacity() < group.getStudents().size()) {
 			throw new ClassroomHasNotQuiteCapacity(
 					String.format("Classroom with address %s doesn't have quite capacity", classRoom.getAddress()));
 		}
 	}
 
-	private void isGroupCanStudyCourse(Group group, Course course) {
+	private void checkGroupCanStudyCourse(Group group, Course course) {
 		if (groupDao.findByGroupIdAndCourseId(group.getId(), course.getId()).isEmpty()) {
 			throw new GroupCanNotStudyCourseException(
 					String.format("Group with name %s can't study course %s", group.getName(), course.getName()));
 		}
 	}
 
-	private void isTeacherCanTeachCourse(Teacher teacher, Course course) {
+	private void checkTeacherCanTeachCourse(Teacher teacher, Course course) {
 		if (!teacher.getCourses().contains(course)) {
 			throw new TecherIsNotAbleTheachCourseException(
 					String.format("Teacher name %s can't teach course %s", teacher.getLastName(), course.getName()));

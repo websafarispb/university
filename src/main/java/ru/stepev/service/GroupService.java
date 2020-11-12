@@ -28,26 +28,22 @@ public class GroupService {
 	}
 
 	public void add(Group group) {
-		try {
-			isGroupNotExist(group);
-			areStudentsExist(group);
-			groupDao.create(group);
-			log.debug("Group with name {} was created ", group.getName());
-		} catch (EntityAlreadyExistException e) {
-			log.warn("Group with name {} is already exist", group.getName());
-		}
+		checkGroupNotExist(group);
+		checkStudentsExist(group);
+		groupDao.create(group);
+		log.debug("Group with name {} was created ", group.getName());
 	}
 
 	public void update(Group group) {
-		isGroupExist(group);
-		areStudentsExist(group);
+		checkGroupExist(group);
+		checkStudentsExist(group);
 		groupDao.update(group);
 		log.debug("Group with name {} was updated ", group.getName());
 
 	}
 
 	public void delete(Group group) {
-		isGroupExist(group);
+		checkGroupExist(group);
 		groupDao.delete(group.getId());
 		log.debug("Group with name {} was deleted ", group.getName());
 	}
@@ -64,19 +60,19 @@ public class GroupService {
 		return groupDao.findByStudentId(studentId);
 	}
 
-	private void isGroupNotExist(Group group) {
+	public void checkGroupNotExist(Group group) {
 		if (groupDao.findById(group.getId()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Group with name %s already exist", group.getName()));
 		}
 	}
 
-	private void isGroupExist(Group group) {
+	public void checkGroupExist(Group group) {
 		if (groupDao.findById(group.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
 		}
 	}
 
-	private void areStudentsExist(Group group) {
+	private void checkStudentsExist(Group group) {
 		List<Student> correctStudents = group.getStudents().stream()
 				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
 		if (!correctStudents.equals(group.getStudents())) {

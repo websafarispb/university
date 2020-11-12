@@ -55,8 +55,8 @@ public class JdbcLectureDao implements LectureDao {
 			statement.setInt(6, lecture.getTeacher().getId());
 			return statement;
 		}, keyHolder) == 0) {
-			log.warn("Lecture with time {} could not been created", lecture.getTime());
-			throw new EntityCouldNotBeenCreatedException("Lecture could not been created!!!");
+			throw new EntityCouldNotBeenCreatedException(
+					String.format("Lecture with time %s could not been created", lecture.getTime()));
 		}
 		lecture.setId((int) keyHolder.getKeys().get("id"));
 	}
@@ -65,24 +65,22 @@ public class JdbcLectureDao implements LectureDao {
 		if (jdbcTemplate.update(UPDATE_BY_LECTURE_ID, lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getCourse().getId(), lecture.getClassRoom().getId(), lecture.getGroup().getId(),
 				lecture.getTeacher().getId(), lecture.getId()) == 0) {
-			log.warn("Lecture with time {} could not been updated", lecture.getTime());
-			throw new EntityCouldNotBeenUpdatedException("Lecture could not been updated!!!");
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("Lecture with time %s could not been updated", lecture.getTime()));
 		}
 	}
 
 	public void delete(int lectureId) {
 		if (jdbcTemplate.update(DELETE_LECTURE_BY_ID, lectureId) == 0) {
-			log.warn("Lecture with id {} could not been deleted", lectureId);
-			throw new EntityCouldNotBeenDeletedException("Lecture could not been deleted!!!");
+			throw new EntityCouldNotBeenDeletedException(
+					String.format("Lecture with time %s could not been deleted", lectureId));
 		}
-
 	}
 
 	public Optional<Lecture> findById(int lectureId) {
 		try {
 			Optional<Lecture> lecture = Optional
 					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_ID, lectureRowMapper, lectureId));
-			log.debug("Lecture with id {} was found", lectureId);
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Lecture with id {} was not found", lectureId);
@@ -109,7 +107,7 @@ public class JdbcLectureDao implements LectureDao {
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, groupId));
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
-			log.warn("Lecture  was not found");
+			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
 		}
 	}
@@ -123,7 +121,7 @@ public class JdbcLectureDao implements LectureDao {
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, classroomId));
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
-			log.warn("Lecture was not found");
+			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
 		}
 	}
@@ -137,7 +135,7 @@ public class JdbcLectureDao implements LectureDao {
 							lectureRowMapper, dailyScheduleId, startTime, finishTime, teacherId));
 			return lecture;
 		} catch (EmptyResultDataAccessException e) {
-			log.warn("Lecture was not found");
+			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
 		}
 	}

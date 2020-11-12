@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.TeacherDao;
+import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Teacher;
 
@@ -43,8 +44,11 @@ public class TeacherServiceTest {
 	public void givenTeacher_whenTeacherExist_thenDoNotAddTeacher() {
 		when(teacherDao.findById(teacherForTest.getId())).thenReturn(Optional.of(teacherForTest));
 
-		teacherService.add(teacherForTest);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> teacherService.add(teacherForTest));
 
+		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s already exist",
+				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
 		verify(teacherDao, never()).create(teacherForTest);
 	}
 

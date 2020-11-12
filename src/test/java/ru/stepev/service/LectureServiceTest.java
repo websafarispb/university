@@ -23,7 +23,8 @@ import ru.stepev.dao.LectureDao;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.ClassroomHasNotQuiteCapacity;
 import ru.stepev.exception.ClassroomIsNotFreeException;
-import ru.stepev.exception.FildsNotFoundException;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.GroupCanNotStudyCourseException;
 import ru.stepev.exception.GroupIsNotFreeException;
 import ru.stepev.exception.TeacherIsNotFreeException;
 import ru.stepev.model.Lecture;
@@ -45,6 +46,16 @@ public class LectureServiceTest {
 	private GroupDao groupDao;
 	@Mock
 	private TeacherDao teacherDao;
+	@Mock
+	private DailyScheduleService dailyScheduleSerive;
+	@Mock
+	private CourseService courseSerice;
+	@Mock
+	private ClassroomService classroomService;
+	@Mock
+	private GroupService groupService;
+	@Mock
+	private TeacherService teacherService;
 
 	@InjectMocks
 	private LectureService lectureService;
@@ -52,11 +63,6 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithAvaliableClassroom_whenAdd_thenAddLecture() {
 		Lecture lecture = lectureWithAvaliableClassroom;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -74,14 +80,9 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableClassroom_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = lectureWithNotAvaliableClassroom;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
-		
+
 		ClassroomIsNotFreeException exception = assertThrows(ClassroomIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
@@ -93,11 +94,6 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithAvaliableGroup_whenAdd_thenAddLecture() {
 		Lecture lecture = lectureWithAvaliableGroup;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -115,31 +111,20 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableGroup_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = lectureWithNotAvaliableGroup;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId()))
 						.thenReturn(Optional.of(lectureWithNotAvaliableClassroom));
-		
+
 		GroupIsNotFreeException exception = assertThrows(GroupIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free",
-				lecture.getGroup().getName());
+		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free", lecture.getGroup().getName());
 		verify(lectureDao, never()).create(lecture);
 	}
 
 	@Test
 	public void givenLectureWithAvaliableTeacher_whenAdd_thenAddLecture() {
 		Lecture lecture = correstLectureForTest;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(correstLectureForTest.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -157,23 +142,17 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableTeacher_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = wrongLectureForTest;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
-		
+
 		TeacherIsNotFreeException exception = assertThrows(TeacherIsNotFreeException.class,
 				() -> lectureService.add(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free",
-				lecture.getTeacher().getLastName());
+		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free", lecture.getTeacher().getLastName());
 		verify(lectureDao, never()).create(lecture);
 	}
 
@@ -181,23 +160,11 @@ public class LectureServiceTest {
 	public void givenExistingLecture_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = correstLectureForTest;
 		when(lectureDao.findById(correstLectureForTest.getId())).thenReturn(Optional.of(correstLectureForTest));
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
-		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
-				.thenReturn(Optional.of(lecture.getGroup()));
-		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
-		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
-		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		
-		lectureService.add(correstLectureForTest);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> lectureService.add(lecture));
 
+		assertThat(exception.getMessage()).isEqualTo("Lecture with ID %s already exist", lecture.getId());
 		verify(lectureDao, never()).create(correstLectureForTest);
 	}
 
@@ -205,11 +172,6 @@ public class LectureServiceTest {
 	public void givenLectureIsNotExist_whenAdd_thenAddLecture() {
 		Lecture lecture = correstLectureForTest;
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.empty());
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -228,11 +190,6 @@ public class LectureServiceTest {
 	public void givenExistingLecture_whenUpdate_thenUpdateLecture() {
 		Lecture lecture = correstLectureForTest;
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -251,14 +208,9 @@ public class LectureServiceTest {
 	public void givenLecture_whenUpdateLectureExistAndClassroomIsBusy_thenLectureNotUpdate() {
 		Lecture lecture = correstLectureForTest;
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
-	
+
 		ClassroomIsNotFreeException exception = assertThrows(ClassroomIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
@@ -273,12 +225,11 @@ public class LectureServiceTest {
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.of(lecture));
-		
+
 		GroupIsNotFreeException exception = assertThrows(GroupIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free",
-				lecture.getGroup().getName());
+		assertThat(exception.getMessage()).isEqualTo("Group name %s is not free", lecture.getGroup().getName());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -286,24 +237,17 @@ public class LectureServiceTest {
 	public void givenLecture_whenUpdateLectureExistAndTeacherIsBusy_thenLectureNotUpdate() {
 		Lecture lecture = correstLectureForTest;
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
-		when(dailyScheduleDao.findById(correstLectureForTest.getDailyScheduleId()))
-				.thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomForCreate));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(groupForTest));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getTeacher().getId())).thenReturn(Optional.of(lecture));
-		
+
 		TeacherIsNotFreeException exception = assertThrows(TeacherIsNotFreeException.class,
 				() -> lectureService.update(lecture));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free",
-				lecture.getTeacher().getLastName());
+		assertThat(exception.getMessage()).isEqualTo("Teacher name %s is not free", lecture.getTeacher().getLastName());
 		verify(lectureDao, never()).update(lecture);
 	}
 
@@ -344,15 +288,10 @@ public class LectureServiceTest {
 
 		assertThat(actual).isEqualTo(expected);
 	}
-	
+
 	@Test
 	public void givenClassroomWithNotQuiteCapacity_whenAddLecture_thenNotAddLecture() {
 		Lecture lecture = lectureWithSmallClassroom;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomSmall));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(bigGroup));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.of(teacherForTest));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -364,7 +303,7 @@ public class LectureServiceTest {
 
 		ClassroomHasNotQuiteCapacity exception = assertThrows(ClassroomHasNotQuiteCapacity.class,
 				() -> lectureService.add(lecture));
-		
+
 		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't have quite capacity",
 				lecture.getClassRoom().getAddress());
 		verify(lectureDao, never()).create(lecture);
@@ -373,16 +312,12 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotExistFilds_whenAdd_thenNotAddLecture() {
 		Lecture lecture = correstLectureForTest;
-		when(dailyScheduleDao.findById(lecture.getDailyScheduleId())).thenReturn(Optional.empty());
-		when(courseDao.findById(lecture.getCourse().getId())).thenReturn(Optional.of(courseForTest));
-		when(classroomDao.findById(lecture.getClassRoom().getId())).thenReturn(Optional.of(classroomSmall));
-		when(groupDao.findById(lecture.getGroup().getId())).thenReturn(Optional.of(bigGroup));
-		when(teacherDao.findById(lecture.getTeacher().getId())).thenReturn(Optional.empty());
 
-		FildsNotFoundException exception = assertThrows(FildsNotFoundException.class,
+		GroupCanNotStudyCourseException exception = assertThrows(GroupCanNotStudyCourseException.class,
 				() -> lectureService.add(lecture));
-		
-		assertThat(exception.getMessage()).isEqualTo("Some filds of lecture doesn't exist!");
+
+		assertThat(exception.getMessage()).isEqualTo("Group with name %s can't study course %s",
+				lecture.getGroup().getName(), lecture.getCourse().getName());
 		verify(lectureDao, never()).create(lecture);
 	}
 }
