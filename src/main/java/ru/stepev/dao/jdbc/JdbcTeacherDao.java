@@ -88,10 +88,7 @@ public class JdbcTeacherDao implements TeacherDao {
 
 	public Optional<Teacher> findById(int teacherId) {
 		try {
-			Optional<Teacher> teacher = Optional
-					.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
-			log.debug("Teacher was found by ID {}", teacherId);
-			return teacher;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, teacherId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Teacher was not found by ID {}", teacherId);
 			return Optional.empty();

@@ -12,4 +12,5 @@ public interface ClassroomDao {
 	public void delete(int classroomId);
 	public Optional<Classroom> findById(int classroomId);
 	public List<Classroom> findAll();
+	public Optional<Classroom> findByAddress(String addressOfClassroom);
 }

@@ -37,7 +37,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenAddCourseDoesNotExist_thenAddCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
 
 		courseService.add(courseForTest);
 
@@ -46,7 +46,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenAddCourseExist_thenDoNotAddCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
 
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
 				() -> courseService.add(courseForTest));
@@ -57,7 +57,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenUpdateCourseExist_thenUpdateCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
 		when(teacherDao.findAll()).thenReturn(expectedTeachers);
 
 		courseService.update(courseForTest);
@@ -67,7 +67,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenUpdateCourseDoesNotExist_thenDoNotUpdateCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> courseService.update(courseForTest));
@@ -78,7 +78,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenDeleteCourseExist_thenDeleteCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
 
 		courseService.delete(courseForTest);
 
@@ -87,7 +87,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenDeleteCourseDoesNotExist_thenDoNotDeleteCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> courseService.delete(courseForTest));
@@ -127,7 +127,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourseWithTeacherCantTeach_whenUpdateCoures_thenDoNotUpdateCourse() {
-		when(courseDao.findById(specialCourse.getId())).thenReturn(Optional.of(specialCourse));
+		when(courseDao.findByName(specialCourse.getName())).thenReturn(Optional.of(specialCourse));
 		when(teacherDao.findAll()).thenReturn(expectedTeachers);
 
 		TecherIsNotAbleTheachCourseException exception = assertThrows(TecherIsNotAbleTheachCourseException.class,

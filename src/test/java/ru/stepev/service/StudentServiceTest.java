@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
@@ -29,12 +30,16 @@ public class StudentServiceTest {
 	@Mock
 	private StudentDao studentDao;
 
+	@Mock
+	private CourseDao courseDao;
+
 	@InjectMocks
 	private StudentService studentService;
 
 	@Test
 	public void givenStudent_whenAddStudentDoesNotExist_thenAddStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
+		when(courseDao.findAll()).thenReturn(expectedCourses);
 
 		studentService.add(studentForTest);
 
@@ -44,18 +49,19 @@ public class StudentServiceTest {
 	@Test
 	public void givenStudent_whenAddStudentExist_thenDoNotAddStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
-		
-		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> 	studentService.add(studentForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Student with name %s already exist",
-				studentForTest.getFirstName() + " " + studentForTest.getLastName());
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> studentService.add(studentForTest));
+
+		assertThat(exception.getMessage()).isEqualTo("Student with ID %s already exist",
+				studentForTest.getId());
 		verify(studentDao, never()).create(studentForTest);
 	}
 
 	@Test
 	public void givenStudent_whenUpdateStudentExist_thenUpdateStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.of(studentForTest));
+		when(courseDao.findAll()).thenReturn(expectedCourses);
 
 		studentService.update(studentForTest);
 
@@ -63,14 +69,26 @@ public class StudentServiceTest {
 	}
 
 	@Test
+	public void givenStudentWithNotExistCourse_whenUpdateStudentExist_thenNotUpdateStudent() {
+		when(studentDao.findById(smartStudent.getId())).thenReturn(Optional.of(smartStudent));
+		when(courseDao.findAll()).thenReturn(expectedCourses);
+
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> studentService.update(smartStudent));
+
+		assertThat(exception.getMessage()).isEqualTo("Course with name Geography doesn't exist");
+		verify(studentDao, never()).update(smartStudent);
+	}
+
+	@Test
 	public void givenStudent_whenUpdateStudentDoesNotExist_thenDoNotUpdateStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
-		
-		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-				() -> 	studentService.update(studentForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Student with name %s doesn't exist",
-				studentForTest.getFirstName() + " " + studentForTest.getLastName());
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> studentService.update(studentForTest));
+
+		assertThat(exception.getMessage()).isEqualTo("Student with ID %s doesn't exist",
+				studentForTest.getId());
 		verify(studentDao, never()).update(studentForTest);
 	}
 
@@ -86,12 +104,12 @@ public class StudentServiceTest {
 	@Test
 	public void givenStudent_whenDeleteStudentDoeNotExist_thenDoNotDeleteStudent() {
 		when(studentDao.findById(studentForTest.getId())).thenReturn(Optional.empty());
-		
-		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-				() -> 	studentService.delete(studentForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Student with name %s doesn't exist",
-				studentForTest.getFirstName() + " " + studentForTest.getLastName());
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> studentService.delete(studentForTest));
+
+		assertThat(exception.getMessage()).isEqualTo("Student with ID %s doesn't exist",
+				studentForTest.getId());
 		verify(studentDao, never()).delete(studentForTest.getId());
 	}
 

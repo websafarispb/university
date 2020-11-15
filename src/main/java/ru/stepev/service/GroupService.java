@@ -61,13 +61,13 @@ public class GroupService {
 	}
 
 	public void checkGroupNotExist(Group group) {
-		if (groupDao.findById(group.getId()).isPresent()) {
+		if (groupDao.findByName(group.getName()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Group with name %s already exist", group.getName()));
 		}
 	}
 
 	public void checkGroupExist(Group group) {
-		if (groupDao.findById(group.getId()).isEmpty()) {
+		if (groupDao.findByName(group.getName()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
 		}
 	}

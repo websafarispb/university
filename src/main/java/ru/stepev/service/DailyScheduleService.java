@@ -27,20 +27,20 @@ public class DailyScheduleService {
 	}
 
 	public void add(DailySchedule dailySchedule) {
-		checkDailyScheduleNotExist(dailySchedule.getId());
+		checkDailyScheduleNotExist(dailySchedule);
 		dailyScheduleDao.create(dailySchedule);
 		log.debug("DailySchedule with date {} was created", dailySchedule.getDate());
 
 	}
 
 	public void update(DailySchedule dailySchedule) {
-		checkDailyScheduleExist(dailySchedule.getId());
+		checkDailyScheduleExist(dailySchedule);
 		dailyScheduleDao.update(dailySchedule);
 		log.debug("DailySchedule with date {} was updated", dailySchedule.getDate());
 	}
 
 	public void delete(DailySchedule dailySchedule) {
-		checkDailyScheduleExist(dailySchedule.getId());
+		checkDailyScheduleExist(dailySchedule);
 		dailyScheduleDao.delete(dailySchedule.getId());
 		log.debug("Delete DailySchedule with date {}  was deleted", dailySchedule.getDate());
 	}
@@ -70,17 +70,16 @@ public class DailyScheduleService {
 		return dailyScheduleDao.findByGroupAndPeriodOfTime(group, firstDate, lastDate);
 	}
 
-	public void checkDailyScheduleNotExist(int dailyScheduleId) {
-		if (dailyScheduleDao.findById(dailyScheduleId).isPresent()) {
+	public void checkDailyScheduleNotExist(DailySchedule dailySchedule) {
+		if (dailyScheduleDao.findByDate(dailySchedule.getDate()).isPresent()) {
 			throw new EntityAlreadyExistException(
-					String.format("DailySchedule with Id %s already exist", dailyScheduleId));
+					String.format("DailySchedule with date %s already exist", dailySchedule.getDate()));
 		}
 	}
 
-	public void checkDailyScheduleExist(int dailyScheduleId) {
-		if (dailyScheduleDao.findById(dailyScheduleId).isEmpty()) {
-			throw new EntityNotFoundException(
-					String.format("DailySchedule with Id %s doesn't exist", dailyScheduleId));
+	public void checkDailyScheduleExist(DailySchedule dailySchedule) {
+		if (dailyScheduleDao.findByDate(dailySchedule.getDate()).isEmpty()) {
+			throw new EntityNotFoundException(String.format("DailySchedule with date %s doesn't exist", dailySchedule.getDate()));
 		}
 	}
 }

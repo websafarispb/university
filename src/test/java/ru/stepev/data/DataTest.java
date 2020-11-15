@@ -97,6 +97,9 @@ public interface DataTest {
 	Student studentForTest = Student.builder().id(1).personalNumber(123).firstName("Peter").lastName("Petrov")
 			.birthday(LocalDate.of(2020, 9, 3)).email("webPP@mail.ru").gender(Gender.MALE).address("City17")
 			.courses(expectedCourses).build();
+	Student smartStudent = Student.builder().id(1).personalNumber(123).firstName("Peter").lastName("Petrov")
+			.birthday(LocalDate.of(2020, 9, 3)).email("webPP@mail.ru").gender(Gender.MALE).address("City17")
+			.courses(coursesForTeacher).build();
 
 	List<Group> expectedGroups = Arrays.asList(
 			Group.builder().id(1).name("a2a2").students(expectedStudents.subList(0, 1)).build(),

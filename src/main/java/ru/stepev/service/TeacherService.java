@@ -49,15 +49,15 @@ public class TeacherService {
 
 	public void checkTeacherExist(Teacher teacher) {
 		if (teacherDao.findById(teacher.getId()).isEmpty()) {
-			throw new EntityNotFoundException(String.format("Teacher with name %s doesn't exist",
-					teacher.getFirstName() + " " + teacher.getLastName()));
+			throw new EntityNotFoundException(String.format("Teacher with ID %s doesn't exist",
+					teacher.getId()));
 		}
 	}
 
 	public void checkTeacherNotExist(Teacher teacher) {
 		if (teacherDao.findById(teacher.getId()).isPresent()) {
-			throw new EntityAlreadyExistException(String.format("Teacher with name %s already exist",
-					teacher.getFirstName() + " " + teacher.getLastName()));
+			throw new EntityAlreadyExistException(String.format("Teacher with ID %s already exist",
+					teacher.getId()));
 		}
 	}
 }

@@ -47,7 +47,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenAddGroupDoesNotExist_thenAddGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
 		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
 		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
@@ -62,7 +62,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenAddGroupExist_thenDoNotAddGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
 
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
 				() -> groupService.add(groupForTest));
@@ -73,7 +73,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroupWithWrongData_whenAddDataWrong_thenNotAddGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
 		when(studentDao.findById(groupForTest.getStudents().get(0).getId())).thenReturn(Optional.empty());
 		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
@@ -89,7 +89,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenUpdateGroupExist_thenUpdateGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
 		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
 		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
@@ -104,7 +104,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenUpdateGroupDoesNotExist_thenDoNotUpdateGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.update(groupForTest));
@@ -115,7 +115,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenDeleteGroupExist_thenDeleteGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
 
 		groupService.delete(groupForTest);
 
@@ -124,7 +124,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenDeleteGroupDoesNotExist_thenDoNotDeleteGroup() {
-		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
+		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.delete(groupForTest));

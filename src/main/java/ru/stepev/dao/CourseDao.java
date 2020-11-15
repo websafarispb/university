@@ -14,4 +14,5 @@ public interface CourseDao {
 	public List<Course> findAll();
 	public List<Course> findByTeacherId(int teacherId);
 	public List<Course> findByStudentId(int studentId);
+	public Optional<Course> findByName(String nameOfCourse);
 }

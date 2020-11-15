@@ -79,9 +79,8 @@ public class JdbcLectureDao implements LectureDao {
 
 	public Optional<Lecture> findById(int lectureId) {
 		try {
-			Optional<Lecture> lecture = Optional
+			return Optional
 					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_ID, lectureRowMapper, lectureId));
-			return lecture;
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Lecture with id {} was not found", lectureId);
 			return Optional.empty();
@@ -102,10 +101,8 @@ public class JdbcLectureDao implements LectureDao {
 	public Optional<Lecture> findByDailyScheduleIdAndTimeAndGroupId(int dailyScheduleId, LocalTime startTime,
 			LocalTime finishTime, int groupId) {
 		try {
-			Optional<Lecture> lecture = Optional
-					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID,
-							lectureRowMapper, dailyScheduleId, startTime, finishTime, groupId));
-			return lecture;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, groupId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
@@ -116,10 +113,8 @@ public class JdbcLectureDao implements LectureDao {
 	public Optional<Lecture> findByDailyScheduleIdAndTimeAndClassroomId(int dailyScheduleId, LocalTime startTime,
 			LocalTime finishTime, int classroomId) {
 		try {
-			Optional<Lecture> lecture = Optional
-					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID,
-							lectureRowMapper, dailyScheduleId, startTime, finishTime, classroomId));
-			return lecture;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, classroomId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
@@ -130,10 +125,8 @@ public class JdbcLectureDao implements LectureDao {
 	public Optional<Lecture> findByDailyScheduleIdAndTimeAndTeacherId(int dailyScheduleId, LocalTime startTime,
 			LocalTime finishTime, int teacherId) {
 		try {
-			Optional<Lecture> lecture = Optional
-					.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID,
-							lectureRowMapper, dailyScheduleId, startTime, finishTime, teacherId));
-			return lecture;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID,
+					lectureRowMapper, dailyScheduleId, startTime, finishTime, teacherId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();

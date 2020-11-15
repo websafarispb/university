@@ -26,6 +26,7 @@ public class JdbcClassroomDao implements ClassroomDao {
 	private static final String CREATE_CLASSROOM_QUERY = "INSERT INTO classrooms (classroom_address, classroom_capacity) values (?, ?)";
 	private static final String GET_ALL = "SELECT * FROM classrooms";
 	private static final String FIND_CLASSROOM_BY_ID = "SELECT * FROM classrooms WHERE id = ?";
+	private static final String FIND_CLASSROOM_BY_ADDRESS = "SELECT * FROM classrooms WHERE classroom_address = ?";
 	private static final String UPDATE_CLASSROOM_BY_ID = "UPDATE classrooms SET classroom_address = ?, classroom_capacity = ? WHERE id = ?";
 	private static final String DELETE_CLASSROOM_BY_ID = "DELETE FROM classrooms WHERE id = ?";
 
@@ -46,27 +47,30 @@ public class JdbcClassroomDao implements ClassroomDao {
 			statement.setInt(2, classroom.getCapacity());
 			return statement;
 		}, keyHolder) == 0) {
-			throw new EntityCouldNotBeenCreatedException(String.format("Classroom  with address %s could not been created!!!",classroom.getAddress()));
+			throw new EntityCouldNotBeenCreatedException(
+					String.format("Classroom  with address %s could not been created!!!", classroom.getAddress()));
 		}
 		classroom.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Classroom classroom) {
-		if(jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(), classroom.getId())==0) {
-			throw new EntityCouldNotBeenUpdatedException(String.format("Classroom  with address %s could not been updated!!!",classroom.getAddress()));
+		if (jdbcTemplate.update(UPDATE_CLASSROOM_BY_ID, classroom.getAddress(), classroom.getCapacity(),
+				classroom.getId()) == 0) {
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("Classroom  with address %s could not been updated!!!", classroom.getAddress()));
 		}
 	}
 
 	public void delete(int classroomId) {
-		if(jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId)==0) {
-			throw new EntityCouldNotBeenDeletedException(String.format("Classroom  with Id %s could not been deleted!!!",classroomId));
+		if (jdbcTemplate.update(DELETE_CLASSROOM_BY_ID, classroomId) == 0) {
+			throw new EntityCouldNotBeenDeletedException(
+					String.format("Classroom  with Id %s could not been deleted!!!", classroomId));
 		}
 	}
 
 	public Optional<Classroom> findById(int classroomId) {
 		try {
-			Optional<Classroom> classroom = Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId));
-			return classroom;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ID, classroomRowMapper, classroomId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Classroom with id {} was not found", classroomId);
 			return Optional.empty();
@@ -76,5 +80,15 @@ public class JdbcClassroomDao implements ClassroomDao {
 	public List<Classroom> findAll() {
 		log.debug("Finding all classrooms...");
 		return jdbcTemplate.query(GET_ALL, classroomRowMapper);
+	}
+
+	@Override
+	public Optional<Classroom> findByAddress(String addressOfClassroom) {
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ADDRESS, classroomRowMapper, addressOfClassroom));
+		} catch (EmptyResultDataAccessException e) {
+			log.warn("Classroom with address {} was not found", addressOfClassroom);
+			return Optional.empty();
+		}
 	}
 }

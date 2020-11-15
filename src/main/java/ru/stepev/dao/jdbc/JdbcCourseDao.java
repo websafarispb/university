@@ -27,6 +27,7 @@ public class JdbcCourseDao implements CourseDao {
 	private static final String UPDATE_COURSE_BY_ID = "UPDATE courses SET course_name = ?, course_description = ? WHERE id = ?";
 	private static final String GET_ALL = "SELECT * FROM courses";
 	private static final String FIND_COURSE_BY_ID = "SELECT * FROM courses WHERE id = ?";
+	private static final String FIND_COURSE_BY_NAME = "SELECT * FROM courses WHERE course_name = ?";
 	private static final String DELETE_COURSE_BY_ID = "DELETE FROM courses WHERE id = ?";
 	private static final String FIND_ALL_COURSE_BY_TEACHER_ID = "SELECT * FROM "
 			+ "courses INNER JOIN teachers_courses ON  courses.id = teachers_courses.course_id WHERE teachers_courses.teacher_id = ?";
@@ -50,33 +51,33 @@ public class JdbcCourseDao implements CourseDao {
 			statement.setString(2, course.getDescription());
 			return statement;
 		}, keyHolder) == 0) {
-			throw new EntityCouldNotBeenCreatedException(String.format("Course with name %s could not been created!!!", course.getName()));
+			throw new EntityCouldNotBeenCreatedException(
+					String.format("Course with name %s could not been created!!!", course.getName()));
 		}
 		course.setId((int) keyHolder.getKeys().get("id"));
 	}
 
 	public void update(Course course) {
 		if (jdbcTemplate.update(UPDATE_COURSE_BY_ID, course.getName(), course.getDescription(), course.getId()) == 0) {
-			throw new EntityCouldNotBeenUpdatedException(String.format("Course with name %s could not been update!!!",course.getName()));
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("Course with name %s could not been update!!!", course.getName()));
 		}
 	}
 
 	public void delete(int courseId) {
 		if (jdbcTemplate.update(DELETE_COURSE_BY_ID, courseId) == 0) {
-			throw new EntityCouldNotBeenDeletedException(String.format("Course with Id %s could not been delete!!!",courseId));
+			throw new EntityCouldNotBeenDeletedException(
+					String.format("Course with Id %s could not been delete!!!", courseId));
 		}
 	}
 
 	public Optional<Course> findById(int courseId) {
 		try {
-			Optional<Course> course = Optional
-					.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
-			return course;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_ID, courseRowMapper, courseId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Course with id {} was not found", courseId);
 			return Optional.empty();
 		}
-
 	}
 
 	public List<Course> findAll() {
@@ -92,5 +93,15 @@ public class JdbcCourseDao implements CourseDao {
 	public List<Course> findByStudentId(int studentId) {
 		log.debug("Finding course by student ID ...");
 		return jdbcTemplate.query(FIND_ALL_COURSE_BY_STUDENT_ID, courseRowMapper, studentId);
+	}
+
+	@Override
+	public Optional<Course> findByName(String nameOfCourse) {
+		try {
+			return Optional.of(jdbcTemplate.queryForObject(FIND_COURSE_BY_NAME, courseRowMapper, nameOfCourse));
+		} catch (EmptyResultDataAccessException e) {
+			log.warn("Course with name {} was not found", nameOfCourse);
+			return Optional.empty();
+		}
 	}
 }

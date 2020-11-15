@@ -45,7 +45,7 @@ public class JdbcStudentDao implements StudentDao {
 	@Transactional
 	public void create(Student student) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		if(jdbcTemplate.update(connection -> {
+		if (jdbcTemplate.update(connection -> {
 			PreparedStatement statement = connection.prepareStatement(CREATE_STUDENT_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 			statement.setInt(1, student.getPersonalNumber());
@@ -56,8 +56,9 @@ public class JdbcStudentDao implements StudentDao {
 			statement.setString(6, student.getGender());
 			statement.setString(7, student.getAddress());
 			return statement;
-		}, keyHolder) == 0 ) {
-			throw new EntityCouldNotBeenCreatedException(String.format("Student with name %s could not been created", student.getFirstName() + " " + student.getLastName()));
+		}, keyHolder) == 0) {
+			throw new EntityCouldNotBeenCreatedException(String.format("Student with name %s could not been created",
+					student.getFirstName() + " " + student.getLastName()));
 		}
 		student.setId((int) keyHolder.getKeys().get("id"));
 		student.getCourses().forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
@@ -75,20 +76,21 @@ public class JdbcStudentDao implements StudentDao {
 			student.getCourses().stream().filter(not(updatedSudent.get().getCourses()::contains))
 					.forEach(c -> jdbcTemplate.update(ASSIGN_TO_COURSE, student.getId(), c.getId()));
 		} else {
-			throw new EntityCouldNotBeenUpdatedException(String.format("Student with name %s could not been updated", student.getFirstName() + " " + student.getLastName()));
+			throw new EntityCouldNotBeenUpdatedException(String.format("Student with name %s could not been updated",
+					student.getFirstName() + " " + student.getLastName()));
 		}
 	}
 
 	public void delete(int studentId) {
-		if(jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId) == 0) {
-			throw new EntityCouldNotBeenUpdatedException(String.format("Student with Id %s could not been deleted", studentId));
+		if (jdbcTemplate.update(DELETE_BY_STUDENT_ID, studentId) == 0) {
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("Student with Id %s could not been deleted", studentId));
 		}
 	}
 
 	public Optional<Student> findById(int studentId) {
 		try {
-			Optional <Student> student = Optional.of(jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId));
-			return student;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_STUDENT_BY_ID, studentRowMapper, studentId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("Student with id {} was not found", studentId);
 			return Optional.empty();

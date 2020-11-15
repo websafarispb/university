@@ -47,8 +47,8 @@ public class TeacherServiceTest {
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
 				() -> teacherService.add(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s already exist",
-				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s already exist",
+				teacherForTest.getId());
 		verify(teacherDao, never()).create(teacherForTest);
 	}
 
@@ -68,8 +68,8 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.update(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s doesn't exist",
-				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist",
+				teacherForTest.getId());
 		verify(teacherDao, never()).update(teacherForTest);
 	}
 
@@ -89,8 +89,8 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.delete(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with name %s doesn't exist",
-				teacherForTest.getFirstName() + " " + teacherForTest.getLastName());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist",
+				teacherForTest.getId());
 		verify(teacherDao, never()).delete(teacherForTest.getId());
 	}
 

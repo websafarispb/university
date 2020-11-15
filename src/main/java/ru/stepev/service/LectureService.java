@@ -23,6 +23,7 @@ import ru.stepev.exception.TeacherIsNotFreeException;
 import ru.stepev.exception.TecherIsNotAbleTheachCourseException;
 import ru.stepev.model.Classroom;
 import ru.stepev.model.Course;
+import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
 import ru.stepev.model.Lecture;
 import ru.stepev.model.Teacher;
@@ -77,7 +78,7 @@ public class LectureService {
 
 	public void add(Lecture lecture) {
 		checkLectureNotExist(lecture);
-		checkAllFieldsOfLectureForExist(lecture);
+		checkDataForCorrect(lecture);
 		checkClassroomFree(lecture);
 		checkGroupFree(lecture);
 		checkTeacherFree(lecture);
@@ -88,18 +89,19 @@ public class LectureService {
 		log.debug("Lecture with time {} was created", lecture.getTime());
 	}
 
-	public void checkAllFieldsOfLectureForExist(Lecture lecture) {
-		dailyScheduleSerive.checkDailyScheduleExist(lecture.getDailyScheduleId());
+	private void checkDataForCorrect(Lecture lecture) {
+		DailySchedule dailyschedule = dailyScheduleSerive.getById(lecture.getDailyScheduleId()).get();
+		dailyScheduleSerive.checkDailyScheduleExist(dailyschedule);
 		courseSerice.checkCourseExist(lecture.getCourse());
-		classroomService.checkClassroomExist(lecture.getClassRoom().getId());
+		classroomService.checkClassroomExist(lecture.getClassRoom());
 		teacherService.checkTeacherExist(lecture.getTeacher());
 		groupService.checkGroupExist(lecture.getGroup());
 	}
 
 	public void update(Lecture lecture) {
 		checkLectureExist(lecture);
+		checkDataForCorrect(lecture);
 		checkGroupFree(lecture);
-		checkAllFieldsOfLectureForExist(lecture);
 		checkClassroomFree(lecture);
 		checkTeacherFree(lecture);
 		checkTeacherCanTeachCourse(lecture.getTeacher(), lecture.getCourse());

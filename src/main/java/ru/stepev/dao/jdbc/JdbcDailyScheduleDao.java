@@ -59,7 +59,8 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 			statement.setObject(1, dailySchedule.getDate());
 			return statement;
 		}, keyHolder) == 0) {
-			throw new EntityCouldNotBeenCreatedException(String.format("DailySchedule with getAddress %s could not been created", dailySchedule.getDate()));
+			throw new EntityCouldNotBeenCreatedException(
+					String.format("DailySchedule with getAddress %s could not been created", dailySchedule.getDate()));
 		}
 		dailySchedule.setId((int) keyHolder.getKeys().get("id"));
 		dailySchedule.getLectures().forEach(lectureDao::create);
@@ -74,21 +75,22 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 			dailySchedule.getLectures().stream().filter(not(dailyScheduleUpdated.get().getLectures()::contains))
 					.forEach(l -> lectureDao.create(l));
 		} else {
-			throw new EntityCouldNotBeenUpdatedException(String.format("DailySchedule with getAddress %s could not been updated", dailySchedule.getDate()));
+			throw new EntityCouldNotBeenUpdatedException(
+					String.format("DailySchedule with getAddress %s could not been updated", dailySchedule.getDate()));
 		}
 	}
 
 	public void delete(int dailyScheduleId) {
-		if(jdbcTemplate.update(DELETE_DAILYSCHEDUALE_BY_ID, dailyScheduleId) == 0) {
-			throw new EntityCouldNotBeenDeletedException(String.format("DailySchedule with getAddress %s could not been deleted", dailyScheduleId));
+		if (jdbcTemplate.update(DELETE_DAILYSCHEDUALE_BY_ID, dailyScheduleId) == 0) {
+			throw new EntityCouldNotBeenDeletedException(
+					String.format("DailySchedule with getAddress %s could not been deleted", dailyScheduleId));
 		}
 
 	}
 
 	public Optional<DailySchedule> findById(int scheduleId) {
 		try {
-			Optional<DailySchedule> dailySchedule = Optional.of(jdbcTemplate.queryForObject(FIND_BY_SCHEDULE_ID, dailyScheduleRowMapper, scheduleId));
-			return dailySchedule;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_BY_SCHEDULE_ID, dailyScheduleRowMapper, scheduleId));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("DailySchedule with ID {} was not found", scheduleId);
 			return Optional.empty();
@@ -97,8 +99,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 
 	public Optional<DailySchedule> findByDate(LocalDate date) {
 		try {
-			Optional<DailySchedule> dailySchedule = Optional.of(jdbcTemplate.queryForObject(FIND_BY_DATE, dailyScheduleRowMapper, date));
-			return dailySchedule;
+			return Optional.of(jdbcTemplate.queryForObject(FIND_BY_DATE, dailyScheduleRowMapper, date));
 		} catch (EmptyResultDataAccessException e) {
 			log.warn("DailySchedule with date {} was not found", date);
 			return Optional.empty();

@@ -1,14 +1,18 @@
 package ru.stepev.service;
 
+import static java.util.function.Predicate.not;
+
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Course;
 import ru.stepev.model.Student;
 
 @Component
@@ -16,29 +20,38 @@ import ru.stepev.model.Student;
 public class StudentService {
 
 	private StudentDao studentDao;
+	private CourseDao courseDao;
 
-	public StudentService(StudentDao studentDao) {
+	public StudentService(StudentDao studentDao, CourseDao courseDao) {
 		this.studentDao = studentDao;
+		this.courseDao = courseDao;
 	}
 
 	public void add(Student student) {
 		checkStudentNotExist(student);
+		checkDataForCorrect(student);
 		studentDao.create(student);
 		log.debug("Student with name {} was added", student.getFirstName() + " " + student.getLastName());
 	}
 
+	private void checkDataForCorrect(Student student) {
+		List<Course> courses = courseDao.findAll();
+		student.getCourses().stream().filter(not(courses::contains)).forEach(c -> {
+			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", c.getName()));
+		});
+	}
+
 	public void update(Student student) {
 		checkStudentExist(student);
+		checkDataForCorrect(student);
 		studentDao.update(student);
 		log.debug("Student with name {} was updated", student.getFirstName() + " " + student.getLastName());
-
 	}
 
 	public void delete(Student student) {
 		checkStudentExist(student);
 		studentDao.delete(student.getId());
 		log.debug("Student with name {} was deleted", student.getFirstName() + " " + student.getLastName());
-
 	}
 
 	public Optional<Student> getById(int studentId) {
@@ -59,15 +72,14 @@ public class StudentService {
 
 	public void checkStudentExist(Student student) {
 		if (studentDao.findById(student.getId()).isEmpty()) {
-			throw new EntityNotFoundException(String.format("Student with name %s doesn't exist",
-					student.getFirstName() + " " + student.getLastName()));
+			throw new EntityNotFoundException(String.format("Student with ID %s doesn't exist", student.getId()));
 		}
 	}
 
 	public void checkStudentNotExist(Student student) {
 		if (studentDao.findById(student.getId()).isPresent()) {
-			throw new EntityAlreadyExistException(String.format("Student with name %s already exist",
-					student.getFirstName() + " " + student.getLastName()));
+			throw new EntityAlreadyExistException(String.format("Student with ID %s already exist",
+					student.getId()));
 		}
 	}
 }
