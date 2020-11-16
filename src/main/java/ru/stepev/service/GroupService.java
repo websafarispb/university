@@ -11,7 +11,7 @@ import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.exception.StudentdsNotFoundException;
+import ru.stepev.exception.StudentsNotFoundException;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 
@@ -67,16 +67,16 @@ public class GroupService {
 	}
 
 	public void checkGroupExist(Group group) {
-		if (groupDao.findByName(group.getName()).isEmpty()) {
+		if (groupDao.findById(group.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
 		}
 	}
 
 	private void checkStudentsExist(Group group) {
-		List<Student> correctStudents = group.getStudents().stream()
-				.filter(s -> studentDao.findById(s.getId()).isPresent()).collect(toList());
-		if (!correctStudents.equals(group.getStudents())) {
-			throw new StudentdsNotFoundException(String.format("Students don't exist"));
+		List<Student> wrongStudents = group.getStudents().stream()
+				.filter(s -> studentDao.findById(s.getId()).isEmpty()).collect(toList());
+		if (wrongStudents.size() > 0) {
+			throw new StudentsNotFoundException(String.format("Students %s don't exist", wrongStudents));
 		}
 	}
 }

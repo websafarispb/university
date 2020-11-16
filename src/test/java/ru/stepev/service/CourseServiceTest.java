@@ -58,7 +58,6 @@ public class CourseServiceTest {
 	@Test
 	public void givenCourse_whenUpdateCourseExist_thenUpdateCourse() {
 		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
-		when(teacherDao.findAll()).thenReturn(expectedTeachers);
 
 		courseService.update(courseForTest);
 
@@ -123,17 +122,5 @@ public class CourseServiceTest {
 		List<Course> actualCourses = courseService.getByTeacher(teacherForTest);
 
 		assertThat(actualCourses).isEqualTo(expectedCourses);
-	}
-
-	@Test
-	public void givenCourseWithTeacherCantTeach_whenUpdateCoures_thenDoNotUpdateCourse() {
-		when(courseDao.findByName(specialCourse.getName())).thenReturn(Optional.of(specialCourse));
-		when(teacherDao.findAll()).thenReturn(expectedTeachers);
-
-		TecherIsNotAbleTheachCourseException exception = assertThrows(TecherIsNotAbleTheachCourseException.class,
-				() -> courseService.update(specialCourse));
-
-		assertThat(exception.getMessage()).isEqualTo("Teacher can't teach course name %s", specialCourse.getName());
-		verify(courseDao, never()).update(specialCourse);
 	}
 }

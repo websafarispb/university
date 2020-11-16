@@ -37,7 +37,6 @@ public class CourseService {
 
 	public void update(Course course) {
 		checkCourseExist(course);
-		checkTeacherCanTheachCourse(course);
 		courseDao.update(course);
 		log.debug("Course with name {} was updated", course.getName());
 	}
@@ -64,21 +63,17 @@ public class CourseService {
 		return courseDao.findByStudentId(student.getId());
 	}
 
-	private void checkTeacherCanTheachCourse(Course course) {
-		if (teacherDao.findAll().stream().filter(t -> t.getCourses().contains(course)).collect(toList()).size() <= 0) {
-			throw new TecherIsNotAbleTheachCourseException(
-					String.format("Teacher can't teach course name %s", course.getName()));
-		}
-	}
-
 	public void checkCourseNotExist(Course course) {
-		if (courseDao.findByName(course.getName()).isPresent()) {
-			throw new EntityAlreadyExistException(String.format("Course with name %s already exist", course.getName()));
+		Optional<Course> courseFromDb = courseDao.findByName(course.getName());
+		if (courseFromDb.isPresent()) {
+			if (!course.getDescription().equals(courseFromDb.get().getName()))
+				throw new EntityAlreadyExistException(
+						String.format("Course with name %s already exist", course.getName()));
 		}
 	}
 
 	public void checkCourseExist(Course course) {
-		if (courseDao.findByName(course.getName()).isEmpty()) {
+		if (courseDao.findById(course.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", course.getName()));
 		}
 	}

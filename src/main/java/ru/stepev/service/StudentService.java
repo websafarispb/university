@@ -29,12 +29,12 @@ public class StudentService {
 
 	public void add(Student student) {
 		checkStudentNotExist(student);
-		checkDataForCorrect(student);
+		checkCoursesOfStudentForExist(student);
 		studentDao.create(student);
 		log.debug("Student with name {} was added", student.getFirstName() + " " + student.getLastName());
 	}
 
-	private void checkDataForCorrect(Student student) {
+	private void checkCoursesOfStudentForExist(Student student) {
 		List<Course> courses = courseDao.findAll();
 		student.getCourses().stream().filter(not(courses::contains)).forEach(c -> {
 			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", c.getName()));
@@ -43,7 +43,7 @@ public class StudentService {
 
 	public void update(Student student) {
 		checkStudentExist(student);
-		checkDataForCorrect(student);
+		checkCoursesOfStudentForExist(student);
 		studentDao.update(student);
 		log.debug("Student with name {} was updated", student.getFirstName() + " " + student.getLastName());
 	}

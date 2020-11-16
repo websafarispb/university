@@ -20,7 +20,7 @@ import ru.stepev.dao.GroupDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.exception.StudentdsNotFoundException;
+import ru.stepev.exception.StudentsNotFoundException;
 import ru.stepev.model.Group;
 
 import static ru.stepev.data.DataTest.*;
@@ -80,10 +80,10 @@ public class GroupServiceTest {
 		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
 
-		StudentdsNotFoundException exception = assertThrows(StudentdsNotFoundException.class,
+		StudentsNotFoundException exception = assertThrows(StudentsNotFoundException.class,
 				() -> groupService.add(groupForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Students don't exist", groupForTest.getName());
+		assertThat(exception.getMessage()).isEqualTo("Students [%s] don't exist", groupForTest.getStudents().get(0));
 		verify(groupDao, never()).create(groupForTest);
 	}
 
