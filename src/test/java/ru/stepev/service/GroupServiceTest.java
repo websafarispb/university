@@ -47,44 +47,44 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenAddGroupDoesNotExist_thenAddGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
-		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
-				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
-		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
-				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
-		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
-				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
+		when(groupDao.findByName(groupForCreate.getName())).thenReturn(Optional.empty());
+		when(studentDao.findById(groupForCreate.getStudents().get(0).getId()))
+				.thenReturn(Optional.of(groupForCreate.getStudents().get(0)));
+		when(studentDao.findById(groupForCreate.getStudents().get(1).getId()))
+				.thenReturn(Optional.of(groupForCreate.getStudents().get(1)));
+		when(studentDao.findById(groupForCreate.getStudents().get(2).getId()))
+				.thenReturn(Optional.of(groupForCreate.getStudents().get(2)));
 
-		groupService.add(groupForTest);
+		groupService.add(groupForCreate);
 
-		verify(groupDao).create(groupForTest);
+		verify(groupDao).create(groupForCreate);
 	}
 
 	@Test
 	public void givenGroup_whenAddGroupExist_thenDoNotAddGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
+		when(groupDao.findByName(groupForCreate.getName())).thenReturn(Optional.of(groupForTest));
 
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> groupService.add(groupForTest));
+				() -> groupService.add(groupForCreate));
 
-		assertThat(exception.getMessage()).isEqualTo("Group with name %s already exist", groupForTest.getName());
-		verify(groupDao, never()).create(groupForTest);
+		assertThat(exception.getMessage()).isEqualTo("Group with name %s already exist", groupForCreate.getName());
+		verify(groupDao, never()).create(groupForCreate);
 	}
 
 	@Test
 	public void givenGroupWithWrongData_whenAddDataWrong_thenNotAddGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
-		when(studentDao.findById(groupForTest.getStudents().get(0).getId())).thenReturn(Optional.empty());
-		when(studentDao.findById(groupForTest.getStudents().get(1).getId()))
-				.thenReturn(Optional.of(groupForTest.getStudents().get(1)));
-		when(studentDao.findById(groupForTest.getStudents().get(2).getId()))
-				.thenReturn(Optional.of(groupForTest.getStudents().get(2)));
+		when(groupDao.findByName(groupForCreate.getName())).thenReturn(Optional.empty());
+		when(studentDao.findById(groupForCreate.getStudents().get(0).getId())).thenReturn(Optional.empty());
+		when(studentDao.findById(groupForCreate.getStudents().get(1).getId()))
+				.thenReturn(Optional.of(groupForCreate.getStudents().get(1)));
+		when(studentDao.findById(groupForCreate.getStudents().get(2).getId()))
+				.thenReturn(Optional.of(groupForCreate.getStudents().get(2)));
 
 		StudentsNotFoundException exception = assertThrows(StudentsNotFoundException.class,
-				() -> groupService.add(groupForTest));
+				() -> groupService.add(groupForCreate));
 
-		assertThat(exception.getMessage()).isEqualTo("Students [%s] don't exist", groupForTest.getStudents().get(0));
-		verify(groupDao, never()).create(groupForTest);
+		assertThat(exception.getMessage()).isEqualTo("Students [%s] don't exist", groupForCreate.getStudents().get(0));
+		verify(groupDao, never()).create(groupForCreate);
 	}
 
 	@Test

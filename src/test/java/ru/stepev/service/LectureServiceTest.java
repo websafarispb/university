@@ -63,6 +63,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithAvaliableClassroom_whenAdd_thenAddLecture() {
 		Lecture lecture = lectureWithAvaliableClassroom;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -80,6 +81,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableClassroom_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = lectureWithNotAvaliableClassroom;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
 
@@ -94,6 +96,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithAvaliableGroup_whenAdd_thenAddLecture() {
 		Lecture lecture = lectureWithAvaliableGroup;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -111,6 +114,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableGroup_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = lectureWithNotAvaliableGroup;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId()))
 						.thenReturn(Optional.of(lectureWithNotAvaliableClassroom));
@@ -125,6 +129,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithAvaliableTeacher_whenAdd_thenAddLecture() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -142,6 +147,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotAvaliableTeacher_whenAdd_thenLectureNotAdd() {
 		Lecture lecture = wrongLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -171,6 +177,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureIsNotExist_whenAdd_thenAddLecture() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.empty());
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
@@ -189,6 +196,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenExistingLecture_whenUpdate_thenUpdateLecture() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.empty());
@@ -207,6 +215,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLecture_whenUpdateLectureExistAndClassroomIsBusy_thenLectureNotUpdate() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.of(lecture));
@@ -222,6 +231,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLecture_whenUpdateLectureExistAndGroupIsBusy_thenLectureNotUpdate() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getGroup().getId())).thenReturn(Optional.of(lecture));
@@ -236,6 +246,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLecture_whenUpdateLectureExistAndTeacherIsBusy_thenLectureNotUpdate() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(lectureDao.findById(lecture.getId())).thenReturn(Optional.of(lecture));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
 				lecture.getTime().plusMinutes(0), lecture.getClassRoom().getId())).thenReturn(Optional.empty());
@@ -292,6 +303,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenClassroomWithNotQuiteCapacity_whenAddLecture_thenNotAddLecture() {
 		Lecture lecture = lectureWithSmallClassroom;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 		when(groupDao.findByGroupIdAndCourseId(lecture.getGroup().getId(), lecture.getCourse().getId()))
 				.thenReturn(Optional.of(lecture.getGroup()));
 		when(lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
@@ -312,6 +324,7 @@ public class LectureServiceTest {
 	@Test
 	public void givenLectureWithNotExistFilds_whenAdd_thenNotAddLecture() {
 		Lecture lecture = correstLectureForTest;
+		when(dailyScheduleSerive.getById(lectureWithAvaliableClassroom.getDailyScheduleId())).thenReturn(Optional.of(dailyScheduleForCreate));
 
 		GroupCanNotStudyCourseException exception = assertThrows(GroupCanNotStudyCourseException.class,
 				() -> lectureService.add(lecture));

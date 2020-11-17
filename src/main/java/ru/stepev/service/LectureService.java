@@ -92,10 +92,10 @@ public class LectureService {
 	private void checkDataForCorrect(Lecture lecture) {
 		DailySchedule dailyschedule = dailyScheduleSerive.getById(lecture.getDailyScheduleId()).get();
 		dailyScheduleSerive.checkDailyScheduleExist(dailyschedule);
-		courseSerice.checkCourseExist(lecture.getCourse());
+		courseSerice.verifyCourseIsUnique(lecture.getCourse());
 		classroomService.checkClassroomExist(lecture.getClassRoom());
 		teacherService.checkTeacherExist(lecture.getTeacher());
-		groupService.checkGroupExist(lecture.getGroup());
+		groupService.verifyGroupIsUnique(lecture.getGroup());
 	}
 
 	public void update(Lecture lecture) {

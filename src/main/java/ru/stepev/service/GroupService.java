@@ -12,6 +12,7 @@ import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.exception.StudentsNotFoundException;
+import ru.stepev.model.Course;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 
@@ -28,14 +29,14 @@ public class GroupService {
 	}
 
 	public void add(Group group) {
-		checkGroupNotExist(group);
+		verifyGroupIsUnique(group);
 		checkStudentsExist(group);
 		groupDao.create(group);
 		log.debug("Group with name {} was created ", group.getName());
 	}
 
 	public void update(Group group) {
-		checkGroupExist(group);
+		verifyGroupIsUnique(group);
 		checkStudentsExist(group);
 		groupDao.update(group);
 		log.debug("Group with name {} was updated ", group.getName());
@@ -43,7 +44,7 @@ public class GroupService {
 	}
 
 	public void delete(Group group) {
-		checkGroupExist(group);
+		verifyGroupIsUnique(group);
 		groupDao.delete(group.getId());
 		log.debug("Group with name {} was deleted ", group.getName());
 	}
@@ -59,19 +60,19 @@ public class GroupService {
 	public Optional<Group> findByStudentId(int studentId) {
 		return groupDao.findByStudentId(studentId);
 	}
-
-	public void checkGroupNotExist(Group group) {
-		if (groupDao.findByName(group.getName()).isPresent()) {
-			throw new EntityAlreadyExistException(String.format("Group with name %s already exist", group.getName()));
+	
+	public void verifyGroupIsUnique(Group group) {
+		Optional<Group> existingGroup = groupDao.findByName(group.getName());
+		if (existingGroup.isPresent() && (existingGroup.get().getId() != group.getId())) {	
+				throw new EntityAlreadyExistException(
+						String.format("Group with name %s already exist", group.getName()));
+		} else {
+			if(existingGroup.isEmpty() && (group.getId() != 0)) {
+				throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
+			}
 		}
 	}
-
-	public void checkGroupExist(Group group) {
-		if (groupDao.findById(group.getId()).isEmpty()) {
-			throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
-		}
-	}
-
+	
 	private void checkStudentsExist(Group group) {
 		List<Student> wrongStudents = group.getStudents().stream()
 				.filter(s -> studentDao.findById(s.getId()).isEmpty()).collect(toList());

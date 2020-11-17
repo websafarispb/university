@@ -38,6 +38,7 @@ public interface DataTest {
 			Course.builder().id(4).name("Physics").description("Phy").build(),
 			Course.builder().id(5).name("Geography").description("Geo").build());
 
+	Course courseForCreate = Course.builder().id(0).name("Geography").description("Geo").build();
 	Course courseForTest = Course.builder().id(5).name("Geography").description("Geo").build();
 	Course specialCourse = Course.builder().id(6).name("Informatica").description("Inf").build();
 
@@ -110,6 +111,7 @@ public interface DataTest {
 	Group bigGroup = Group.builder().id(5).name("c2c2").students(expectedStudents).build();
 	Group sillyGroup = Group.builder().id(1).name("a2a2").students(sillyStudents).build();
 	Group groupForTest = Group.builder().id(1).name("a2a2").students(expectedStudents.subList(0, 3)).build();
+	Group groupForCreate = Group.builder().id(0).name("a2a2").students(expectedStudents.subList(0, 3)).build();
 
 	List<Lecture> expectedLectures = Arrays.asList(
 			Lecture.builder().id(1).dailyScheduleId(1).time(LocalTime.of(9, 0, 0)).course(expectedCourses.get(0))

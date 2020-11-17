@@ -37,22 +37,22 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenAddCourseDoesNotExist_thenAddCourse() {
-		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
+		when(courseDao.findByName(courseForCreate.getName())).thenReturn(Optional.empty());
 
-		courseService.add(courseForTest);
+		courseService.add(courseForCreate);
 
-		verify(courseDao).create(courseForTest);
+		verify(courseDao).create(courseForCreate);
 	}
 
 	@Test
 	public void givenCourse_whenAddCourseExist_thenDoNotAddCourse() {
-		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findByName(courseForCreate.getName())).thenReturn(Optional.of(courseForTest));
 
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> courseService.add(courseForTest));
+				() -> courseService.add(courseForCreate));
 
-		assertThat(exception.getMessage()).isEqualTo("Course with name %s already exist", courseForTest.getName());
-		verify(courseDao, never()).create(courseForTest);
+		assertThat(exception.getMessage()).isEqualTo("Course with name %s already exist", courseForCreate.getName());
+		verify(courseDao, never()).create(courseForCreate);
 	}
 
 	@Test
