@@ -12,7 +12,6 @@ import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.exception.StudentsNotFoundException;
-import ru.stepev.model.Course;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
 
@@ -30,21 +29,22 @@ public class GroupService {
 
 	public void add(Group group) {
 		verifyGroupIsUnique(group);
-		checkStudentsExist(group);
+		verifyStudentsExist(group);
 		groupDao.create(group);
 		log.debug("Group with name {} was created ", group.getName());
 	}
 
 	public void update(Group group) {
+		verifyGroupIsExist(group);
 		verifyGroupIsUnique(group);
-		checkStudentsExist(group);
+		verifyStudentsExist(group);
 		groupDao.update(group);
 		log.debug("Group with name {} was updated ", group.getName());
 
 	}
 
 	public void delete(Group group) {
-		verifyGroupIsUnique(group);
+		verifyGroupIsExist(group);
 		groupDao.delete(group.getId());
 		log.debug("Group with name {} was deleted ", group.getName());
 	}
@@ -66,14 +66,17 @@ public class GroupService {
 		if (existingGroup.isPresent() && (existingGroup.get().getId() != group.getId())) {	
 				throw new EntityAlreadyExistException(
 						String.format("Group with name %s already exist", group.getName()));
-		} else {
-			if(existingGroup.isEmpty() && (group.getId() != 0)) {
-				throw new EntityNotFoundException(String.format("Group with name %s doesn't exist", group.getName()));
-			}
+		} 
+	}
+
+	public void verifyGroupIsExist(Group group) {
+		if (groupDao.findById(group.getId()).isEmpty()) {
+			throw new EntityNotFoundException(
+					String.format("Group with name %s doesn't exist", group.getName()));
 		}
 	}
 	
-	private void checkStudentsExist(Group group) {
+	private void verifyStudentsExist(Group group) {
 		List<Student> wrongStudents = group.getStudents().stream()
 				.filter(s -> studentDao.findById(s.getId()).isEmpty()).collect(toList());
 		if (wrongStudents.size() > 0) {

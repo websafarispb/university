@@ -19,7 +19,6 @@ import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.exception.TecherIsNotAbleTheachCourseException;
 import ru.stepev.model.Course;
 
 import static ru.stepev.data.DataTest.*;
@@ -57,6 +56,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenUpdateCourseExist_thenUpdateCourse() {
+		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
 		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
 
 		courseService.update(courseForTest);
@@ -66,7 +66,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenUpdateCourseDoesNotExist_thenDoNotUpdateCourse() {
-		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
+		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> courseService.update(courseForTest));
@@ -77,7 +77,7 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenDeleteCourseExist_thenDeleteCourse() {
-		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
 
 		courseService.delete(courseForTest);
 
@@ -86,7 +86,8 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenDeleteCourseDoesNotExist_thenDoNotDeleteCourse() {
-		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.empty());
+		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
+
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> courseService.delete(courseForTest));

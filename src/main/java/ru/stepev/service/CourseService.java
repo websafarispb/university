@@ -36,13 +36,14 @@ public class CourseService {
 	}
 
 	public void update(Course course) {
+		verifyCoureIsExist(course);
 		verifyCourseIsUnique(course);
 		courseDao.update(course);
 		log.debug("Course with name {} was updated", course.getName());
 	}
 
 	public void delete(Course course) {
-		verifyCourseIsUnique(course);
+		verifyCoureIsExist(course);
 		courseDao.delete(course.getId());
 		log.debug("Course with name {} was deleted", course.getName());
 	}
@@ -65,13 +66,14 @@ public class CourseService {
 
 	public void verifyCourseIsUnique(Course course) {
 		Optional<Course> existingCourse = courseDao.findByName(course.getName());
-		if (existingCourse.isPresent() && (existingCourse.get().getId() != course.getId())) {	
-				throw new EntityAlreadyExistException(
-						String.format("Course with name %s already exist", course.getName()));
-		} else {
-			if(existingCourse.isEmpty() && (course.getId() != 0)) {
-				throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", course.getName()));
-			}
+		if (existingCourse.isPresent() && (existingCourse.get().getId() != course.getId())) {
+			throw new EntityAlreadyExistException(String.format("Course with name %s already exist", course.getName()));
+		}
+	}
+
+	public void verifyCoureIsExist(Course course) {
+		if (courseDao.findById(course.getId()).isEmpty()) {
+			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", course.getName()));
 		}
 	}
 }

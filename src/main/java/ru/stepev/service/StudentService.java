@@ -28,28 +28,21 @@ public class StudentService {
 	}
 
 	public void add(Student student) {
-		checkStudentNotExist(student);
-		checkCoursesOfStudentForExist(student);
+		verifyStudentNotExist(student);
+		verifyCoursesOfStudentForExist(student);
 		studentDao.create(student);
 		log.debug("Student with name {} was added", student.getFirstName() + " " + student.getLastName());
 	}
 
-	private void checkCoursesOfStudentForExist(Student student) {
-		List<Course> courses = courseDao.findAll();
-		student.getCourses().stream().filter(not(courses::contains)).forEach(c -> {
-			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", c.getName()));
-		});
-	}
-
 	public void update(Student student) {
-		checkStudentExist(student);
-		checkCoursesOfStudentForExist(student);
+		verifyStudentExist(student);
+		verifyCoursesOfStudentForExist(student);
 		studentDao.update(student);
 		log.debug("Student with name {} was updated", student.getFirstName() + " " + student.getLastName());
 	}
 
 	public void delete(Student student) {
-		checkStudentExist(student);
+		verifyStudentExist(student);
 		studentDao.delete(student.getId());
 		log.debug("Student with name {} was deleted", student.getFirstName() + " " + student.getLastName());
 	}
@@ -70,16 +63,23 @@ public class StudentService {
 		return studentDao.findByGroupId(groupId);
 	}
 
-	public void checkStudentExist(Student student) {
+	public void verifyStudentExist(Student student) {
 		if (studentDao.findById(student.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Student with ID %s doesn't exist", student.getId()));
 		}
 	}
 
-	public void checkStudentNotExist(Student student) {
+	public void verifyStudentNotExist(Student student) {
 		if (studentDao.findById(student.getId()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Student with ID %s already exist",
 					student.getId()));
 		}
+	}
+	
+	private void verifyCoursesOfStudentForExist(Student student) {
+		List<Course> courses = courseDao.findAll();
+		student.getCourses().stream().filter(not(courses::contains)).forEach(c -> {
+			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", c.getName()));
+		});
 	}
 }

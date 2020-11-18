@@ -64,20 +64,20 @@ public class LectureService {
 		this.teacherService = teacherService;
 	}
 
-	public void checkLectureExist(Lecture lecture) {
+	public void verifyLectureExist(Lecture lecture) {
 		if (lectureDao.findById(lecture.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Lecture with ID %s doesn't exist", lecture.getId()));
 		}
 	}
 
-	public void checkLectureNotExist(Lecture lecture) {
+	public void verifyLectureNotExist(Lecture lecture) {
 		if (lectureDao.findById(lecture.getId()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Lecture with ID %s already exist", lecture.getId()));
 		}
 	}
 
 	public void add(Lecture lecture) {
-		checkLectureNotExist(lecture);
+		verifyLectureNotExist(lecture);
 		checkDataForCorrect(lecture);
 		checkClassroomFree(lecture);
 		checkGroupFree(lecture);
@@ -91,15 +91,15 @@ public class LectureService {
 
 	private void checkDataForCorrect(Lecture lecture) {
 		DailySchedule dailyschedule = dailyScheduleSerive.getById(lecture.getDailyScheduleId()).get();
-		dailyScheduleSerive.checkDailyScheduleExist(dailyschedule);
+		dailyScheduleSerive.verifyDailyScheduleExist(dailyschedule);
 		courseSerice.verifyCourseIsUnique(lecture.getCourse());
-		classroomService.checkClassroomExist(lecture.getClassRoom());
+		classroomService.verifyClassroomIsExist(lecture.getClassRoom());
 		teacherService.checkTeacherExist(lecture.getTeacher());
 		groupService.verifyGroupIsUnique(lecture.getGroup());
 	}
 
 	public void update(Lecture lecture) {
-		checkLectureExist(lecture);
+		verifyLectureExist(lecture);
 		checkDataForCorrect(lecture);
 		checkGroupFree(lecture);
 		checkClassroomFree(lecture);
@@ -113,7 +113,7 @@ public class LectureService {
 	}
 
 	public void delete(Lecture lecture) {
-		checkLectureExist(lecture);
+		verifyLectureExist(lecture);
 		lectureDao.delete(lecture.getId());
 		log.debug("Lecture with time {} was deleted", lecture.getTime());
 

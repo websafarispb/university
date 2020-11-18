@@ -55,9 +55,10 @@ public class ClassroomServiceTest {
 		when(classroomDao.findByAddress(classroomForCreate.getAddress())).thenReturn(Optional.of(classroomForCreate));
 
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
-				() -> classroomService.add(classroomForCreate));
+				() -> classroomService.add(classroomForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s already exist", classroomForCreate.getAddress());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s already exist",
+				classroomForCreate.getAddress());
 
 		verify(classroomDao, never()).create(classroomForCreate);
 	}
@@ -73,8 +74,7 @@ public class ClassroomServiceTest {
 
 	@Test
 	public void givenClassroom_whenDeleteClassroomExist_thenDeleteClassroom() {
-		when(classroomDao.findByAddress(classroomForDelete.getAddress())).thenReturn(Optional.of(classroomForDelete));
-
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
 		classroomService.delete(classroomForDelete);
 
 		verify(classroomDao).delete(classroomForDelete.getId());
@@ -82,17 +82,19 @@ public class ClassroomServiceTest {
 
 	@Test
 	public void givenClassroom_whenDeleteClassroomDoesNotExist_thenNotDeleteClassroom() {
-		when(classroomDao.findByAddress(classroomForDelete.getAddress())).thenReturn(Optional.empty());
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.delete(classroomForDelete));
 
-		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist", classroomForDelete.getAddress());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist",
+				classroomForDelete.getAddress());
 		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
 	@Test
 	public void givenClassroom_whenUpdateClassroomExist_thenUpdateClassroom() {
+		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
 		when(classroomDao.findByAddress(classroomForDelete.getAddress())).thenReturn(Optional.of(classroomForDelete));
 
 		classroomService.update(classroomForDelete);
@@ -102,12 +104,12 @@ public class ClassroomServiceTest {
 
 	@Test
 	public void givenClassroom_whenUpdateClassroomDoesNotExist_thenNotUpdateClassroom() {
-		when(classroomDao.findByAddress(classroomForUpdate.getAddress())).thenReturn(Optional.empty());
-
+		when(classroomDao.findById(classroomForUpdate.getId())).thenReturn(Optional.empty());
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> classroomService.update(classroomForUpdate));
 
-		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist", classroomForUpdate.getAddress());
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist",
+				classroomForUpdate.getAddress());
 
 		verify(classroomDao, never()).update(classroomForUpdate);
 	}

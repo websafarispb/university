@@ -89,6 +89,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenUpdateGroupExist_thenUpdateGroup() {
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
 		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
 		when(studentDao.findById(groupForTest.getStudents().get(0).getId()))
 				.thenReturn(Optional.of(groupForTest.getStudents().get(0)));
@@ -104,7 +105,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenUpdateGroupDoesNotExist_thenDoNotUpdateGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.update(groupForTest));
@@ -115,7 +116,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenDeleteGroupExist_thenDeleteGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.of(groupForTest));
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.of(groupForTest));
 
 		groupService.delete(groupForTest);
 
@@ -124,7 +125,7 @@ public class GroupServiceTest {
 
 	@Test
 	public void givenGroup_whenDeleteGroupDoesNotExist_thenDoNotDeleteGroup() {
-		when(groupDao.findByName(groupForTest.getName())).thenReturn(Optional.empty());
+		when(groupDao.findById(groupForTest.getId())).thenReturn(Optional.empty());
 
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> groupService.delete(groupForTest));

@@ -21,7 +21,8 @@ public interface DataTest {
 			Classroom.builder().id(3).address("103").capacity(30).build(),
 			Classroom.builder().id(4).address("104").capacity(20).build());
 
-	Classroom classroomForCreate = Classroom.builder().id(5).address("105").capacity(10).build();
+	Classroom classroomForCreate = Classroom.builder().id(0).address("105").capacity(10).build();
+	Classroom classroomForTest = Classroom.builder().id(5).address("105").capacity(10).build();
 	Classroom classroomForDelete = Classroom.builder().id(2).address("102").capacity(40).build();
 	Classroom classroomForUpdate = Classroom.builder().id(3).address("303").capacity(400).build();
 	Classroom classroomSmall = Classroom.builder().id(4).address("503").capacity(2).build();
