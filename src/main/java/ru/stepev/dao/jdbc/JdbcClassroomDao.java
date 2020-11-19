@@ -83,11 +83,11 @@ public class JdbcClassroomDao implements ClassroomDao {
 	}
 
 	@Override
-	public Optional<Classroom> findByAddress(String addressOfClassroom) {
+	public Optional<Classroom> findByAddress(String address) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ADDRESS, classroomRowMapper, addressOfClassroom));
+			return Optional.of(jdbcTemplate.queryForObject(FIND_CLASSROOM_BY_ADDRESS, classroomRowMapper, address));
 		} catch (EmptyResultDataAccessException e) {
-			log.warn("Classroom with address {} was not found", addressOfClassroom);
+			log.warn("Classroom with address {} was not found", address);
 			return Optional.empty();
 		}
 	}

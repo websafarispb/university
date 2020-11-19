@@ -117,11 +117,11 @@ public class JdbcGroupDao implements GroupDao {
 	}
 
 	@Override
-	public Optional<Group> findByName(String nameOfGroup) {
+	public Optional<Group> findByName(String name) {
 		try {
-			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME, groupRowMapper, nameOfGroup));
+			return Optional.of(jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME, groupRowMapper, name));
 		} catch (EmptyResultDataAccessException e) {
-			log.warn("Group with name {} was not found", nameOfGroup);
+			log.warn("Group with name {} was not found", name);
 			return Optional.empty();
 		}
 	}

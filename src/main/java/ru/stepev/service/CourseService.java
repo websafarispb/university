@@ -36,14 +36,14 @@ public class CourseService {
 	}
 
 	public void update(Course course) {
-		verifyCoureIsExist(course);
+		verifyCourseIsExist(course);
 		verifyCourseIsUnique(course);
 		courseDao.update(course);
 		log.debug("Course with name {} was updated", course.getName());
 	}
 
 	public void delete(Course course) {
-		verifyCoureIsExist(course);
+		verifyCourseIsExist(course);
 		courseDao.delete(course.getId());
 		log.debug("Course with name {} was deleted", course.getName());
 	}
@@ -71,7 +71,7 @@ public class CourseService {
 		}
 	}
 
-	public void verifyCoureIsExist(Course course) {
+	public void verifyCourseIsExist(Course course) {
 		if (courseDao.findById(course.getId()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", course.getName()));
 		}
