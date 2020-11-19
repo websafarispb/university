@@ -21,10 +21,11 @@ public interface DataTest {
 			Classroom.builder().id(3).address("103").capacity(30).build(),
 			Classroom.builder().id(4).address("104").capacity(20).build());
 
-	Classroom classroomForCreate = Classroom.builder().id(5).address("105").capacity(10).build();
+	Classroom classroomForCreate = Classroom.builder().id(0).address("105").capacity(10).build();
+	Classroom classroomForTest = Classroom.builder().id(5).address("105").capacity(10).build();
 	Classroom classroomForDelete = Classroom.builder().id(2).address("102").capacity(40).build();
 	Classroom classroomForUpdate = Classroom.builder().id(3).address("303").capacity(400).build();
-	Classroom classroomSmall = Classroom.builder().id(4).address("503").capacity(1).build();
+	Classroom classroomSmall = Classroom.builder().id(4).address("503").capacity(2).build();
 
 	List<Course> expectedCourses = Arrays.asList(Course.builder().id(1).name("Mathematics").description("Math").build(),
 			Course.builder().id(2).name("Biology").description("Bio").build(),
@@ -38,6 +39,7 @@ public interface DataTest {
 			Course.builder().id(4).name("Physics").description("Phy").build(),
 			Course.builder().id(5).name("Geography").description("Geo").build());
 
+	Course courseForCreate = Course.builder().id(0).name("Geography").description("Geo").build();
 	Course courseForTest = Course.builder().id(5).name("Geography").description("Geo").build();
 	Course specialCourse = Course.builder().id(6).name("Informatica").description("Inf").build();
 
@@ -97,15 +99,20 @@ public interface DataTest {
 	Student studentForTest = Student.builder().id(1).personalNumber(123).firstName("Peter").lastName("Petrov")
 			.birthday(LocalDate.of(2020, 9, 3)).email("webPP@mail.ru").gender(Gender.MALE).address("City17")
 			.courses(expectedCourses).build();
+	Student smartStudent = Student.builder().id(1).personalNumber(123).firstName("Peter").lastName("Petrov")
+			.birthday(LocalDate.of(2020, 9, 3)).email("webPP@mail.ru").gender(Gender.MALE).address("City17")
+			.courses(coursesForTeacher).build();
 
 	List<Group> expectedGroups = Arrays.asList(
 			Group.builder().id(1).name("a2a2").students(expectedStudents.subList(0, 1)).build(),
 			Group.builder().id(2).name("b2b2").students(expectedStudents.subList(2, 3)).build(),
 			Group.builder().id(3).name("c2c2").students(expectedStudents.subList(4, 5)).build(),
 			Group.builder().id(4).name("d2d2").students(expectedStudents.subList(6, 6)).build());
-
+	
+	Group bigGroup = Group.builder().id(5).name("c2c2").students(expectedStudents).build();
 	Group sillyGroup = Group.builder().id(1).name("a2a2").students(sillyStudents).build();
 	Group groupForTest = Group.builder().id(1).name("a2a2").students(expectedStudents.subList(0, 3)).build();
+	Group groupForCreate = Group.builder().id(0).name("a2a2").students(expectedStudents.subList(0, 3)).build();
 
 	List<Lecture> expectedLectures = Arrays.asList(
 			Lecture.builder().id(1).dailyScheduleId(1).time(LocalTime.of(9, 0, 0)).course(expectedCourses.get(0))
@@ -156,6 +163,9 @@ public interface DataTest {
 			.teacher(expectedTeachers.get(3)).build();
 	Lecture lectureWithNotAvaliableClassroom = Lecture.builder().id(9).dailyScheduleId(5).time(LocalTime.of(9, 59, 59))
 			.course(expectedCourses.get(3)).classRoom(expectedClassrooms.get(0)).group(expectedGroups.get(1))
+			.teacher(expectedTeachers.get(3)).build();
+	Lecture lectureWithSmallClassroom = Lecture.builder().id(9).dailyScheduleId(5).time(LocalTime.of(9, 59, 59))
+			.course(expectedCourses.get(3)).classRoom(classroomSmall).group(bigGroup)
 			.teacher(expectedTeachers.get(3)).build();
 
 	List<DailySchedule> expectedDailySchedules = Arrays.asList(

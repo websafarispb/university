@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.jdbc.JdbcGroupDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.DailySchedule;
 
 import static ru.stepev.data.DataTest.*;
@@ -36,7 +39,7 @@ public class DailyScheduleServiceTest {
 
 	@Test
 	public void givenDailySchedule_whenAddDailySchedulesDoeNotExist_thenAddDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId())).thenReturn(Optional.empty());
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.empty());
 
 		dailyScheduleService.add(dailyScheduleForCreate);
 
@@ -45,52 +48,55 @@ public class DailyScheduleServiceTest {
 
 	@Test
 	public void givenDailySchedule_whenAddDailySchedulesExist_thenDoNotAddDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
-				.thenReturn(Optional.of(dailyScheduleForCreate));
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
+		
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> dailyScheduleService.add(dailyScheduleForCreate));
 
-		dailyScheduleService.add(dailyScheduleForCreate);
-
+		assertThat(exception.getMessage()).isEqualTo("DailySchedule with date %s already exist",
+				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).create(dailyScheduleForCreate);
 	}
 
 	@Test
 	public void givenDailySchedule_whenUpdateDailySchedulesExist_thenUpdateDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
-				.thenReturn(Optional.of(dailyScheduleForCreate));
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
 
 		dailyScheduleService.update(dailyScheduleForCreate);
 
 		verify(dailyScheduleDao).update(dailyScheduleForCreate);
 	}
-	
+
 	@Test
 	public void givenDailySchedule_whenUpdateDailySchedulesDoesNotExist_thenDoNotUpdateDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
-				.thenReturn(Optional.empty());
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.empty());
 
-		dailyScheduleService.update(dailyScheduleForCreate);
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> dailyScheduleService.update(dailyScheduleForCreate));
 
+		assertThat(exception.getMessage()).isEqualTo("DailySchedule with date %s doesn't exist",
+				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).update(dailyScheduleForCreate);
 	}
 
-
 	@Test
 	public void givenDailySchedule_whenDeleteDailySchedulesExist_thenDeleteDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
-				.thenReturn(Optional.of(dailyScheduleForCreate));
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
 
 		dailyScheduleService.delete(dailyScheduleForCreate);
 
 		verify(dailyScheduleDao, times(1)).delete(dailyScheduleForCreate.getId());
 	}
-	
+
 	@Test
 	public void givenDailySchedule_whenDeleteDailySchedulesDoesNotExist_thenDoNotDeleteDailySchedules() {
-		when(dailyScheduleDao.findById(dailyScheduleForCreate.getId()))
-				.thenReturn(Optional.empty());
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.empty());
 
-		dailyScheduleService.delete(dailyScheduleForCreate);
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> dailyScheduleService.delete(dailyScheduleForCreate));
 
+		assertThat(exception.getMessage()).isEqualTo("DailySchedule with date %s doesn't exist",
+				dailyScheduleForCreate.getDate());
 		verify(dailyScheduleDao, never()).delete(dailyScheduleForCreate.getId());
 	}
 
@@ -120,15 +126,15 @@ public class DailyScheduleServiceTest {
 		LocalDate firstDate = LocalDate.of(2020, 9, 7);
 		LocalDate lastDate = LocalDate.of(2020, 9, 10);
 		List<DailySchedule> expected = expectedDailySchedules.subList(0, 2);
-		when(dailyScheduleDao.findByTeacherIdAndPeriodOfTime(dailyScheduleForCreate.getId(), firstDate,
-				lastDate)).thenReturn(expected);
+		when(dailyScheduleDao.findByTeacherIdAndPeriodOfTime(dailyScheduleForCreate.getId(), firstDate, lastDate))
+				.thenReturn(expected);
 
 		List<DailySchedule> actual = dailyScheduleService.getScheduleForTeacher(dailyScheduleForCreate.getId(),
 				firstDate, lastDate);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(dailyScheduleDao, times(1)).findByTeacherIdAndPeriodOfTime(dailyScheduleForCreate.getId(),
-				firstDate, lastDate);
+		verify(dailyScheduleDao, times(1)).findByTeacherIdAndPeriodOfTime(dailyScheduleForCreate.getId(), firstDate,
+				lastDate);
 	}
 
 	@Test
@@ -136,25 +142,21 @@ public class DailyScheduleServiceTest {
 		LocalDate firstDate = LocalDate.of(2020, 9, 7);
 		LocalDate lastDate = LocalDate.of(2020, 9, 10);
 		List<DailySchedule> expected = expectedDailySchedules.subList(0, 3);
-		when(dailyScheduleDao.findByGroupAndPeriodOfTime(groupForTest, firstDate, lastDate))
-				.thenReturn(expected);
-		when(groupDao.findByStudentId(studentForTest.getId()))
-				.thenReturn(Optional.of(groupForTest));
+		when(dailyScheduleDao.findByGroupAndPeriodOfTime(groupForTest, firstDate, lastDate)).thenReturn(expected);
+		when(groupDao.findByStudentId(studentForTest.getId())).thenReturn(Optional.of(groupForTest));
 
-		List<DailySchedule> actual = dailyScheduleService.getScheduleForStudent(studentForTest.getId(),
-				firstDate, lastDate);
+		List<DailySchedule> actual = dailyScheduleService.getScheduleForStudent(studentForTest.getId(), firstDate,
+				lastDate);
 
 		assertThat(actual).isEqualTo(expected);
-		verify(dailyScheduleDao, times(1)).findByGroupAndPeriodOfTime(groupForTest, firstDate,
-				lastDate);
+		verify(dailyScheduleDao, times(1)).findByGroupAndPeriodOfTime(groupForTest, firstDate, lastDate);
 		verify(groupDao, times(1)).findByStudentId(studentForTest.getId());
 	}
 
 	@Test
 	public void givenScheduleId_whenGetByIdScheduleExist_thenGetSchedule() {
 		DailySchedule expected = expectedDailySchedules.get(3);
-		when(dailyScheduleDao.findById(expectedDailySchedules.get(3).getId()))
-				.thenReturn(Optional.of(expected));
+		when(dailyScheduleDao.findById(expectedDailySchedules.get(3).getId())).thenReturn(Optional.of(expected));
 
 		DailySchedule actual = dailyScheduleService.getById(expectedDailySchedules.get(3).getId()).get();
 

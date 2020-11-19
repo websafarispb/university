@@ -7,7 +7,6 @@ import ru.stepev.uinterface.UserInterface;
 public class Main {
 
 	public static void main(String[] args) {
-		
 		UserInterface userInterface = new UserInterface();		
 		Scanner scanner = new Scanner(System.in);
 		while(true) {

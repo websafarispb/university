@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -16,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Course;
 
 import static ru.stepev.data.DataTest.*;
@@ -33,39 +36,42 @@ public class CourseServiceTest {
 
 	@Test
 	public void givenCourse_whenAddCourseDoesNotExist_thenAddCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
-		when(teacherDao.findAll()).thenReturn(expectedTeachers);
+		when(courseDao.findByName(courseForCreate.getName())).thenReturn(Optional.empty());
 
-		courseService.add(courseForTest);
+		courseService.add(courseForCreate);
 
-		verify(courseDao).create(courseForTest);		
+		verify(courseDao).create(courseForCreate);
 	}
-	
+
 	@Test
 	public void givenCourse_whenAddCourseExist_thenDoNotAddCourse() {
-		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
+		when(courseDao.findByName(courseForCreate.getName())).thenReturn(Optional.of(courseForTest));
 
-		courseService.add(courseForTest);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> courseService.add(courseForCreate));
 
-		verify(courseDao, never()).create(courseForTest);		
+		assertThat(exception.getMessage()).isEqualTo("Course with name %s already exist", courseForCreate.getName());
+		verify(courseDao, never()).create(courseForCreate);
 	}
 
 	@Test
 	public void givenCourse_whenUpdateCourseExist_thenUpdateCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.of(courseForTest));
-		when(teacherDao.findAll()).thenReturn(expectedTeachers);
+		when(courseDao.findByName(courseForTest.getName())).thenReturn(Optional.of(courseForTest));
 
 		courseService.update(courseForTest);
 
 		verify(courseDao).update(courseForTest);
 	}
-	
+
 	@Test
 	public void givenCourse_whenUpdateCourseDoesNotExist_thenDoNotUpdateCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
 
-		courseService.update(courseForTest);
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> courseService.update(courseForTest));
 
+		assertThat(exception.getMessage()).isEqualTo("Course with name %s doesn't exist", courseForTest.getName());
 		verify(courseDao, never()).update(courseForTest);
 	}
 
@@ -77,13 +83,16 @@ public class CourseServiceTest {
 
 		verify(courseDao).delete(courseForTest.getId());
 	}
-	
+
 	@Test
 	public void givenCourse_whenDeleteCourseDoesNotExist_thenDoNotDeleteCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
 
-		courseService.delete(courseForTest);
 
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> courseService.delete(courseForTest));
+
+		assertThat(exception.getMessage()).isEqualTo("Course with name %s doesn't exist", courseForTest.getName());
 		verify(courseDao, never()).delete(courseForTest.getId());
 	}
 

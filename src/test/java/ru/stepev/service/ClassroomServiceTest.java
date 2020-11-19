@@ -1,6 +1,7 @@
 package ru.stepev.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.stepev.dao.ClassroomDao;
+import ru.stepev.exception.EntityAlreadyExistException;
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 
 import static ru.stepev.data.DataTest.*;
@@ -46,19 +49,23 @@ public class ClassroomServiceTest {
 
 		assertThat(expected).isEqualTo(actual);
 	}
-	
+
 	@Test
 	public void givenClassroom_whenAddClassroomExist_thenNotAddClassroom() {
-		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.of(classroomForCreate));
+		when(classroomDao.findByAddress(classroomForCreate.getAddress())).thenReturn(Optional.of(classroomForCreate));
 
-		classroomService.add(classroomForCreate);
+		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
+				() -> classroomService.add(classroomForTest));
+
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s already exist",
+				classroomForCreate.getAddress());
 
 		verify(classroomDao, never()).create(classroomForCreate);
 	}
 
 	@Test
 	public void givenClassroom_whenAddClassroomDoesNotExist_thenAddClassroom() {
-		when(classroomDao.findById(classroomForCreate.getId())).thenReturn(Optional.empty());
+		when(classroomDao.findByAddress(classroomForCreate.getAddress())).thenReturn(Optional.empty());
 
 		classroomService.add(classroomForCreate);
 
@@ -68,35 +75,41 @@ public class ClassroomServiceTest {
 	@Test
 	public void givenClassroom_whenDeleteClassroomExist_thenDeleteClassroom() {
 		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
-
 		classroomService.delete(classroomForDelete);
 
 		verify(classroomDao).delete(classroomForDelete.getId());
 	}
-	
+
 	@Test
 	public void givenClassroom_whenDeleteClassroomDoesNotExist_thenNotDeleteClassroom() {
 		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.empty());
 
-		classroomService.delete(classroomForDelete);
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> classroomService.delete(classroomForDelete));
 
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist",
+				classroomForDelete.getAddress());
 		verify(classroomDao, never()).delete(classroomForDelete.getId());
 	}
 
 	@Test
 	public void givenClassroom_whenUpdateClassroomExist_thenUpdateClassroom() {
 		when(classroomDao.findById(classroomForDelete.getId())).thenReturn(Optional.of(classroomForDelete));
+		when(classroomDao.findByAddress(classroomForDelete.getAddress())).thenReturn(Optional.of(classroomForDelete));
 
 		classroomService.update(classroomForDelete);
 
 		verify(classroomDao).update(classroomForDelete);
 	}
-	
+
 	@Test
 	public void givenClassroom_whenUpdateClassroomDoesNotExist_thenNotUpdateClassroom() {
 		when(classroomDao.findById(classroomForUpdate.getId())).thenReturn(Optional.empty());
+		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+				() -> classroomService.update(classroomForUpdate));
 
-		classroomService.update(classroomForUpdate);
+		assertThat(exception.getMessage()).isEqualTo("Classroom with address %s doesn't exist",
+				classroomForUpdate.getAddress());
 
 		verify(classroomDao, never()).update(classroomForUpdate);
 	}

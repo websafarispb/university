@@ -62,5 +62,4 @@ public class DailySchedule {
 			return false;
 		return true;
 	}
-
 }
