@@ -63,7 +63,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 					String.format("DailySchedule with getAddress %s could not been created", dailySchedule.getDate()));
 		}
 		dailySchedule.setId((int) keyHolder.getKeys().get("id"));
-		dailySchedule.getLectures().forEach(lectureDao::create);
+	//	dailySchedule.getLectures().forEach(lectureDao::create);
 	}
 
 	@Transactional

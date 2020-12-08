@@ -21,6 +21,10 @@ public class Student {
 	private Gender gender;
 	private String address;
 	private List<Course> courses;
+	
+	public Student(int id) {
+		this.id = id;
+	}
 
 	public Student(int id, int personalNumber, String firstName, String lastName, LocalDate birthday, String email,
 			Gender gender, String address, List<Course> courses) {
@@ -36,10 +40,14 @@ public class Student {
 	}
 
 	public String getGender() {
+		if(gender==null)
+			gender = Gender.valueOf("MALE");
 		return gender.toString();
 	}
 
 	public void setGender(String gender) {
+		if(gender==null)
+				gender = "MALE";
 		this.gender = Gender.valueOf(gender);
 	}
 

@@ -15,6 +15,11 @@ public class Classroom {
 	private String address;
 	private int capacity;
 	
+	public Classroom(int id) {
+		this.id = id;
+	}
+	
+	
 	public Classroom(String address, int capacity) {
 		this.address = address;
 		this.capacity = capacity;
@@ -55,5 +60,4 @@ public class Classroom {
 			return false;
 		return true;
 	}
-	
 }

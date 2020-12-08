@@ -72,4 +72,10 @@ public class Lecture {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Lecture [dailyScheduleId=" + dailyScheduleId + ", time=" + time + ", course=" + course + ", classRoom="
+				+ classRoom +  ", teacher=" + teacher + "]" + System.lineSeparator();
+	}
 }

@@ -49,16 +49,21 @@ public class UserInterface {
 		menu = new LinkedHashMap<>();
 		scanner = new Scanner(System.in);
 		menu.put("a", "a. Show schedule for teacher");
-		menu.put("b", "b. Show schedule for student");
-		menu.put("c", "c. Delete teacher");
-		menu.put("d", "d. Update teacher");
-		menu.put("e", "e. Find teacher by ID");
-		menu.put("f", "f. Delete student");
-		menu.put("g", "g. Update student");
-		menu.put("h", "h. Find student by ID");
-		menu.put("l", "l. Show all classrooms");
-		menu.put("m", "m. Show all dailyschedules");
-		menu.put("n", "n. Create lecture");
+		menu.put("b", "b. Add teacher");
+		menu.put("c", "c. Update teacher");
+		menu.put("d", "d. Delete teacher");
+		menu.put("e", "e. Find teacher by name");
+		menu.put("f", "f. Show schedule for student");
+		menu.put("g", "g. Add student");
+		menu.put("h", "h. Update student");
+		menu.put("i", "i. Delete student");
+		menu.put("j", "j. Find student by name");
+		menu.put("k", "k. Show all classrooms");
+		menu.put("l", "l. Show all dailyschedules");
+		menu.put("m", "m. Show all groups");
+		menu.put("n", "n. Show all courses");
+		menu.put("o", "o. Show all lectures");
+		menu.put("p", "p. Create lecture");
 
 	}
 
@@ -72,64 +77,86 @@ public class UserInterface {
 		try {
 			switch (item) {
 			case "a":
-				teacherService.getAll();
+				teacherService.getAll().stream().forEach(System.out::println);
 				periodOfTime = getPeriodOfTime();
 				formattedAnswer = dailyScheduleService
 						.getScheduleForTeacher(getId(), periodOfTime.get(0), periodOfTime.get(1)).stream()
 						.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 				break;
 			case "b":
-				studentService.getAll();
-				studentService.getByFirstAndLastNames(getFirstAndLastName().get(0), getFirstAndLastName().get(1));
-				int id = getId();
-				periodOfTime = getPeriodOfTime();
-				formattedAnswer = dailyScheduleService
-						.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1)).stream()
-						.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
+				formattedAnswer = "Add techer";
 				break;
 			case "c":
-				teacherService.getAll();
-				Teacher teacherForDelete = teacherService.getById(getId()).get();
-				teacherService.delete(teacherForDelete);
-				formattedAnswer = "Delete have been completed!!!";
-				break;
-			case "d":
 				teacherService.getAll();
 				Teacher teacher = teacherService.getById(getId()).get();
 				teacher.setFirstName("Жора");
 				teacherService.update(teacher);
 				formattedAnswer = "Update have been completed!!!";
 				break;
+
+			case "d":
+				teacherService.getAll();
+				Teacher teacherForDelete = teacherService.getById(getId()).get();
+				teacherService.delete(teacherForDelete);
+				formattedAnswer = "Delete have been completed!!!";
+				break;
 			case "e":
 				teacherService.getAll();
 				formattedAnswer = teacherService.getById(getId()).get().toString();
 				break;
 			case "f":
-				studentService.getAll();
-				Student studentForDelete = studentService.getById(getId()).get();
-				studentService.delete(studentForDelete);
-				formattedAnswer = "Delete have been completed!!!";
+				studentService.getAll().stream().forEach(System.out::println);
+				List<String> fullName = getFirstAndLastName();
+				studentService.getByFirstAndLastNames(fullName.get(0), fullName.get(1));
+				int id = getId();
+				periodOfTime = getPeriodOfTime();
+				formattedAnswer = dailyScheduleService
+						.getScheduleForStudent(id, periodOfTime.get(0), periodOfTime.get(1)).stream()
+						.map(DailySchedule::toString).collect(joining(System.lineSeparator()));
 				break;
 			case "g":
+				formattedAnswer = "Add student!!!";
+				break;
+			case "h":
 				studentService.getAll();
 				Student student = studentService.getById(getId()).get();
 				student.setFirstName("Жора");
 				studentService.update(student);
 				formattedAnswer = "Update have been completed!!!";
 				break;
-			case "h":
+			case "i":
+
+				studentService.getAll();
+				Student studentForDelete = studentService.getById(getId()).get();
+				studentService.delete(studentForDelete);
+				formattedAnswer = "Delete have been completed!!!";
+				break;
+			case "j":
+
 				studentService.getAll();
 				formattedAnswer = studentService.getById(getId()).get().toString();
 				break;
-			case "l":
+			case "k":
 				formattedAnswer = classroomService.getAll().stream().map(Classroom::toString)
 						.collect(joining(System.lineSeparator()));
 				break;
-			case "m":
+			case "l":
 				formattedAnswer = dailyScheduleService.getAll().stream().map(DailySchedule::toString)
 						.collect(joining(System.lineSeparator()));
 				break;
+			case "m":
+				formattedAnswer = groupService.getAll().stream().map(Group::toString)
+						.collect(joining(System.lineSeparator()));
+				break;
 			case "n":
+				formattedAnswer = courseService.getAll().stream().map(Course::toString)
+						.collect(joining(System.lineSeparator()));
+				break;
+			case "o":
+				formattedAnswer = lectureService.getAll().stream().map(Lecture::toString)
+						.collect(joining(System.lineSeparator()));
+				break;
+			case "p":
 				lectureService.add(getLectureFromUser());
 				formattedAnswer = "create lecture";
 				break;
