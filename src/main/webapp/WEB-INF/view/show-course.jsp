@@ -12,7 +12,7 @@
 	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
 	crossorigin="anonymous">
 
-<title>Update course</title>
+<title>Classrooms</title>
 </head>
 <body>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -23,27 +23,30 @@
 		integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
 		crossorigin="anonymous"></script>
 
-	<div class="container">
-		<form th:action="@{/courses/save}" th:object="${course}" method="post">
-		<h1>Update course</h1>
-			<div class="form-row">
-				<div class="col-md-6 form-group">
-					<input type="hidden" th:field="*{id}" />
-					<label>Course Name</label> <input type="text" class="form-control"
-						th:field="*{name}">
-				
-					<label>Course Description</label> <input type="color"
-						class="form-control" th:field="*{description}">
-				</div>
-			</div>
-			<div style="margin-top: 10px" class="form-group">
-				<div class="col-sm-6 controls">
-					<button type="submit" class="btn btn-success">Update</button>
-				</div>
-			</div>
-		</form>
+		<div id="container">
+		<div class="card">
 		<hr>
-		<a th:href="@{/courses/showAllCourses}">Back to courses list</a>
+		<p class="h4 mb-4">Course</p>
+		<a th:href="@{/courses/showAllCourses}" class="btn btn-info btn-sm mb-3">Back to
+					courses list</a> 
+	
+		<form action="#" th:object="${course}" >
+			<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+				<tr>
+					<td>Id</td>
+					<td  th:text="*{id}"></td>
+				</tr>
+				<tr>
+					<td>Capacity</td>
+					<td  th:text="*{name}"></td>
+				</tr>
+				<tr>
+					<td>Address</td>
+					<td  th:text="*{description}"></td>
+				</tr>
+			</table>					
+		</form>
+	</div>
 	</div>
 
 </body>

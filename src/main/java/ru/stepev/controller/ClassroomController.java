@@ -1,66 +1,60 @@
 package ru.stepev.controller;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import ru.stepev.model.Classroom;
-import ru.stepev.model.Course;
 import ru.stepev.service.ClassroomService;
+import ru.stepev.utils.Paginator;
 
 @Controller
 @RequestMapping("/classrooms")
 public class ClassroomController {
 	
 	private ClassroomService classroomService;
+	
+	@Value("${numberOfEntitiesForOnePage}")
+	private int numberOfEntitiesForOnePage;
+	@Value("${sizeOfDiapason}")
+	private int sizeOfDiapason;
 
 	public ClassroomController(ClassroomService classroomService) {
 		this.classroomService = classroomService;
 	}
 	
 	@GetMapping("/showAllClassrooms")
-	public String showAllClassrooms(Model model) {
-
-		List<Classroom> classrooms = classroomService.getAll();
-		model.addAttribute("classrooms", classrooms);
+	public String showAllClassrooms(Model model, @RequestParam(defaultValue = "0") int diapason,  @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<Classroom> allClassrooms = classroomService.getAll();
+		switch(sortedParam) {
+			case ("Address") : Collections.sort(allClassrooms, Comparator.comparing(Classroom::getAddress)); break;
+			case ("Capacity")  : Collections.sort(allClassrooms, Comparator.comparing(Classroom::getCapacity)); break;
+			case ("Id")  : Collections.sort(allClassrooms, Comparator.comparing(Classroom::getId)); break;
+			default : Collections.sort(allClassrooms, Comparator.comparing(Classroom::getId)); break;
+		}
+		Paginator paginator = new Paginator(allClassrooms.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
+		List<Classroom> classroomsForShow = allClassrooms.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+		model.addAttribute("classroomsForShow", classroomsForShow);
+		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
+		model.addAttribute("sortedParam", sortedParam);
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("diapason", diapason);
+		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "classrooms-page";
 	}
 	
-	@GetMapping("/delete")
-	public String delete(@RequestParam("classroomId") int classroomId, Model model) {	
-		Classroom classroom = classroomService.getById(classroomId).get();
-		classroomService.delete(classroom);
-		return "redirect:/classrooms/showAllClassrooms";
-	}
-	
-	@GetMapping("/update")
-	public String update(@RequestParam("classroomId") int classroomId, Model model) {	
+	@GetMapping("/showEntity")
+	public String showEntity(@RequestParam("classroomId") int classroomId, Model model) {	
 		Classroom classroom = classroomService.getById(classroomId).get();
 		model.addAttribute("classroom", classroom);
-		return "update-classroom";
-	}
-	
-	@GetMapping("/add")
-	public String add( Model model) {	
-		model.addAttribute("classroom", new Classroom());
-		return "add-classroom";
-	}
-	
-	@PostMapping("/save")
-	public String save(@ModelAttribute Classroom classroom) {	
-		classroomService.update(classroom);
-		return "redirect:/classrooms/showAllClassrooms";
-	}
-	
-	@PostMapping("/create")
-	public String create(@ModelAttribute Classroom classroom) {	
-		classroomService.add(classroom);
-		return "redirect:/classrooms/showAllClassrooms";
+		return "show-classroom";
 	}
 }

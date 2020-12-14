@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Group {
+public class Group implements Comparable <Group>{
 
 	private int id;
 	private String name;
@@ -65,5 +65,10 @@ public class Group {
 		} else if (!students.equals(other.students))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Group o) {
+		return this.getName().compareTo(o.getName());
 	}
 }

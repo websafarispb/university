@@ -27,42 +27,48 @@
 
 	<div id="container">
 		<div class="card">
-			<div th:if="${not #lists.isEmpty(students)}">
+			<div th:if="${not #lists.isEmpty(studentsForShow)}">
 
-				<a th:href="@{/}" class="btn btn-primary btn-sm mb-3">Back to
-					Menu</a> <a th:href="@{add}" class="btn btn-primary btn-sm mb-3">
-					Add Student </a>
+				<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+					Menu</a> 
 
-				<table class="table table-striped">
+				<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
 					<thead class="thead-dark">
 						<tr>
-							<th>Id</th>
-							<th>First name</th>
-							<th>Last name</th>
-							<th>Birthday</th>
-							<th>Email</th>
-							<th>Address</th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Id'})}" >Id</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'First_name'})}" >First name</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Last_name'})}" >Last name</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Birthday'})}" >Birthday</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Email'})}" >Email</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Address'})}" >Address</a></th>
 							<th>Action</th>
 						</tr>
 					</thead>
-					<tr th:each="student: ${students}">
+					<tr th:each="student: ${studentsForShow}">
 						<td th:text="${student.id}" />
 						<td th:text="${student.firstName}" />
 						<td th:text="${student.lastName}" />
 						<td th:text="${student.birthday}" />
 						<td th:text="${student.email}" />
 						<td th:text="${student.address}" />
-						<td><a th:href="@{update/(studentId=${student.id})}"
-							class="btn btn-primary">Edit</a> <a
-							th:href="@{delete/(studentId=${student.id})}"
-							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this student?'))) return false">Delete</a>
+						<td><a th:href="@{/students/showEntity/(studentId=${student.id})}"
+							class="btn btn-info">Show</a>
 					   </td>
 					</tr>
 				</table>
 			</div>
+
+			<nav aria-label="...">
+				<ul class="pagination  justify-content-center">
+					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/showAllStudents/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
+						<a class="page-link" th:text="${i}"  th:href="@{/students/showAllStudents/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/showAllStudents/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+				</ul>
+			</nav>
 		</div>
 	</div>
-
-
 </body>
 </html>

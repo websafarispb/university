@@ -12,7 +12,7 @@
 	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
 	crossorigin="anonymous">
 
-<title>Create classroom</title>
+<title>Classrooms</title>
 </head>
 <body>
 	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -23,27 +23,31 @@
 		integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
 		crossorigin="anonymous"></script>
 
-	<div class="container">
-		<form th:action="@{/classrooms/create}" th:object="${classroom}" method="post">
-		<h1>Update course</h1>
-			<div class="form-row">
-				<div class="col-md-6 form-group">
-					<input type="hidden" th:field="*{id}" />
-					<label>Classroom address</label> <input type="text" class="form-control"
-						th:field="*{address}">
-				
-					<label>Classroom capacity</label> <input type="color"
-						class="form-control" th:field="*{capacity}">
-				</div>
-			</div>
-			<div style="margin-top: 10px" class="form-group">
-				<div class="col-sm-6 controls">
-					<button type="submit" class="btn btn-success">Create</button>
-				</div>
-			</div>
+		<div id="container">
+		<div class="card">
+		<hr>
+		<p class="h4 mb-4">Student</p>
+		<a th:href="@{/classrooms/showAllClassrooms}" class="btn btn-info btn-sm mb-3">Back to
+					classrooms list</a> 
+	
+		<form action="#" th:object="${classroom}" >
+			<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+				<tr>
+					<td>Id</td>
+					<td  th:text="*{id}"></td>
+				</tr>
+				<tr>
+					<td>Capacity</td>
+					<td  th:text="*{capacity}"></td>
+				</tr>
+				<tr>
+					<td>Address</td>
+					<td  th:text="*{address}"></td>
+				</tr>
+			</table>					
 		</form>
 		<hr>
-		<a th:href="@{/classrooms/showAllClassrooms}">Back to courses list</a>
+	</div>
 	</div>
 
 </body>

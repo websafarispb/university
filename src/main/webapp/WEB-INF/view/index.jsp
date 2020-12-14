@@ -28,15 +28,15 @@
 		<hr>
 		Welcome to "University" page. <br>
 		<hr>
-		<a href="showScheduleForTeacherForm">Show schedule for teacher</a> <br>
-		<a href="showScheduleForStudentForm">Show schedule for student</a> <br>
+		<a href="dailySchedules/showScheduleForTeacherForm">Show schedule for teacher</a> <br>
+		<a href="dailySchedules/showScheduleForStudentForm">Show schedule for student</a> <br>
 		<a href="classrooms/showAllClassrooms">Show classrooms</a> <br> <a
 			href="students/showAllStudents">Show students</a> <br> <a
 			href="teachers/showAllTeachers">Show teachers</a> <br> <a
-			href="showSchedule">Show schedules</a> <br> <a
+			href="dailySchedules/showAllDailySchedules">Show schedules</a> <br> <a
 			href="courses/showAllCourses">Show courses</a> <br> <a
 			href="lectures/showAllLectures">Show lectures</a> <br> <a
-			href="groups/showAllGroups">Show groups</a> 
+			href="groups/showAllGroups">Show groups</a>
 	</div>
 </body>
 </html>

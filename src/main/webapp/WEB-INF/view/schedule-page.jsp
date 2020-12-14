@@ -27,34 +27,50 @@
 
 	Welcome to "Schedule" page.
 	<div id="container">
-		<div th:if="${not #lists.isEmpty(schedules)}">
+		<div th:if="${not #lists.isEmpty(dailySchedulesForShow)}">
+		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+					Menu</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th>Date</th>
+						<th><a class="btn btn-secondary" th:href="@{/dailySchedules/showAllDailySchedules/(sortedParam=${'Id'})}" >Id</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/dailySchedules/showAllDailySchedules/(sortedParam=${'Date'})}" >Date</a></th>
 						<th>Time</th>
 						<th>Course</th>
 						<th>Classroom</th>
 						<th>Group</th>
 						<th>Teacher</th>
+						<th>Action</th>
 					</tr>
 				</thead>
-				<tbody th:each="tempSchedule: ${schedules}">
+				<tbody th:each="dailySchedule: ${dailySchedulesForShow}">
 					
 						
 	
-					<tr th:each="lecture : ${tempSchedule.lectures}">
-					<td th:text="${tempSchedule.date}" ></td>
+					<tr th:each="lecture : ${dailySchedule.lectures}">
+						<td th:text="${dailySchedule.id}" ></td>
+						<td th:text="${dailySchedule.date}" ></td>
 						<td th:text="${lecture.time}"></td>
 						<td th:text="${lecture.course.name}"></td>
 						<td th:text="${lecture.classRoom.address}"></td>
 						<td th:text="${lecture.group.name}"></td>
 						<td th:text="${lecture.teacher.lastName}"></td>
+						<td><a th:href="@{/dailySchedules/showEntity/(lectureId=${lecture.id})}"
+							class="btn btn-info">Show</a>
+					   </td>
 					</tr>
 				</tbody>
 			</table>
-			<a th:href="@{/}" class="btn btn-primary">Back to
-				Menu</a>
+			<nav aria-label="...">
+				<ul class="pagination  justify-content-center">
+					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
+						<a class="page-link" th:text="${i}"  th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+				</ul>
+			</nav>
 		</div>
 	</div>
 </body>

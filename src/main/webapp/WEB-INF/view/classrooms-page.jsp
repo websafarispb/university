@@ -26,34 +26,38 @@
 	<div id="container">
 	<h1>Classrooms</h1>
 	<hr>
-		<div th:if="${not #lists.isEmpty(classrooms)}">
-		<a th:href="@{/}" class="btn btn-primary btn-sm mb-3">Back to
-					Menu</a> <a th:href="@{add}" class="btn btn-primary btn-sm mb-3">
-					Add classroom </a>
+		<div th:if="${not #lists.isEmpty(classroomsForShow)}">
+		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+					Menu</a> 
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th>Id Classroom</th>
-						<th>Address</th>
-						<th>Capacity</th>
+						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Id'})}" >Id</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Address'})}" >Address</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Capacity'})}" >Capacity</a></th>
 						<th>Action</th>
 					</tr>
 				</thead>
-				<tr th:each="classroom: ${classrooms}">
+				<tr th:each="classroom: ${classroomsForShow}">
 					<td th:text="${classroom.id}" />
 					<td th:text="${classroom.address}" />
 					<td th:text="${classroom.capacity}" />
-					<td><a th:href="@{update/(classroomId=${classroom.id})}"
-							class="btn btn-primary">Edit</a> <a
-							th:href="@{delete/(classroomId=${classroom.id})}"
-							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this classroom?'))) return false">Delete</a>
+					<td><a th:href="@{/classrooms/showEntity/(classroomId=${classroom.id})}"
+							class="btn btn-info">Show</a>
 					   </td>
 				</tr>
 			</table>
+			<nav aria-label="...">
+				<ul class="pagination  justify-content-center">
+					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/classrooms/showAllClassrooms/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
+						<a class="page-link" th:text="${i}"  th:href="@{/classrooms/showAllClassrooms/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/classrooms/showAllClassrooms/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+				</ul>
+			</nav>
 		</div>
 	</div>
-
-
-
 </body>
 </html>

@@ -27,36 +27,43 @@
 
 	Welcome to "Lecture" page.
 	<div id="container">
-		<div th:if="${not #lists.isEmpty(lectures)}">
-		<a th:href="@{/}" class="btn btn-primary btn-sm mb-3">Back to
-				menu</a> <a th:href="@{add}" class="btn btn-primary btn-sm mb-3">
-				Add lecture </a>
+		<div th:if="${not #lists.isEmpty(lecturesForShow)}">
+		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+				menu</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th>Id</th>
-						<th>Time</th>
-						<th>Course</th>
-						<th>Classroom</th>
-						<th>Group</th>
-						<th>Teacher</th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Id'})}" >Id</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Time'})}" >Time</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Course'})}" >Course</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Classroom'})}" >Classroom</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Group'})}" >Group</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/lectures/showAllLectures/(sortedParam=${'Teacher'})}" >Teacher</a></th>
 						<th>Actions</th>
 					</tr>
 				</thead>
-				<tr th:each="lecture : ${lectures}">
+				<tr th:each="lecture : ${lecturesForShow}">
 					<td th:text="${lecture.id}"></td>
 					<td th:text="${lecture.time}"></td>
 					<td th:text="${lecture.course.name}"></td>
 					<td th:text="${lecture.classRoom.address}"></td>
 					<td th:text="${lecture.group.name}"></td>
 					<td th:text="${lecture.teacher.lastName}"></td>
-					<td><a th:href="@{update/(lectureId=${lecture.id})}"
-							class="btn btn-primary">Edit</a> <a
-							th:href="@{delete/(lectureId=${lecture.id})}"
-							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this lecture?'))) return false">Delete</a>
+					<td><a th:href="@{/lectures/showEntity/(lectureId=${lecture.id})}"
+							class="btn btn-info">Show</a>
 					</td>
 				</tr>
 			</table>
+				<nav aria-label="...">
+				<ul class="pagination  justify-content-center">
+					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/lectures/showAllLectures/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
+						<a class="page-link" th:text="${i}"  th:href="@{/lectures/showAllLectures/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/lectures/showAllLectures/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+				</ul>
+			</nav>
 		</div>
 	</div>
 </body>

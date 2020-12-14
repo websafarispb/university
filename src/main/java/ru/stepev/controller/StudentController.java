@@ -1,8 +1,16 @@
 package ru.stepev.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.stepev.model.Course;
 import ru.stepev.model.Group;
 import ru.stepev.model.Student;
+import ru.stepev.model.Teacher;
 import ru.stepev.service.CourseService;
 import ru.stepev.service.GroupService;
 import ru.stepev.service.StudentService;
+import ru.stepev.utils.Paginator;
 
 @Controller
 @RequestMapping("/students")
@@ -25,6 +35,12 @@ public class StudentController {
 	private StudentService studentService;
 	private CourseService courseService;
 	private GroupService groupService;
+	
+	@Value("${numberOfEntitiesForOnePage}")
+	private int numberOfEntitiesForOnePage;
+	@Value("${sizeOfDiapason}")
+	private int sizeOfDiapason;
+
 
 	public StudentController(StudentService studentService, CourseService courseService, GroupService groupService) {
 		this.studentService = studentService;
@@ -33,81 +49,35 @@ public class StudentController {
 	}
 
 	@GetMapping("/showAllStudents")
-	public String showAllStudents(Model model) {
-		List<Student> students = studentService.getAll();
-		model.addAttribute("students", students);
+	public String showAllStudents(Model model, @RequestParam(defaultValue = "0") int diapason,  @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<Student> allStudents = studentService.getAll();
+		switch(sortedParam) {
+			case ("First_name") : Collections.sort(allStudents, Comparator.comparing(Student::getFirstName)); break;
+			case ("Last_name")  : Collections.sort(allStudents, Comparator.comparing(Student::getLastName)); break;
+			case ("Id")  : Collections.sort(allStudents, Comparator.comparing(Student::getId)); break;
+			case ("Birthday")  : Collections.sort(allStudents, Comparator.comparing(Student::getBirthday)); break;
+			case ("Email")  : Collections.sort(allStudents, Comparator.comparing(Student::getEmail)); break;
+			case ("Address")  : Collections.sort(allStudents, Comparator.comparing(Student::getAddress)); break;
+			default : Collections.sort(allStudents, Comparator.comparing(Student::getId)); break;
+		}
+		Paginator paginator = new Paginator(allStudents.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
+		List<Student> studentsForShow = allStudents.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+		model.addAttribute("studentsForShow", studentsForShow);
+		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
+		model.addAttribute("sortedParam", sortedParam);
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("diapason", diapason);
+		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "students-page";
 	}
 
-	@GetMapping("/add")
-	public String add(Model model) {
-		Student student = new Student();
-		List<Course> allCourses = courseService.getAll();
-		List<Group> allGroups = groupService.getAll();
-		model.addAttribute("student", student);
-		model.addAttribute("allCourses", allCourses);
-		model.addAttribute("allGroups", allGroups);
-		return "add-student";
-	}
-
-	@PostMapping("/create")
-	public String create(@ModelAttribute("student") Student student, @RequestParam("groupId") String groupId) {
-		
-		System.out.println(student);
-		System.out.println(groupId);
-		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).get();
-		List<Student>students = chosenGroup.getStudents().stream().filter(s->s.getId()!=student.getId()).collect(toList());
-		students.add(student);
-		chosenGroup.setStudents(students);
-		
-		
-		for(Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
-			course.setName(tempCourse.getName());
-			course.setDescription(tempCourse.getDescription());
-		}
-		studentService.add(student);
-		groupService.update(chosenGroup);
-		return "redirect:/students/showAllStudents";
-	}
-
-	@PostMapping("/save")
-	public String save(@ModelAttribute("student") Student student, @RequestParam("groupId") String groupId) {
-		
-		Group currentGroup = groupService.findByStudentId(student.getId()).get();
-		List<Student> students = currentGroup.getStudents().stream().filter(s->s.getId()!=student.getId()).collect(toList());
-		currentGroup.setStudents(students);
-		groupService.update(currentGroup);
-		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).get();
-		students = chosenGroup.getStudents().stream().filter(s->s.getId()!=student.getId()).collect(toList());
-		students.add(student);
-		chosenGroup.setStudents(students);
-		groupService.update(chosenGroup);
-		
-		for(Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
-			course.setName(tempCourse.getName());
-			course.setDescription(tempCourse.getDescription());
-		}
-		studentService.update(student);
-		return "redirect:/students/showAllStudents";
-	}
-	
-	@GetMapping("/update")
-	public String updateStudent(@RequestParam("studentId") int id, Model model) {
-		Student student = studentService.getById(id).get();
-		List<Course> allCourses = courseService.getAll();
-		List<Group> allGroups = groupService.getAll();
-		model.addAttribute("student", student);
-		model.addAttribute("allCourses", allCourses);
-		model.addAttribute("allGroups", allGroups);
-		return "update-student";
-	}
-
-	@GetMapping("/delete")
-	public String deleteStudent(@RequestParam("studentId") int studentId, Model model) {
+	@GetMapping("/showEntity")
+	public String showEntity(Model model, @RequestParam("studentId") int studentId) {
 		Student student = studentService.getById(studentId).get();
-		studentService.delete(student);
-		return "redirect:/students/showAllStudents";
+		Group group = groupService.findByStudentId(studentId).get();
+		model.addAttribute("student", student);
+		model.addAttribute("group", group);
+		return "show-student";
 	}
 }

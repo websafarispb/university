@@ -27,28 +27,35 @@
 
 	Welcome to "Groups" page.
 	<div id="container">
-		<div th:if="${not #lists.isEmpty(groups)}">
-			<a th:href="@{/}" class="btn btn-primary btn-sm mb-3">Back to
-				Menu</a> <a th:href="@{add}" class="btn btn-primary btn-sm mb-3">
-				Add group </a>
+		<div th:if="${not #lists.isEmpty(groupsForShow)}">
+			<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+				Menu</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th>Id</th>
-						<th>Name</th>
+						<th><a class="btn btn-secondary" th:href="@{/groups/showAllGroups/(sortedParam=${'Id'})}" >Id</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/groups/showAllGroups/(sortedParam=${'Name'})}" >Name</a></th>
 						<th>Action</th>
 					</tr>
 				</thead>
-				<tr th:each="group: ${groups}">
+				<tr th:each="group: ${groupsForShow}">
 					<td th:text="${group.id}" />
 					<td th:text="${group.name}" />
-					<td><a th:href="@{update/(groupId=${group.id})}"
-						class="btn btn-primary">Edit</a> <a
-						th:href="@{delete/(groupId=${group.id})}" class="btn btn-danger"
-						onclick="if (!(confirm('Are you sure you want to delete this group?'))) return false">Delete</a>
+					<td><a th:href="@{/groups/showEntity/(groupId=${group.id})}"
+						class="btn btn-info">Show</a>
 					</td>
 				</tr>
 			</table>
+			<nav aria-label="...">
+				<ul class="pagination  justify-content-center">
+					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/groups/showAllGroups/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
+						<a class="page-link" th:text="${i}"  th:href="@{/groups/showAllGroups/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/groups/showAllGroups/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+				</ul>
+			</nav>
 		</div>
 	</div>
 </body>

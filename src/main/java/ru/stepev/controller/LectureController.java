@@ -2,8 +2,11 @@ package ru.stepev.controller;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +27,7 @@ import ru.stepev.service.DailyScheduleService;
 import ru.stepev.service.GroupService;
 import ru.stepev.service.LectureService;
 import ru.stepev.service.TeacherService;
+import ru.stepev.utils.Paginator;
 
 @Controller
 @RequestMapping("/lectures")
@@ -35,6 +39,11 @@ public class LectureController {
 	private ClassroomService classroomService;
 	private GroupService groupService;
 	private TeacherService teacherService;
+	
+	@Value("${numberOfEntitiesForOnePage}")
+	private int numberOfEntitiesForOnePage;
+	@Value("${sizeOfDiapason}")
+	private int sizeOfDiapason;
 
 	public LectureController(LectureService lectureService, DailyScheduleService dailyScheduleService,
 			CourseService courseService, ClassroomService classroomService, GroupService groupService,
@@ -48,107 +57,51 @@ public class LectureController {
 	}
 
 	@GetMapping("/showAllLectures")
-	public String showAllLectures(Model model) {
-		List<Lecture> lectures = lectureService.getAll();
-		model.addAttribute("lectures", lectures);
+	public String showAllLectures(Model model, @RequestParam(defaultValue = "0") int diapason,
+			@RequestParam(defaultValue = "1") int currentPage,
+			@RequestParam(defaultValue = "default") String sortedParam) {
+		List<Lecture> allLectures = lectureService.getAll();
+		switch(sortedParam) {
+			case ("Time") : Collections.sort(allLectures, Comparator.comparing(Lecture::getTime)); break;
+			case ("Course")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getCourse)); break;
+			case ("Classroom")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getClassRoom)); break;
+			case ("Group")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getGroup)); break;
+			case ("Teacher")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getTeacher)); break;
+			case ("Id")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getId)); break;
+			default : Collections.sort(allLectures, Comparator.comparing(Lecture::getId)); break;
+		}
+		
+		Paginator paginator = new Paginator(allLectures.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
+		List<Lecture> lecturesForShow = allLectures.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+		model.addAttribute("lecturesForShow", lecturesForShow);
+		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
+		model.addAttribute("sortedParam", sortedParam);
+		model.addAttribute("currentPage", currentPage);
+		model.addAttribute("diapason", diapason);
+		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "lectures-page";
 	}
 
-	@GetMapping("/add")
-	public String add(Model model) {
-		Lecture lecture = new Lecture();
-		List<Course> allCourses = courseService.getAll();
-		List<Classroom> allClassrooms = classroomService.getAll();
-		List<Group> allGroups = groupService.getAll();
-		List<Teacher> allTeachers = teacherService.getAll();
-		model.addAttribute("lecture", lecture);
-		model.addAttribute("allCourses", allCourses);
-		model.addAttribute("allClassrooms", allClassrooms);
-		model.addAttribute("allGroups", allGroups);
-		model.addAttribute("allTeachers", allTeachers);
-		return "add-lecture";
-	}
-
-	@GetMapping("/update")
-	public String update(@RequestParam("lectureId") int id, Model model) {
+	@GetMapping("/showEntity")
+	public String showEntity(@RequestParam("lectureId") int id, Model model) {
 		Lecture lecture = lectureService.getById(id).get();
 		DailySchedule dailySchedule = dailyScheduleService.getById(lecture.getDailyScheduleId()).get();
 		List<Course> allCourses = courseService.getAll();
 		List<Classroom> allClassrooms = classroomService.getAll();
 		List<Group> allGroups = groupService.getAll();
 		List<Teacher> allTeachers = teacherService.getAll();
+		
+		
+		
+		
+		
 		model.addAttribute("lecture", lecture);
 		model.addAttribute("dailySchedule", dailySchedule);
 		model.addAttribute("allCourses", allCourses);
 		model.addAttribute("allClassrooms", allClassrooms);
 		model.addAttribute("allGroups", allGroups);
 		model.addAttribute("allTeachers", allTeachers);
-		return "update-lecture";
-	}
-
-	@GetMapping("/delete")
-	public String delete(@RequestParam("lectureId") int id, Model model) {
-		Lecture lecture = lectureService.getById(id).get();
-		lectureService.delete(lecture);
-		return "redirect:/lectures/showAllLectures";
-	}
-
-	@PostMapping("/create")
-	public String create(@ModelAttribute("lecture") Lecture lecture, @RequestParam("date") String date,
-			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
-			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId) {
-		LocalDate lectureDate = LocalDate.parse(date);
-		DailySchedule dailySchedule = dailyScheduleService.getByDate(lectureDate).orElse(null);
-		Course course = courseService.getById(courseId).get();
-		Classroom classroom = classroomService.getById(classroomId).get();
-		Group group = groupService.getById(groupId).get();
-		Teacher teacher = teacherService.getById(teacherId).get();
-		if (dailySchedule != null) {
-			System.out.println("make update dailyschedule");
-			 lecture.setDailyScheduleId(dailySchedule.getId());
-			 lecture.setCourse(course);
-			 lecture.setClassRoom(classroom);
-			 lecture.setGroup(group);
-			 lecture.setTeacher(teacher);
-			 lectureService.add(lecture);
-		} else {		 
-			 dailyScheduleService.add(new DailySchedule(lectureDate));
-			 lecture.setDailyScheduleId(dailyScheduleService.getByDate(lectureDate).get().getId());
-			 lecture.setCourse(course);
-			 lecture.setClassRoom(classroom);
-			 lecture.setGroup(group);
-			 lecture.setTeacher(teacher);
-			 lectureService.add(lecture);
-		}
-		return "redirect:/lectures/showAllLectures";
-	}
-
-	@PostMapping("/save")
-	public String save(@ModelAttribute("lecture") Lecture lecture, @RequestParam("date") LocalDate date,
-			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
-			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId) {
-	//	LocalDate lectureDate = LocalDate.parse(date);
-		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
-		Course course = courseService.getById(courseId).get();
-		Classroom classroom = classroomService.getById(classroomId).get();
-		Group group = groupService.getById(groupId).get();
-		Teacher teacher = teacherService.getById(teacherId).get();
-		if (dailySchedule != null) {
-			 lecture.setDailyScheduleId(dailySchedule.getId());
-			 lecture.setCourse(course);
-			 lecture.setClassRoom(classroom);
-			 lecture.setGroup(group);
-			 lecture.setTeacher(teacher);
-			 lectureService.update(lecture);
-		} else {		 
-			 dailyScheduleService.add(new DailySchedule(date));
-			 lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).get().getId());
-			 lecture.setCourse(course);
-			 lecture.setClassRoom(classroom);
-			 lecture.setGroup(group);
-			 lecture.setTeacher(teacher);
-			 lectureService.update(lecture);
-		}
-		return "redirect:/lectures/showAllLectures";
+		return "show-lecture";
 	}
 }

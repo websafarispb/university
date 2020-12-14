@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Course {
+public class Course implements Comparable<Course> {
 
 	private int id;
 	private String name;
@@ -26,7 +26,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course [id=" + id + " name=" + name + "]";
+		return "Course [id=" + id + " name=" + name + " description " + description + "]";
 	}
 
 	@Override
@@ -62,6 +62,9 @@ public class Course {
 			return false;
 		return true;
 	}
-	
-	
+
+	@Override
+	public int compareTo(Course o) {
+		return this.getName().compareTo( o.getName());
+	}
 }
