@@ -25,33 +25,31 @@ public class CourseController {
 	
 	private CourseService courseService;
 	
-	@Value("${numberOfEntitiesForOnePage}")
-	private int numberOfEntitiesForOnePage;
-	@Value("${sizeOfDiapason}")
-	private int sizeOfDiapason;
+	@Value("${itemsPerPage}")
+	private int itemsPerPage;
+	@Value("${currentNumberOfPagesForPagination}")
+	private int currentNumberOfPagesForPagination;
 
 	public CourseController(CourseService courseService) {
 		this.courseService = courseService;
 	} 
 	
 	@GetMapping("/showAllCourses")
-	public String showAllCourses(Model model, @RequestParam(defaultValue = "0") int diapason,
-			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		List<Course> allCourses = courseService.getAll();
+	public String showAllCourses(Model model, @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int currentBeginPagination, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<Course> coursesForShow = new ArrayList<>();
+		Paginator paginator = new Paginator(courseService.getNumberOfItems(), currentPage, currentBeginPagination, itemsPerPage, currentNumberOfPagesForPagination);
 		switch(sortedParam) {
-			case ("Name") : Collections.sort(allCourses, Comparator.comparing(Course::getName)); break;
-			case ("Id")  : Collections.sort(allCourses, Comparator.comparing(Course::getId)); break;
-			default : Collections.sort(allCourses, Comparator.comparing(Course::getId)); break;
+			case ("Name") : coursesForShow = courseService.getAndSortByName(itemsPerPage, paginator.getOffset()); break;
+			case ("Id")  : coursesForShow = courseService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+			default :  coursesForShow = courseService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
 		}
-		Paginator paginator = new Paginator(allCourses.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
-		List<Course> coursesForShow = allCourses.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+
 		model.addAttribute("coursesForShow", coursesForShow);
 		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
 		model.addAttribute("sortedParam", sortedParam);
 		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("diapason", diapason);
-		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("currentBeginPagination", paginator.getCurrentBeginPagination());
+		model.addAttribute("currentNumberOfPagesForPagination", currentNumberOfPagesForPagination);
 		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "courses-page";
 	}

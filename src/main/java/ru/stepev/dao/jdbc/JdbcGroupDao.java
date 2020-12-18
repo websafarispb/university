@@ -36,6 +36,9 @@ public class JdbcGroupDao implements GroupDao {
 	private static final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = ?";
 	private static final String FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID = "SELECT DISTINCT  groups.id, groups.group_name FROM groups,students_groups INNER JOIN  students_courses "
 			+ "ON students_courses.course_id = ?  WHERE students_groups.group_id = ? AND groups.id = ?";
+	private static final String FIND_NUMBER_OF_GROUPS = "SELECT COUNT(*) FROM groups";
+	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM groups ORDER BY group_name ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM groups ORDER BY id ASC LIMIT ? OFFSET ?";
 
 	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -124,5 +127,25 @@ public class JdbcGroupDao implements GroupDao {
 			log.warn("Group with name {} was not found", name);
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public int findNumberOfItem() {
+		log.debug("Counting number of groups ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_GROUPS, Integer.class);
+	}
+
+	@Override
+	public List<Group> findAndSortByName(int numberOfItems, int offset) {
+		log.debug("Finding and sorting groups by name ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_NAME, objects, groupRowMapper);
+	}
+
+	@Override
+	public List<Group> fineAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting groups by Id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, groupRowMapper);
 	}
 }

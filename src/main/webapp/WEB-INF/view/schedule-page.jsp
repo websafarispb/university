@@ -35,27 +35,14 @@
 					<tr>
 						<th><a class="btn btn-secondary" th:href="@{/dailySchedules/showAllDailySchedules/(sortedParam=${'Id'})}" >Id</a></th>
 						<th><a class="btn btn-secondary" th:href="@{/dailySchedules/showAllDailySchedules/(sortedParam=${'Date'})}" >Date</a></th>
-						<th>Time</th>
-						<th>Course</th>
-						<th>Classroom</th>
-						<th>Group</th>
-						<th>Teacher</th>
 						<th>Action</th>
 					</tr>
 				</thead>
 				<tbody th:each="dailySchedule: ${dailySchedulesForShow}">
-					
-						
-	
-					<tr th:each="lecture : ${dailySchedule.lectures}">
+					<tr>
 						<td th:text="${dailySchedule.id}" ></td>
 						<td th:text="${dailySchedule.date}" ></td>
-						<td th:text="${lecture.time}"></td>
-						<td th:text="${lecture.course.name}"></td>
-						<td th:text="${lecture.classRoom.address}"></td>
-						<td th:text="${lecture.group.name}"></td>
-						<td th:text="${lecture.teacher.lastName}"></td>
-						<td><a th:href="@{/dailySchedules/showEntity/(lectureId=${lecture.id})}"
+						<td><a th:href="@{/dailySchedules/showEntity/(dailyScheduleId=${dailySchedule.id})}"
 							class="btn btn-info">Show</a>
 					   </td>
 					</tr>
@@ -63,12 +50,12 @@
 			</table>
 			<nav aria-label="...">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
 					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
 						<a class="page-link" th:text="${i}"  th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/dailySchedules/showAllDailySchedules/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1},  sortedParam=${sortedParam})}">Next</a></li>
 				</ul>
 			</nav>
 		</div>

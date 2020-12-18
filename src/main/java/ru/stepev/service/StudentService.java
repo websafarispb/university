@@ -82,4 +82,32 @@ public class StudentService {
 			throw new EntityNotFoundException(String.format("Course with name %s doesn't exist", c.getName()));
 		});
 	}
+
+	public int getNumberOfItems() {
+		return studentDao.findNumberOfItems() ;
+	}
+
+	public List<Student> getAndSortByFirstName(int numberOfItems, int offset) {
+		return studentDao.findAndSortByFirstName(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSortByLastName(int numberOfItems, int offset) {
+		return studentDao.findAndSortByLastName(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSortById(int numberOfItems, int offset) {
+		return studentDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSortByBirthday(int numberOfItems, int offset) {
+		return studentDao.findAndSortByBirthday(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSortByEmail(int numberOfItems, int offset) {
+		return studentDao.findAndSortByEmail(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSortByAddress(int numberOfItems, int offset) {
+		return studentDao.findAndSortByAddress(numberOfItems, offset);
+	}
 }

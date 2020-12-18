@@ -60,12 +60,12 @@
 
 			<nav aria-label="...">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/students/showAllStudents/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
 					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
-						<a class="page-link" th:text="${i}"  th:href="@{/students/showAllStudents/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/students/showAllStudents/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+						<a class="page-link" th:text="${i}"  th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Next</a></li>
 				</ul>
 			</nav>
 		</div>

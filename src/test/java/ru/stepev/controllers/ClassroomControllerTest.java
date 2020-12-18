@@ -60,22 +60,22 @@ public class ClassroomControllerTest {
 		.andExpect(model().attribute("currentPageNumbers", defaultCurrentPageNumbers))
 		.andExpect(model().attribute("sortedParam", "default"))
 		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 0))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
+		.andExpect(model().attribute("currentBeginPagination", 0))
+		.andExpect(model().attribute("currentNumberOfPagesForPagination", 3))
 		.andExpect(model().attribute("numberOfPages", 4))
 		.andExpect(view().name("classrooms-page"));
 	}
 	
 	@Test
 	public void givenPathShowAllClassroomsWithParams_whenGetPathShowAllClassroomsWithWithParams_thenGetViewClassroomsPageWithCorrectClassrooms() throws Exception {
-		mvc.perform(get("/classrooms/showAllClassrooms/?diapason=3&currentPage=1&sortedParam=Capacity"))
+		mvc.perform(get("/classrooms/showAllClassrooms/?currentBeginPagination=3&currentPage=4&sortedParam=Capacity"))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("classroomsForShow", expectedSortedClassroomsByCapacity))
 		.andExpect(model().attribute("currentPageNumbers", currentPageNumbers))
 		.andExpect(model().attribute("sortedParam", "Capacity"))
 		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 3))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
+		.andExpect(model().attribute("currentBeginPagination", 3))
+		.andExpect(model().attribute("currentNumberOfPagesForPagination", 3))
 		.andExpect(model().attribute("numberOfPages", 4))
 		.andExpect(view().name("classrooms-page"));
 	}

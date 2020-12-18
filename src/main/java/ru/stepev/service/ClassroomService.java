@@ -48,6 +48,18 @@ public class ClassroomService {
 	public List<Classroom> getAll() {
 		return classroomDao.findAll();
 	}
+	
+	public List<Classroom> getAndSortByCapacity(int numberOfItems, int offset) {
+		return classroomDao.findAndSortByCapacity(numberOfItems, offset);
+	}
+	
+	public List<Classroom> getAndSortById(int numberOfItems, int offset) {
+		return classroomDao.findAndSortById(numberOfItems, offset);
+	}
+	
+	public List<Classroom> getAndSortByAddress(int numberOfItems, int offset) {
+		return classroomDao.findAndSortByAddress(numberOfItems, offset);
+	}
 
 	public void verifyClassroomIsUnique(Classroom classroom) {
 		Optional<Classroom> existingClassroom = classroomDao.findByAddress(classroom.getAddress());
@@ -62,5 +74,9 @@ public class ClassroomService {
 			throw new EntityNotFoundException(
 					String.format("Classroom with address %s doesn't exist", classroom.getAddress()));
 		}
+	}
+	
+	public int getNumberOfItems() {
+		return classroomDao.findNumberOfItems();
 	}
 }

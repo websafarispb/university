@@ -2,6 +2,7 @@ package ru.stepev.controller;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -30,10 +31,10 @@ public class TeacherController {
 	private TeacherService teacherService;
 	private CourseService courseService;
 	
-	@Value("${numberOfEntitiesForOnePage}")
-	private int numberOfEntitiesForOnePage;
-	@Value("${sizeOfDiapason}")
-	private int sizeOfDiapason;
+	@Value("${itemsPerPage}")
+	private int itemsPerPage;
+	@Value("${currentNumberOfPagesForPagination}")
+	private int currentNumberOfPagesForPagination;
 
 	public TeacherController(TeacherService teacherService, CourseService courseService) {
 		this.teacherService = teacherService;
@@ -41,27 +42,25 @@ public class TeacherController {
 	}
 	
 	@GetMapping("/showAllTeachers")
-	public String showAllTeachers(Model model, @RequestParam(defaultValue = "0") int diapason,  @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "default") String sortedParam){
-		List<Teacher> allTeachers = teacherService.getAll();
+	public String showAllTeachers(Model model, @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int currentBeginPagination, @RequestParam(defaultValue = "default") String sortedParam){
+		List<Teacher> teachersForShow = new ArrayList<>();
+		Paginator paginator = new Paginator(teacherService.getNumberOfItems(), currentPage, currentBeginPagination, itemsPerPage, currentNumberOfPagesForPagination);
 		switch(sortedParam) {
-			case ("First_name") : Collections.sort(allTeachers, Comparator.comparing(Teacher::getFirstName)); break;
-			case ("Last_name")  : Collections.sort(allTeachers, Comparator.comparing(Teacher::getLastName)); break;
-			case ("Id")  : Collections.sort(allTeachers, Comparator.comparing(Teacher::getId)); break;
-			case ("Birthday")  : Collections.sort(allTeachers, Comparator.comparing(Teacher::getBirthday)); break;
-			case ("Email")  : Collections.sort(allTeachers, Comparator.comparing(Teacher::getEmail)); break;
-			case ("Address")  : Collections.sort(allTeachers, Comparator.comparing(Teacher::getAddress)); break;
-			default : Collections.sort(allTeachers, Comparator.comparing(Teacher::getId)); break;
+			case ("First_name") : teachersForShow = teacherService.getAndSortByFirstName(itemsPerPage, paginator.getOffset()); break;
+			case ("Last_name")  : teachersForShow = teacherService.getAndSortByLastName(itemsPerPage, paginator.getOffset()); break;
+			case ("Id")  : teachersForShow = teacherService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+			case ("Birthday")  : teachersForShow = teacherService.getAndSortByBirthday(itemsPerPage, paginator.getOffset()); break;
+			case ("Email")  : teachersForShow = teacherService.getAndSortByEmail(itemsPerPage, paginator.getOffset()); break;
+			case ("Address")  : teachersForShow = teacherService.getAndSortByAddress(itemsPerPage, paginator.getOffset()); break;
+			default : teachersForShow = teacherService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
 		}
 		
-		
-		Paginator paginator = new Paginator(allTeachers.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
-		List<Teacher> teachersForShow = allTeachers.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
 		model.addAttribute("teachersForShow", teachersForShow);
 		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
 		model.addAttribute("sortedParam", sortedParam);
 		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("diapason", diapason);
-		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("currentBeginPagination", paginator.getCurrentBeginPagination());
+		model.addAttribute("currentNumberOfPagesForPagination", currentNumberOfPagesForPagination);
 		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "teachers-page";
 	}

@@ -50,12 +50,12 @@
 			</table>
 			<nav aria-label="...">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(diapason < sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/courses/showAllCourses/(diapason = ${diapason - sizeOfDiapason}, currentPage=${diapason - sizeOfDiapason + 1}, sortedParam=${sortedParam})}">Previous</a></li>
+					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/courses/showAllCourses/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
 					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
-						<a class="page-link" th:text="${i}"  th:href="@{/courses/showAllCourses/(diapason = ${diapason}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(diapason >= numberOfPages-sizeOfDiapason ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/courses/showAllCourses/(diapason = ${diapason + sizeOfDiapason}, currentPage=${diapason + sizeOfDiapason +  1}, sortedParam=${sortedParam})}">Next</a></li>
+						<a class="page-link" th:text="${i}"  th:href="@{/courses/showAllCourses/(currentBeginPagination = ${currentBeginPagination}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/courses/showAllCourses/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Next</a></li>
 				</ul>
 			</nav>
 		</div>

@@ -1,6 +1,7 @@
 package ru.stepev.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -29,10 +30,10 @@ public class DailyScheduleController {
 	private TeacherService teacherService;
 	private StudentService studentService;
 	
-	@Value("${numberOfEntitiesForOnePage}")
-	private int numberOfEntitiesForOnePage;
-	@Value("${sizeOfDiapason}")
-	private int sizeOfDiapason;
+	@Value("${itemsPerPage}")
+	private int itemsPerPage;
+	@Value("${currentNumberOfPagesForPagination}")
+	private int currentNumberOfPagesForPagination;
 
 	public DailyScheduleController(DailyScheduleService dailyScheduleService, TeacherService teacherService, StudentService studentService) {
 		this.dailyScheduleService = dailyScheduleService;
@@ -47,6 +48,13 @@ public class DailyScheduleController {
 		model.addAttribute("dailySchedules", dailySchedules);
 		model.addAttribute("allTeachers", allTeachers);
 		return "scheduleForTeacherForm";
+	}
+	
+	@GetMapping("/showEntity")
+	public String showEntity(@RequestParam("dailyScheduleId") int dailyScheduleId, Model model) {
+		DailySchedule dailySchedule = dailyScheduleService.getById(dailyScheduleId).get();
+		model.addAttribute("dailySchedule", dailySchedule);
+		return "show-dailyschedule";
 	}
 	
 	@GetMapping("/showScheduleForStudentForm")
@@ -78,24 +86,20 @@ public class DailyScheduleController {
 	}
 	
 	@GetMapping("/showAllDailySchedules")
-	public String showAllDailySchedules(Model model, @RequestParam(defaultValue = "0") int diapason,
-			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		List<DailySchedule> allDailySchedules = dailyScheduleService.getAll();
+	public String showAllDailySchedules(Model model, @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int currentBeginPagination, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<DailySchedule> dailySchedulesForShow = new ArrayList<>();
+		Paginator paginator = new Paginator(dailyScheduleService.getNumberOfItems(), currentPage, currentBeginPagination, itemsPerPage, currentNumberOfPagesForPagination);
 		switch(sortedParam) {
-			case ("Date") : Collections.sort(allDailySchedules, Comparator.comparing(DailySchedule::getDate)); break;
-			case ("Id")  : Collections.sort(allDailySchedules, Comparator.comparing(DailySchedule::getId)); break;
-			default : Collections.sort(allDailySchedules, Comparator.comparing(DailySchedule::getId)); break;
-		}
-		
-		Paginator paginator = new Paginator(allDailySchedules.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
-		List<DailySchedule> dailySchedulesForShow = allDailySchedules.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+			case ("Date") : dailySchedulesForShow = dailyScheduleService.getAndSortByDate(itemsPerPage, paginator.getOffset()); break;
+			case ("Id")  : dailySchedulesForShow = dailyScheduleService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+			default : dailySchedulesForShow = dailyScheduleService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+		}	
 		model.addAttribute("dailySchedulesForShow", dailySchedulesForShow);
 		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
 		model.addAttribute("sortedParam", sortedParam);
 		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("diapason", diapason);
-		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("currentBeginPagination", paginator.getCurrentBeginPagination());
+		model.addAttribute("currentNumberOfPagesForPagination", currentNumberOfPagesForPagination);
 		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "schedule-page";
 	}

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
 
 @Component
@@ -59,5 +60,33 @@ public class TeacherService {
 			throw new EntityAlreadyExistException(String.format("Teacher with ID %s already exist",
 					teacher.getId()));
 		}
+	}
+
+	public int getNumberOfItems() {
+		return teacherDao.findNumberOfItems() ;
+	}
+
+	public List<Teacher> getAndSortByFirstName(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByFirstName(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByLastName(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByLastName(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortById(int numberOfItems, int offset) {
+		return teacherDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByBirthday(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByBirthday(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByEmail(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByEmail(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByAddress(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByAddress(numberOfItems, offset);
 	}
 }

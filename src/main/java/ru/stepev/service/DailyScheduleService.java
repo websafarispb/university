@@ -82,4 +82,16 @@ public class DailyScheduleService {
 			throw new EntityNotFoundException(String.format("DailySchedule with date %s doesn't exist", dailySchedule.getDate()));
 		}
 	}
+
+	public int getNumberOfItems() {
+		return dailyScheduleDao.findNumberOfItems();
+	}
+
+	public List<DailySchedule> getAndSortByDate(int numberOfItems, int offset) {
+		return dailyScheduleDao.findAndSortByDate( numberOfItems,  offset);
+	}
+
+	public List<DailySchedule> getAndSortById(int numberOfItems, int offset) {
+		return dailyScheduleDao.getAndSortById(numberOfItems, offset);
+	}
 }

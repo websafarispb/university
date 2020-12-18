@@ -27,8 +27,12 @@ public class JdbcClassroomDao implements ClassroomDao {
 	private static final String GET_ALL = "SELECT * FROM classrooms";
 	private static final String FIND_CLASSROOM_BY_ID = "SELECT * FROM classrooms WHERE id = ?";
 	private static final String FIND_CLASSROOM_BY_ADDRESS = "SELECT * FROM classrooms WHERE classroom_address = ?";
+	private static final String FIND_AND_SORT_BY_CAPACITY = "SELECT * FROM classrooms ORDER BY classroom_capacity ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM classrooms ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM classrooms ORDER BY classroom_address ASC LIMIT ? OFFSET ?";
 	private static final String UPDATE_CLASSROOM_BY_ID = "UPDATE classrooms SET classroom_address = ?, classroom_capacity = ? WHERE id = ?";
 	private static final String DELETE_CLASSROOM_BY_ID = "DELETE FROM classrooms WHERE id = ?";
+	private static final String FIND_NUMBER_OF_CLASSROOM = "SELECT COUNT(*) FROM classrooms";
 
 	private ClassroomRowMapper classroomRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -90,5 +94,32 @@ public class JdbcClassroomDao implements ClassroomDao {
 			log.warn("Classroom with address {} was not found", address);
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public List<Classroom> findAndSortByCapacity(int numberOfItems, int offset) {
+		log.debug("Finding and sorting classroom by capacity ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_CAPACITY, objects, classroomRowMapper);
+	}
+	
+	@Override
+	public List<Classroom> findAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting classroom by id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, classroomRowMapper);
+	}
+	
+	@Override
+	public List<Classroom> findAndSortByAddress(int numberOfItems, int offset) {
+		log.debug("Finding and sorting classroom by address ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ADDRESS, objects, classroomRowMapper);
+	}
+
+	@Override
+	public int findNumberOfItems() {
+		log.debug("Counting number of classroom ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_CLASSROOM, Integer.class);
 	}
 }

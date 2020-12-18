@@ -67,6 +67,20 @@ public class JdbcClassroomDaoTest {
 
 		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
 	}
+	
+	@Test
+	public void givenFindAndSortByCapacity_whenFindAndSortByCapacity_thenFindAllClassroom() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(3, "103", 30));
+		expectedClassrooms.add(new Classroom(7, "203", 30));
+		expectedClassrooms.add(new Classroom(11, "303", 30));
+		expectedClassrooms.add(new Classroom(15, "403", 30));
+		expectedClassrooms.add(new Classroom(19, "703", 30));
+
+		List<Classroom> actualClassrooms = classroomDao.findAndSortByCapacity(5, 4);
+
+		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
+	}
 
 	@Test
 	public void givenDeleteClassroomById_whenDeleteClassroomById_thenTableWillNotHaveGivenClassroom() {

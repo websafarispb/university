@@ -38,6 +38,9 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	private static final String FIND_BY_SCHEDULE_ID = "SELECT * FROM dailyschedule WHERE id = ?";
 	private static final String DELETE_DAILYSCHEDUALE_BY_ID = "DELETE FROM dailyschedule WHERE id = ?";
 	private static final String UPDATE_BY_LECTURE_ID = "UPDATE dailyschedule SET dailyschedule_date = ? WHERE id = ?";
+	private static final String FIND_NUMBER_OF_DAILYSCHEDULE = "SELECT COUNT(*) FROM dailyschedule";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM dailyschedule ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_DATE = "SELECT * FROM dailyschedule ORDER BY dailyschedule_date ASC LIMIT ? OFFSET ?";
 
 	private LectureDao lectureDao;
 	private DailyScheduleRowMapper dailyScheduleRowMapper;
@@ -141,5 +144,25 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 				dailySchedules.add(dailySchedule);
 		}
 		return dailySchedules;
+	}
+
+	@Override
+	public int findNumberOfItems() {
+		log.debug("Counting number of dailyschedule ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_DAILYSCHEDULE, Integer.class);
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortByDate(int numberOfItems, int offset) {
+		log.debug("Finding and sorting dailyschedule by date ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_DATE, objects, dailyScheduleRowMapper);
+	}
+
+	@Override
+	public List<DailySchedule> getAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting dailyschedule by Id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, dailyScheduleRowMapper);
 	}
 }

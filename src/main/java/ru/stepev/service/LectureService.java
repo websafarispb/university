@@ -174,4 +174,32 @@ public class LectureService {
 					String.format("Teacher name %s can't teach course %s", teacher.getLastName(), course.getName()));
 		}
 	}
+
+	public int getNumberOfItem() {
+		return lectureDao.findNumberOfItem() ;
+	}
+
+	public List<Lecture> getAndSortByTime(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByTime(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByCourse(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByCourse(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByClassroom(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByClassroom(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByGroup(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByGroup(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByTeacher(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByTeacher(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortById(int numberOfItems, int offset) {
+		return lectureDao.findAndSortById(numberOfItems, offset);
+	}
 }

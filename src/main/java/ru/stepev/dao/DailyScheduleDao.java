@@ -18,4 +18,7 @@ public interface DailyScheduleDao {
 	public List<DailySchedule> findAllByDatePeriod(LocalDate firstDate, LocalDate lastDate);
 	public List<DailySchedule> findByTeacherIdAndPeriodOfTime(int teacherId, LocalDate firstDate, LocalDate lastDate);
 	public List<DailySchedule> findByGroupAndPeriodOfTime(Group group, LocalDate firstDate, LocalDate lastDate);
+	public int findNumberOfItems();
+	public List<DailySchedule> findAndSortByDate(int numberOfItems, int offset);
+	public List<DailySchedule> getAndSortById(int numberOfItems, int offset);
 }

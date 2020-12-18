@@ -25,4 +25,11 @@ public interface LectureDao {
 	public Optional<Lecture> findByDailyScheduleIdAndTimeAndClassroomId(int dailyScheduleId, LocalTime startTime, LocalTime finishTime, int classroomId);
 
 	public Optional<Lecture> findByDailyScheduleIdAndTimeAndTeacherId(int dailyScheduleId, LocalTime startTime, LocalTime finishTime, int teacherId);
+	public int findNumberOfItem();
+	public List<Lecture> findAndSortByTime(int numberOfItems, int offset);
+	public List<Lecture> findAndSortByCourse(int numberOfItems, int offset);
+	public List<Lecture> findAndSortByClassroom(int numberOfItems, int offset);
+	public List<Lecture> findAndSortByGroup(int numberOfItems, int offset);
+	public List<Lecture> findAndSortByTeacher(int numberOfItems, int offset);
+	public List<Lecture> findAndSortById(int numberOfItems, int offset);
 }

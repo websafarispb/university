@@ -24,11 +24,11 @@ public interface DataTest {
 			Classroom.builder().id(3).address("103").capacity(30).build(),
 			Classroom.builder().id(4).address("104").capacity(20).build(),
 			Classroom.builder().id(5).address("105").capacity(50).build());
-	List<Classroom> expectedSortedClassroomsByCapacity = Arrays.asList(Classroom.builder().id(4).address("104").capacity(20).build(),
-			Classroom.builder().id(12).address("304").capacity(20).build(),
-			Classroom.builder().id(16).address("504").capacity(20).build(),
-			Classroom.builder().id(8).address("204").capacity(23).build(),
-			Classroom.builder().id(3).address("103").capacity(30).build());
+	List<Classroom> expectedSortedClassroomsByCapacity = Arrays.asList(Classroom.builder().id(9).address("201").capacity(50).build(),
+			Classroom.builder().id(1).address("101").capacity(50).build(),
+			Classroom.builder().id(5).address("105").capacity(50).build(),
+			Classroom.builder().id(13).address("301").capacity(55).build(),
+			Classroom.builder().id(20).address("704").capacity(60).build());
 
 	Classroom classroomForCreate = Classroom.builder().id(0).address("105").capacity(10).build();
 	Classroom classroomForTest = Classroom.builder().id(5).address("105").capacity(10).build();

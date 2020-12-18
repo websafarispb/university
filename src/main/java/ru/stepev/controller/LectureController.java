@@ -40,10 +40,10 @@ public class LectureController {
 	private GroupService groupService;
 	private TeacherService teacherService;
 	
-	@Value("${numberOfEntitiesForOnePage}")
-	private int numberOfEntitiesForOnePage;
-	@Value("${sizeOfDiapason}")
-	private int sizeOfDiapason;
+	@Value("${itemsPerPage}")
+	private int itemsPerPage;
+	@Value("${currentNumberOfPagesForPagination}")
+	private int currentNumberOfPagesForPagination;
 
 	public LectureController(LectureService lectureService, DailyScheduleService dailyScheduleService,
 			CourseService courseService, ClassroomService classroomService, GroupService groupService,
@@ -57,28 +57,25 @@ public class LectureController {
 	}
 
 	@GetMapping("/showAllLectures")
-	public String showAllLectures(Model model, @RequestParam(defaultValue = "0") int diapason,
-			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		List<Lecture> allLectures = lectureService.getAll();
+	public String showAllLectures(Model model, @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int currentBeginPagination, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<Lecture> lecturesForShow = new ArrayList<>();
+		Paginator paginator = new Paginator(lectureService.getNumberOfItem(), currentPage, currentBeginPagination, itemsPerPage, currentNumberOfPagesForPagination);
 		switch(sortedParam) {
-			case ("Time") : Collections.sort(allLectures, Comparator.comparing(Lecture::getTime)); break;
-			case ("Course")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getCourse)); break;
-			case ("Classroom")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getClassRoom)); break;
-			case ("Group")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getGroup)); break;
-			case ("Teacher")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getTeacher)); break;
-			case ("Id")  : Collections.sort(allLectures, Comparator.comparing(Lecture::getId)); break;
-			default : Collections.sort(allLectures, Comparator.comparing(Lecture::getId)); break;
+			case ("Time") : lecturesForShow = lectureService.getAndSortByTime(itemsPerPage, paginator.getOffset()); break;
+			case ("Course")  :  lecturesForShow = lectureService.getAndSortByCourse(itemsPerPage, paginator.getOffset()); break;
+			case ("Classroom")  :  lecturesForShow = lectureService.getAndSortByClassroom(itemsPerPage, paginator.getOffset()); break;
+			case ("Group")  :  lecturesForShow = lectureService.getAndSortByGroup(itemsPerPage, paginator.getOffset()); break;
+			case ("Teacher")  :  lecturesForShow = lectureService.getAndSortByTeacher(itemsPerPage, paginator.getOffset()); break;
+			case ("Id")  :  lecturesForShow = lectureService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+			default : lecturesForShow = lectureService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
 		}
 		
-		Paginator paginator = new Paginator(allLectures.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
-		List<Lecture> lecturesForShow = allLectures.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
 		model.addAttribute("lecturesForShow", lecturesForShow);
 		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
 		model.addAttribute("sortedParam", sortedParam);
 		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("diapason", diapason);
-		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("currentBeginPagination", paginator.getCurrentBeginPagination());
+		model.addAttribute("currentNumberOfPagesForPagination", currentNumberOfPagesForPagination);
 		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "lectures-page";
 	}
@@ -91,11 +88,6 @@ public class LectureController {
 		List<Classroom> allClassrooms = classroomService.getAll();
 		List<Group> allGroups = groupService.getAll();
 		List<Teacher> allTeachers = teacherService.getAll();
-		
-		
-		
-		
-		
 		model.addAttribute("lecture", lecture);
 		model.addAttribute("dailySchedule", dailySchedule);
 		model.addAttribute("allCourses", allCourses);

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +39,21 @@ public class ClassroomServiceTest {
 		List<Classroom> actualClassrooms = classroomService.getAll();
 
 		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+	
+	@Test
+	public void findAllClassrooms_whenGetAllClassrooms_thenGetAllClassroom2() {
+		List<Classroom> expectedClassrooms2 = new ArrayList<>();
+		expectedClassrooms2.add(new Classroom(3, "103", 30));
+		expectedClassrooms2.add(new Classroom(7, "203", 30));
+		expectedClassrooms2.add(new Classroom(11, "303", 30));
+		expectedClassrooms2.add(new Classroom(15, "403", 30));
+		expectedClassrooms2.add(new Classroom(19, "703", 30));
+		when(classroomDao.findAndSortByCapacity(5, 4)).thenReturn(expectedClassrooms2);
+		
+		List<Classroom> actualClassrooms = classroomService.getAndSortByCapacity(5, 4);
+		
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms2);
 	}
 
 	@Test

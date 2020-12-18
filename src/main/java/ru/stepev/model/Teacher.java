@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class Teacher implements Comparable <Teacher>{
+public class Teacher {
 
 	private int id;
 	private int personalNumber;
@@ -56,10 +56,5 @@ public class Teacher implements Comparable <Teacher>{
 		return "Teacher [id=" + id + ", personalNumber=" + personalNumber + ", firstName=" + firstName + ", lastName="
 				+ lastName + ", birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
 				+ address + ", courses=" + courses + "]";
-	}
-
-	@Override
-	public int compareTo(Teacher o) {
-		return this.getLastName().compareTo(o.getLastName());
 	}
 }

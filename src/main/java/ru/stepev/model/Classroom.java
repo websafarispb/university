@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Classroom implements Comparable<Classroom>{
+public class Classroom {
 
 	private int id;
 	private String address;
@@ -59,11 +59,5 @@ public class Classroom implements Comparable<Classroom>{
 		if (id != other.id)
 			return false;
 		return true;
-	}
-
-
-	@Override
-	public int compareTo(Classroom o) {
-		return this.getAddress().compareTo( o.getAddress());
 	}
 }

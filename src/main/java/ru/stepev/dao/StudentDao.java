@@ -20,4 +20,18 @@ public interface StudentDao {
 	public List<Student> findByFirstAndLastNames(String firstName, String lastName);
 
 	public List<Student> findByGroupId(int groupId);
+
+	public int findNumberOfItems();
+
+	public List<Student> findAndSortByFirstName(int numberOfItems, int offset);
+
+	public List<Student> findAndSortByLastName(int numberOfItems, int offset);
+
+	public List<Student> findAndSortById(int numberOfItems, int offset);
+
+	public List<Student> findAndSortByBirthday(int numberOfItems, int offset);
+
+	public List<Student> findAndSortByEmail(int numberOfItems, int offset);
+
+	public List<Student> findAndSortByAddress(int numberOfItems, int offset);
 }

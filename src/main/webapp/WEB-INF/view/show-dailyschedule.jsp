@@ -26,26 +26,36 @@
 		<div id="container">
 		<div class="card">
 		<hr>
-		<p class="h4 mb-4">Course</p>
-		<a th:href="@{/courses/showAllCourses}" class="btn btn-info btn-sm mb-3">Back to
-					courses list</a> 
+		<p class="h4 mb-4">DailySchedule</p>
+		<a th:href="@{/dailySchedules/showAllDailySchedules}" class="btn btn-info btn-sm mb-3">Back to
+					dailyschedules list</a> 
 	
-		<form action="#" th:object="${course}" >
-			<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
-				<tr>
-					<td>Id</td>
-					<td  th:text="*{id}"></td>
-				</tr>
-				<tr>
-					<td>Name</td>
-					<td  th:text="*{name}"></td>
-				</tr>
-				<tr>
-					<td>Description</td>
-					<td  th:text="*{description}"></td>
-				</tr>
-			</table>					
-		</form>
+		<form action="#" th:object="${dailySchedule}" >
+				<table id="selectedColumn"
+					class="table table-striped table-bordered table-sm" cellspacing="0"
+					width="100%">
+					<tr>
+						<td><p>Id</p></td>
+						<td th:text="*{id}"></td>
+					</tr>
+					<tr>
+						<td><p>Date</p></td>
+						<td th:text="*{date}"></td>
+					</tr>
+					<tr>
+						<td><p>Lectures</p></td>
+					</tr>
+
+					<tr th:each="lecture : ${dailySchedule.lectures}">
+
+						<td th:text="${lecture.time}"></td>
+						<td th:text="${lecture.course.name}"></td>
+						<td th:text="${lecture.classRoom.address}"></td>
+						<td th:text="${lecture.group.name}"></td>
+						<td th:text="${lecture.teacher.lastName}"></td>
+					</tr>
+				</table>
+			</form>
 	</div>
 	</div>
 

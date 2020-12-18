@@ -14,43 +14,38 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Paginator {
 
-	private int numbersOfEntityForOnePage;
+	private int itemsPerPage;
 	private int numberOfPages;
 	private int numberOfEntities;
 	private List<Integer> pageNumbers;
 	private List<Integer> currentPageNumbers;
-	private int currentBeginOfEntities;
-	private int currentEndOfEntities;
 	private int currentPage;
-	private int diapasonOfPages;
-	private int sizeOfDiapason;
-	private int beginOfDiapason;
-	private int endOfDiapason;
+	private int currentBeginPagination;
+	private int currentNumberOfPagesForPagination;
+	private int beginOfPagination;
+	private int endOfPagination;
+	private int offset;
 
-	public Paginator(int numberOfEntities, int currentPage, int diapasonOfPages, int numbersOfEntityForOnePage, int sizeOfDiapason) {
+	public Paginator(int numberOfEntities, int currentPage, int currentBeginPagination, int itemsPerPage, int currentNumberOfPagesForPagination) {
 		this.numberOfEntities = numberOfEntities;
 		this.currentPage = currentPage;
-		this.diapasonOfPages = diapasonOfPages;
-		this.numbersOfEntityForOnePage = numbersOfEntityForOnePage;
+		this.currentBeginPagination = currentBeginPagination;
+		this.itemsPerPage = itemsPerPage;
 		this.pageNumbers = new ArrayList<>();
 		this.currentPageNumbers = new ArrayList<>();
-		this.numberOfPages = (numberOfEntities / numbersOfEntityForOnePage);
-		if (numberOfEntities % numbersOfEntityForOnePage > 0) {
+		this.numberOfPages = (numberOfEntities / itemsPerPage);
+		if (numberOfEntities % itemsPerPage > 0) {
 			numberOfPages++;
 		}	
 		for (int i = 1; i <= numberOfPages; i++) {
 			pageNumbers.add(i);
 		}
-		this.currentBeginOfEntities = ((numbersOfEntityForOnePage * currentPage) - numbersOfEntityForOnePage);
-		this.currentEndOfEntities = (numbersOfEntityForOnePage * currentPage);
-		if (currentEndOfEntities > numberOfEntities) {
-			currentEndOfEntities = numberOfEntities;
+		this.beginOfPagination = currentBeginPagination;
+		this.endOfPagination = currentBeginPagination + currentNumberOfPagesForPagination;
+		if (endOfPagination > pageNumbers.size()) {
+			endOfPagination = pageNumbers.size();
 		}
-		this.beginOfDiapason = diapasonOfPages;
-		this.endOfDiapason = diapasonOfPages + sizeOfDiapason;
-		if (endOfDiapason > pageNumbers.size()) {
-			endOfDiapason = pageNumbers.size();
-		}
-		currentPageNumbers = pageNumbers.subList(beginOfDiapason, endOfDiapason);
+		currentPageNumbers = pageNumbers.subList(beginOfPagination, endOfPagination);
+		this.offset = itemsPerPage * (currentPage - 1);
 	}
 }

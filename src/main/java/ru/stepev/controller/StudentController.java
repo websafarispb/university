@@ -36,10 +36,10 @@ public class StudentController {
 	private CourseService courseService;
 	private GroupService groupService;
 	
-	@Value("${numberOfEntitiesForOnePage}")
-	private int numberOfEntitiesForOnePage;
-	@Value("${sizeOfDiapason}")
-	private int sizeOfDiapason;
+	@Value("${itemsPerPage}")
+	private int itemsPerPage;
+	@Value("${currentNumberOfPagesForPagination}")
+	private int currentNumberOfPagesForPagination;
 
 
 	public StudentController(StudentService studentService, CourseService courseService, GroupService groupService) {
@@ -49,25 +49,25 @@ public class StudentController {
 	}
 
 	@GetMapping("/showAllStudents")
-	public String showAllStudents(Model model, @RequestParam(defaultValue = "0") int diapason,  @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "default") String sortedParam) {
-		List<Student> allStudents = studentService.getAll();
+	public String showAllStudents(Model model, @RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "0") int currentBeginPagination, @RequestParam(defaultValue = "default") String sortedParam) {
+		List<Student> studentsForShow = new ArrayList<>();
+		Paginator paginator = new Paginator(studentService.getNumberOfItems(), currentPage, currentBeginPagination, itemsPerPage, currentNumberOfPagesForPagination);
 		switch(sortedParam) {
-			case ("First_name") : Collections.sort(allStudents, Comparator.comparing(Student::getFirstName)); break;
-			case ("Last_name")  : Collections.sort(allStudents, Comparator.comparing(Student::getLastName)); break;
-			case ("Id")  : Collections.sort(allStudents, Comparator.comparing(Student::getId)); break;
-			case ("Birthday")  : Collections.sort(allStudents, Comparator.comparing(Student::getBirthday)); break;
-			case ("Email")  : Collections.sort(allStudents, Comparator.comparing(Student::getEmail)); break;
-			case ("Address")  : Collections.sort(allStudents, Comparator.comparing(Student::getAddress)); break;
-			default : Collections.sort(allStudents, Comparator.comparing(Student::getId)); break;
+			case ("First_name") : studentsForShow = studentService.getAndSortByFirstName(itemsPerPage, paginator.getOffset()); break;
+			case ("Last_name")  : studentsForShow = studentService.getAndSortByLastName(itemsPerPage, paginator.getOffset()); break;
+			case ("Id")  : studentsForShow = studentService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
+			case ("Birthday")  : studentsForShow = studentService.getAndSortByBirthday(itemsPerPage, paginator.getOffset()); break;
+			case ("Email")  : studentsForShow = studentService.getAndSortByEmail(itemsPerPage, paginator.getOffset()); break;
+			case ("Address")  : studentsForShow = studentService.getAndSortByAddress(itemsPerPage, paginator.getOffset()); break;
+			default : studentsForShow = studentService.getAndSortById(itemsPerPage, paginator.getOffset()); break;
 		}
-		Paginator paginator = new Paginator(allStudents.size(), currentPage, diapason, numberOfEntitiesForOnePage, sizeOfDiapason);
-		List<Student> studentsForShow = allStudents.subList(paginator.getCurrentBeginOfEntities(), paginator.getCurrentEndOfEntities());
+		
 		model.addAttribute("studentsForShow", studentsForShow);
 		model.addAttribute("currentPageNumbers",paginator.getCurrentPageNumbers());
 		model.addAttribute("sortedParam", sortedParam);
 		model.addAttribute("currentPage", currentPage);
-		model.addAttribute("diapason", diapason);
-		model.addAttribute("sizeOfDiapason", sizeOfDiapason);
+		model.addAttribute("currentBeginPagination", paginator.getCurrentBeginPagination());
+		model.addAttribute("currentNumberOfPagesForPagination", currentNumberOfPagesForPagination);
 		model.addAttribute("numberOfPages", paginator.getNumberOfPages());
 		return "students-page";
 	}
