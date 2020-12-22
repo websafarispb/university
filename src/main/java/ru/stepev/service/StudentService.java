@@ -14,6 +14,7 @@ import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Course;
 import ru.stepev.model.Student;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -83,7 +84,7 @@ public class StudentService {
 		});
 	}
 
-	public int getNumberOfItems() {
+	public int count() {
 		return studentDao.findNumberOfItems() ;
 	}
 
@@ -109,5 +110,16 @@ public class StudentService {
 
 	public List<Student> getAndSortByAddress(int numberOfItems, int offset) {
 		return studentDao.findAndSortByAddress(numberOfItems, offset);
+	}
+
+	public List<Student> getAndSort(Paginator paginator) {
+		switch(paginator.getSortedParam()) {
+			case ("First_name") : return getAndSortByFirstName(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Last_name")  : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Birthday")  : return getAndSortByBirthday(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Email")  : return getAndSortByEmail(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Address")  : return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());
+			default : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
+		}
 	}
 }

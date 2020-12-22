@@ -27,7 +27,7 @@
 		<div class="card">
 		<hr>
 		<p class="h4 mb-4">Lecture</p>
-		<a th:href="@{/lectures/showAllLectures}" class="btn btn-info btn-sm mb-3">Back to
+		<a th:href="@{/lectures/}" class="btn btn-info btn-sm mb-3">Back to
 					lectures list</a> 
 	
 		<form action="#" th:object="${lecture}" >

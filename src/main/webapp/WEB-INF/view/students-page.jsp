@@ -35,12 +35,12 @@
 				<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
 					<thead class="thead-dark">
 						<tr>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Id'})}" >Id</a></th>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'First_name'})}" >First name</a></th>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Last_name'})}" >Last name</a></th>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Birthday'})}" >Birthday</a></th>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Email'})}" >Email</a></th>
-							<th><a class="btn btn-secondary" th:href="@{/students/showAllStudents/(sortedParam=${'Address'})}" >Address</a></th>
+							<th>Id</th>
+							<th><a class="btn btn-secondary" th:href="@{/students/(sortedParam=${'First_name'})}" >First name</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/(sortedParam=${'Last_name'})}" >Last name</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/(sortedParam=${'Birthday'})}" >Birthday</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/(sortedParam=${'Email'})}" >Email</a></th>
+							<th><a class="btn btn-secondary" th:href="@{/students/(sortedParam=${'Address'})}" >Address</a></th>
 							<th>Action</th>
 						</tr>
 					</thead>
@@ -51,21 +51,31 @@
 						<td th:text="${student.birthday}" />
 						<td th:text="${student.email}" />
 						<td th:text="${student.address}" />
-						<td><a th:href="@{/students/showEntity/(studentId=${student.id})}"
+						<td><a th:href="@{/students/{studentId}/(studentId=${student.id})}"
 							class="btn btn-info">Show</a>
 					   </td>
 					</tr>
 				</table>
 			</div>
-
-			<nav aria-label="...">
+			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
-					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
-						<a class="page-link" th:text="${i}"  th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/students/showAllStudents/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Next</a></li>
+					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/(currentPage=*{currentPage} - 1, sortedParam=*{sortedParam})}">&laquo;</a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == currentPage ? 'active' : '' )}">
+						<a class="page-link" th:text="*{currentPage}"  th:href="@{/students/(currentPage=*{currentPage}, sortedParam=*{sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == numberOfPages ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/students/(currentPage=*{currentPage} + 1, sortedParam=*{sortedParam})}">&raquo;</a>
+					</li>
+					 <li class="page-item">
+					 	<form action="#" method="get" th:action="@{/students/}"
+							th:object="${paginator}">
+							<div class="input-group">
+								<input class="w-25 p-1" type="text" th:field="*{currentPage}">
+								<input type="hidden" th:field="*{sortedParam}">
+								<span class="input-group-text" th:utext="*{numberOfPages}" ></span>
+							</div>
+						</form>
+					</li>		
 				</ul>
 			</nav>
 		</div>

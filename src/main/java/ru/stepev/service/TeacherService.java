@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -62,7 +62,7 @@ public class TeacherService {
 		}
 	}
 
-	public int getNumberOfItems() {
+	public int count() {
 		return teacherDao.findNumberOfItems() ;
 	}
 
@@ -88,5 +88,16 @@ public class TeacherService {
 
 	public List<Teacher> getAndSortByAddress(int numberOfItems, int offset) {
 		return teacherDao.findAndSortByAddress(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSort(Paginator paginator) {
+		switch(paginator.getSortedParam()) {
+			case ("First_name") : return getAndSortByFirstName(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Last_name")  : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Birthday")  : return getAndSortByBirthday(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Email")  : return getAndSortByEmail(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Address")  : return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());
+			default : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
+		}
 	}
 }

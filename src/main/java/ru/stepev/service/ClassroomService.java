@@ -9,6 +9,7 @@ import ru.stepev.dao.ClassroomDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -60,6 +61,17 @@ public class ClassroomService {
 	public List<Classroom> getAndSortByAddress(int numberOfItems, int offset) {
 		return classroomDao.findAndSortByAddress(numberOfItems, offset);
 	}
+	
+	public List<Classroom> getAndSort(Paginator paginator) {
+		switch (paginator.getSortedParam()) {
+		case ("Address"):
+			return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());	
+		case ("Capacity"):
+			return getAndSortByCapacity(paginator.getItemsPerPage(), paginator.getOffset());
+		default:
+			return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());
+		}
+	}
 
 	public void verifyClassroomIsUnique(Classroom classroom) {
 		Optional<Classroom> existingClassroom = classroomDao.findByAddress(classroom.getAddress());
@@ -76,7 +88,7 @@ public class ClassroomService {
 		}
 	}
 	
-	public int getNumberOfItems() {
+	public int count() {
 		return classroomDao.findNumberOfItems();
 	}
 }

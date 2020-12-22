@@ -27,7 +27,7 @@
 		<div class="card">
 		<hr>
 		<p class="h4 mb-4">Group</p>
-		<a th:href="@{/groups/showAllGroups}" class="btn btn-info btn-sm mb-3">Back to
+		<a th:href="@{/groups/}" class="btn btn-info btn-sm mb-3">Back to
 					groups list</a> 
 	
 		<form action="#" th:object="${group}" >
@@ -47,7 +47,7 @@
 					<td th:text="${student.id}" />
 					<td th:text="${student.firstName}" />
 					<td th:text="${student.lastName}" />
-					<td><a th:href="@{/students/showEntity/(studentId=${student.id})}"
+					<td><a th:href="@{/students/{studentId}/(studentId=${student.id})}"
 							class="btn btn-info">Show</a>
 					   </td>
 				</tr>

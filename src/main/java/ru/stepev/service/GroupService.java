@@ -84,7 +84,7 @@ public class GroupService {
 		}
 	}
 
-	public int getNumberOfItems() {
+	public int count() {
 		return groupDao.findNumberOfItem();
 	}
 

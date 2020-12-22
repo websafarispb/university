@@ -3,6 +3,10 @@ package ru.stepev.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,24 +17,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Paginator {
-
-	private int itemsPerPage;
+	
+	private int itemsPerPage;	
 	private int numberOfPages;
 	private int numberOfEntities;
 	private List<Integer> pageNumbers;
 	private List<Integer> currentPageNumbers;
 	private int currentPage;
-	private int currentBeginPagination;
-	private int currentNumberOfPagesForPagination;
 	private int beginOfPagination;
 	private int endOfPagination;
 	private int offset;
+	private String sortedParam;
 
-	public Paginator(int numberOfEntities, int currentPage, int currentBeginPagination, int itemsPerPage, int currentNumberOfPagesForPagination) {
+	public Paginator(int numberOfEntities, int currentPage,  String sortedParam, int itemsPerPage) {
+		this.itemsPerPage = itemsPerPage;
+		this.sortedParam = sortedParam;
 		this.numberOfEntities = numberOfEntities;
 		this.currentPage = currentPage;
-		this.currentBeginPagination = currentBeginPagination;
-		this.itemsPerPage = itemsPerPage;
 		this.pageNumbers = new ArrayList<>();
 		this.currentPageNumbers = new ArrayList<>();
 		this.numberOfPages = (numberOfEntities / itemsPerPage);
@@ -40,12 +43,6 @@ public class Paginator {
 		for (int i = 1; i <= numberOfPages; i++) {
 			pageNumbers.add(i);
 		}
-		this.beginOfPagination = currentBeginPagination;
-		this.endOfPagination = currentBeginPagination + currentNumberOfPagesForPagination;
-		if (endOfPagination > pageNumbers.size()) {
-			endOfPagination = pageNumbers.size();
-		}
-		currentPageNumbers = pageNumbers.subList(beginOfPagination, endOfPagination);
 		this.offset = itemsPerPage * (currentPage - 1);
 	}
 }

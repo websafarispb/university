@@ -27,6 +27,7 @@ import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
 import ru.stepev.model.Lecture;
 import ru.stepev.model.Teacher;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -175,7 +176,7 @@ public class LectureService {
 		}
 	}
 
-	public int getNumberOfItem() {
+	public int count() {
 		return lectureDao.findNumberOfItem() ;
 	}
 
@@ -201,5 +202,16 @@ public class LectureService {
 
 	public List<Lecture> getAndSortById(int numberOfItems, int offset) {
 		return lectureDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSort(Paginator paginator) {
+		switch(paginator.getSortedParam()) {
+			case ("Time") : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Course")  :  return getAndSortByCourse(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Classroom")  :  return getAndSortByClassroom(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Group")  :  return getAndSortByGroup(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Teacher")  :  return getAndSortByTeacher(paginator.getItemsPerPage(), paginator.getOffset());
+			default : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
+		}
 	}
 }

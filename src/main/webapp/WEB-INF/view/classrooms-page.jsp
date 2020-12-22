@@ -32,9 +32,9 @@
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Id'})}" >Id</a></th>
-						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Address'})}" >Address</a></th>
-						<th><a class="btn btn-secondary" th:href="@{/classrooms/showAllClassrooms/(sortedParam=${'Capacity'})}" >Capacity</a></th>
+						<th>Id</th>
+						<th><a class="btn btn-secondary" th:href="@{/classrooms/(sortedParam=${'Address'})}" >Address</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/classrooms/(sortedParam=${'Capacity'})}" >Capacity</a></th>
 						<th>Action</th>
 					</tr>
 				</thead>
@@ -42,20 +42,32 @@
 					<td th:text="${classroom.id}" />
 					<td th:text="${classroom.address}" />
 					<td th:text="${classroom.capacity}" />
-					<td><a th:href="@{/classrooms/showEntity/(classroomId=${classroom.id})}"
-							class="btn btn-info">Show</a>
-					   </td>
+					<td><a
+						th:href="@{/classrooms/{classroomId}(classroomId=${classroom.id})}"
+						class="btn btn-info">Show</a></td>
+
 				</tr>
 			</table>
-			<nav aria-label="...">
+			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/classrooms/showAllClassrooms/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
-					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
-						<a class="page-link" th:text="${i}"  th:href="@{/classrooms/showAllClassrooms/(currentBeginPagination = ${currentBeginPagination}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/classrooms/showAllClassrooms/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Next</a></li>
-				</ul>  <!-- diapason >= numberOfPages-sizeOfDiapason -->
+					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/classrooms/(currentPage=*{currentPage} - 1, sortedParam=*{sortedParam})}">&laquo;</a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == currentPage ? 'active' : '' )}">
+						<a class="page-link" th:text="*{currentPage}"  th:href="@{/classrooms/(currentPage=*{currentPage}, sortedParam=*{sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == numberOfPages ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/classrooms/(currentPage=*{currentPage} + 1, sortedParam=*{sortedParam})}">&raquo;</a>
+					</li>
+					 <li class="page-item">
+					 	<form action="#" method="get" th:action="@{/classrooms/}"
+							th:object="${paginator}">
+							<div class="input-group">
+								<input class="w-25 p-1" type="text" th:field="*{currentPage}">
+								<input type="hidden" th:field="*{sortedParam}">
+								<span class="input-group-text" th:utext="*{numberOfPages}" ></span>
+							</div>
+						</form>
+					</li>		
+				</ul>
 			</nav>
 		</div>
 	</div>

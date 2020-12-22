@@ -30,13 +30,13 @@
 		<hr>
 		<a href="dailySchedules/showScheduleForTeacherForm">Show schedule for teacher</a> <br>
 		<a href="dailySchedules/showScheduleForStudentForm">Show schedule for student</a> <br>
-		<a href="classrooms/showAllClassrooms">Show classrooms</a> <br> <a
-			href="students/showAllStudents">Show students</a> <br> <a
-			href="teachers/showAllTeachers">Show teachers</a> <br> <a
-			href="dailySchedules/showAllDailySchedules">Show schedules</a> <br> <a
-			href="courses/showAllCourses">Show courses</a> <br> <a
-			href="lectures/showAllLectures">Show lectures</a> <br> <a
-			href="groups/showAllGroups">Show groups</a>
+		<a href="classrooms/">Show classrooms</a> <br> <a
+			href="students/">Show students</a> <br> <a
+			href="teachers/">Show teachers</a> <br> <a
+			href="dailySchedules/">Show schedules</a> <br> <a
+			href="courses/">Show courses</a> <br> <a
+			href="lectures/">Show lectures</a> <br> <a
+			href="groups/">Show groups</a>
 	</div>
 </body>
 </html>

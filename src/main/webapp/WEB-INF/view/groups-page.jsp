@@ -33,27 +33,38 @@
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th><a class="btn btn-secondary" th:href="@{/groups/showAllGroups/(sortedParam=${'Id'})}" >Id</a></th>
-						<th><a class="btn btn-secondary" th:href="@{/groups/showAllGroups/(sortedParam=${'Name'})}" >Name</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/groups/(sortedParam=${'Id'})}" >Id</a></th>
+						<th><a class="btn btn-secondary" th:href="@{/groups/(sortedParam=${'Name'})}" >Name</a></th>
 						<th>Action</th>
 					</tr>
 				</thead>
 				<tr th:each="group: ${groupsForShow}">
 					<td th:text="${group.id}" />
 					<td th:text="${group.name}" />
-					<td><a th:href="@{/groups/showEntity/(groupId=${group.id})}"
+					<td><a th:href="@{/groups/{groupId}/(groupId=${group.id})}"
 						class="btn btn-info">Show</a>
 					</td>
 				</tr>
 			</table>
-			<nav aria-label="...">
+			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
-					<li class="page-item" th:classappend="${(currentBeginPagination < currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/groups/showAllGroups/(currentBeginPagination = ${currentBeginPagination - currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination - currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Previous</a></li>
-					<li class="page-item" th:each="i : ${currentPageNumbers}" th:classappend="${(currentPage == i ? 'active' : '' )}">
-						<a class="page-link" th:text="${i}"  th:href="@{/groups/showAllGroups/(currentBeginPagination = ${currentBeginPagination}, currentPage=${i}, sortedParam=${sortedParam})}" ></a></li>
-					<li class="page-item"  th:classappend="${(currentBeginPagination >= numberOfPages-currentNumberOfPagesForPagination ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/groups/showAllGroups/(currentBeginPagination = ${currentBeginPagination + currentNumberOfPagesForPagination}, currentPage=${currentBeginPagination + currentNumberOfPagesForPagination + 1}, sortedParam=${sortedParam})}">Next</a></li>
+					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/groups/(currentPage=*{currentPage} - 1, sortedParam=*{sortedParam})}">&laquo;</a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == currentPage ? 'active' : '' )}">
+						<a class="page-link" th:text="*{currentPage}"  th:href="@{/groups/(currentPage=*{currentPage}, sortedParam=*{sortedParam})}" ></a></li>
+					<li class="page-item"  th:classappend="*{(currentPage == numberOfPages ? 'disabled' : '' )}">
+						<a class="page-link" th:href="@{/groups/(currentPage=*{currentPage} + 1, sortedParam=*{sortedParam})}">&raquo;</a>
+					</li>
+					 <li class="page-item">
+					 	<form action="#" method="get" th:action="@{/groups/}"
+							th:object="${paginator}">
+							<div class="input-group">
+								<input class="w-25 p-1" type="text" th:field="*{currentPage}">
+								<input type="hidden" th:field="*{sortedParam}">
+								<span class="input-group-text" th:utext="*{numberOfPages}" ></span>
+							</div>
+						</form>
+					</li>		
 				</ul>
 			</nav>
 		</div>

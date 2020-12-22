@@ -25,7 +25,7 @@
 
 	<div class="container">
 		<h3>Schedule for student</h3>
-		<form th:action="@{/showScheduleForStudent}" method="post">
+		<form th:action="@{/dailySchedules/showScheduleForStudent}" method="get">
 			<div class="form-group">
 				<label>Select student</label>
 				<div>

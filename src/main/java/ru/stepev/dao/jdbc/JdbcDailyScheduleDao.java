@@ -26,6 +26,7 @@ import ru.stepev.exception.EntityCouldNotBeenDeletedException;
 import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -164,5 +165,23 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 		log.debug("Finding and sorting dailyschedule by Id ... ");
 		Object[] objects = new Object[] { numberOfItems, offset };
 		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, dailyScheduleRowMapper);
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortedByTeacherIdAndPeriodOfTime(int teacherId, LocalDate firstDay,
+			LocalDate lastDay, Paginator paginator) {
+		List<DailySchedule> dailySchedules = findByTeacherIdAndPeriodOfTime(teacherId, firstDay, lastDay).stream()
+		.skip(paginator.getOffset()).limit(paginator.getItemsPerPage()).collect(toList());
+		paginator.setNumberOfEntities(dailySchedules.size());
+		return dailySchedules;
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortedByGroupAndPeriodOfTime(Group group, LocalDate firstDay, LocalDate lastDay,
+			Paginator paginator) {
+		List<DailySchedule> dailySchedules = findByGroupAndPeriodOfTime(group, firstDay, lastDay).stream().skip(paginator.getOffset())
+				.limit(paginator.getItemsPerPage()).collect(toList());
+		paginator.setNumberOfEntities(dailySchedules.size());
+		return dailySchedules;
 	}
 }

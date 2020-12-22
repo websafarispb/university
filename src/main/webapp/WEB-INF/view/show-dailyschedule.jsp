@@ -27,7 +27,7 @@
 		<div class="card">
 		<hr>
 		<p class="h4 mb-4">DailySchedule</p>
-		<a th:href="@{/dailySchedules/showAllDailySchedules}" class="btn btn-info btn-sm mb-3">Back to
+		<a th:href="@{/dailySchedules/}" class="btn btn-info btn-sm mb-3">Back to
 					dailyschedules list</a> 
 	
 		<form action="#" th:object="${dailySchedule}" >
@@ -45,9 +45,7 @@
 					<tr>
 						<td><p>Lectures</p></td>
 					</tr>
-
 					<tr th:each="lecture : ${dailySchedule.lectures}">
-
 						<td th:text="${lecture.time}"></td>
 						<td th:text="${lecture.course.name}"></td>
 						<td th:text="${lecture.classRoom.address}"></td>

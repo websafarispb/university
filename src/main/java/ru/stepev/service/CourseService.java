@@ -61,7 +61,7 @@ public class CourseService {
 		return courseDao.findAndSortById(numberOfItems, offset);
 	}
 	
-	public int getNumberOfItems() {
+	public int count() {
 		return courseDao.findNumberOfItems();
 	}
 

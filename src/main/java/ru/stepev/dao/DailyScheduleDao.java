@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
+import ru.stepev.utils.Paginator;
 
 public interface DailyScheduleDao {
 	
@@ -21,4 +22,7 @@ public interface DailyScheduleDao {
 	public int findNumberOfItems();
 	public List<DailySchedule> findAndSortByDate(int numberOfItems, int offset);
 	public List<DailySchedule> getAndSortById(int numberOfItems, int offset);
+	public List<DailySchedule> findAndSortedByTeacherIdAndPeriodOfTime(int teacherId, LocalDate firstDay,
+			LocalDate lastDay, Paginator paginator);
+	public List<DailySchedule> findAndSortedByGroupAndPeriodOfTime(Group group, LocalDate firstDay, LocalDate lastDay, Paginator paginator);
 }
