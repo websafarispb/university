@@ -22,6 +22,7 @@ import static ru.stepev.data.DataTest.*;
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.ClassroomController;
 import ru.stepev.controller.CourseController;
+import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -47,7 +48,7 @@ public class CourseControllerTest {
 	
 	@Test
 	public void givenPathShowEntityWithParamCourseId_whenGetPathShowEntityViewWithParamCourseId_thenGetViewShowCourseWithParamCorrectCourse() throws Exception {
-		mvc.perform(get("/courses/showEntity/?courseId=1"))
+		mvc.perform(get("/courses/1"))
 			.andExpect(status().isOk())
 			.andExpect(model().attribute("course", expectedCourse))
 			.andExpect(view().name("show-course"));
@@ -55,29 +56,21 @@ public class CourseControllerTest {
 	
 	@Test
 	public void givenPathShowAllCoursesWithDefaltParam_whenGetPathShowAllCoursesWithDefaltParam_thenGetViewCoursesPageWithCorrectCourses() throws Exception {
-		mvc.perform(get("/courses/showAllCourses/"))
+		Paginator paginator = new Paginator(16, 1, "Name", 5);
+		mvc.perform(get("/courses/"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("coursesForShow", expectedCourses))
-		.andExpect(model().attribute("currentPageNumbers", defaultCurrentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "default"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 0))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
-		.andExpect(model().attribute("numberOfPages", 4))
+		.andExpect(model().attribute("courses", expectedSortedCoursesByName))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("courses-page"));
 	}
 	
 	@Test
 	public void givenPathShowAllCoursesWithParams_whenGetPathShowAllCoursesWithWithParams_thenGetViewCoursesPageWithCorrectCourses() throws Exception {
-		mvc.perform(get("/courses/showAllCourses/?diapason=3&currentPage=1&sortedParam=Name"))
+		Paginator paginator = new Paginator(16, 1, "Name", 5);
+		mvc.perform(get("/courses/?currentPage=1&sortBy=Name"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("coursesForShow", expectedSortedCoursesByName))
-		.andExpect(model().attribute("currentPageNumbers", currentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "Name"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 3))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
-		.andExpect(model().attribute("numberOfPages", 4))
+		.andExpect(model().attribute("courses", expectedSortedCoursesByName))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("courses-page"));
 	}
 }

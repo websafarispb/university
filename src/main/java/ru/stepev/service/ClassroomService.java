@@ -63,7 +63,7 @@ public class ClassroomService {
 	}
 	
 	public List<Classroom> getAndSort(Paginator paginator) {
-		switch (paginator.getSortedParam()) {
+		switch (paginator.getSortBy()) {
 		case ("Address"):
 			return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());	
 		case ("Capacity"):

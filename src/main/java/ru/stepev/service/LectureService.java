@@ -205,7 +205,7 @@ public class LectureService {
 	}
 
 	public List<Lecture> getAndSort(Paginator paginator) {
-		switch(paginator.getSortedParam()) {
+		switch(paginator.getSortBy()) {
 			case ("Time") : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
 			case ("Course")  :  return getAndSortByCourse(paginator.getItemsPerPage(), paginator.getOffset());
 			case ("Classroom")  :  return getAndSortByClassroom(paginator.getItemsPerPage(), paginator.getOffset());

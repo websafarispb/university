@@ -93,17 +93,17 @@ public class DailyScheduleService {
 	}
 
 	public List<DailySchedule> getAndSortById(int numberOfItems, int offset) {
-		return dailyScheduleDao.getAndSortById(numberOfItems, offset);
+		return dailyScheduleDao.findAndSortById(numberOfItems, offset);
 	}
 
 	public List<DailySchedule> getSortedScheduleForTeacher(int teacherId, LocalDate firstDay, LocalDate lastDay,
 			Paginator paginator) {
-		return dailyScheduleDao.findAndSortedByTeacherIdAndPeriodOfTime(teacherId, firstDay, lastDay, paginator);
+		return dailyScheduleDao.findAndSortedByTeacherIdAndPeriodOfDate(teacherId, firstDay, lastDay, paginator);
 	}
 
 	public List<DailySchedule> getSortedScheduleForStudent(int studentId, LocalDate firstDay, LocalDate lastDay,
 			Paginator paginator) {
 		Group group = groupDao.findByStudentId(studentId).get();
-		return dailyScheduleDao.findAndSortedByGroupAndPeriodOfTime(group, firstDay, lastDay, paginator);
+		return dailyScheduleDao.findAndSortedByGroupAndPeriodOfDate(group, firstDay, lastDay, paginator);
 	}
 }

@@ -33,12 +33,12 @@ public class JdbcTeacherDao implements TeacherDao {
 	private static final String ADD_COURSE = "INSERT INTO teachers_courses (teacher_id, course_id) VALUES (?, ?)";
 	private static final String DELETE_COURSE = "DELETE FROM teachers_courses WHERE teacher_id = ? AND course_id = ?";
 	private static final String FIND_NUMBER_OF_TEACHERS = "SELECT COUNT(*) FROM teachers";
-	private static final String FIND_AND_SORT_BY_FIRST_NAME = "SELECT * FROM teachers ORDER BY first_name ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_LAST_NAME = "SELECT * FROM teachers ORDER BY last_name ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_FIRST_NAME = "SELECT * FROM teachers ORDER BY first_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_LAST_NAME = "SELECT * FROM teachers ORDER BY last_name, id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM teachers ORDER BY id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_BIRTHDAY = "SELECT * FROM teachers ORDER BY birthday ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_EMAIL = "SELECT * FROM teachers ORDER BY email ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM teachers ORDER BY address ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_BIRTHDAY = "SELECT * FROM teachers ORDER BY birthday, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_EMAIL = "SELECT * FROM teachers ORDER BY email, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM teachers ORDER BY address, id ASC LIMIT ? OFFSET ?";
 
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;

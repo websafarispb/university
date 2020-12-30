@@ -3,6 +3,7 @@ package ru.stepev.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.stepev.config.TestConfig;
@@ -30,6 +32,7 @@ import ru.stepev.model.Teacher;
 @Transactional
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcLectureDaoTest {
 
 	@Autowired
@@ -113,7 +116,7 @@ public class JdbcLectureDaoTest {
 
 		Optional<Lecture> actual = lectureDao.findById(1);
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedLectures.get(0));
 	}
 
 	@Test
@@ -128,7 +131,7 @@ public class JdbcLectureDaoTest {
 
 	@Test
 	public void givenfindAllLectures_whenFindAllLectures_thenAllLecturesWasFound() {
-		int expectedSize = 11;
+		int expectedSize = 33;
 
 		int actualSize = lectureDao.findAll().size();
 
@@ -166,7 +169,7 @@ public class JdbcLectureDaoTest {
 		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndGroupId(1, LocalTime.of(9, 0, 0),
 				LocalTime.of(9, 0, 0).plusHours(1), group.getId());
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedLectures.get(0));
 	}
 
 	@Test
@@ -199,7 +202,7 @@ public class JdbcLectureDaoTest {
 
 		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(1, LocalTime.of(9, 0, 0), LocalTime.of(9, 0, 0).plusHours(1), 1);
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedLectures.get(0));
 	}
 
 	@Test
@@ -231,7 +234,7 @@ public class JdbcLectureDaoTest {
 
 		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(1, LocalTime.of(9, 0, 0), LocalTime.of(9, 0, 0).plusHours(1),  2);
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedLectures.get(0));
 	}
 
 	@Test
@@ -240,5 +243,63 @@ public class JdbcLectureDaoTest {
 		Optional<Lecture> actual = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(1, LocalTime.of(9, 1, 0), LocalTime.of(9, 0, 0).plusHours(1), 2);
 
 		assertThat(actual).isEqualTo(Optional.empty());
+	}
+	
+	@Test
+	public void findNumberOfItem_whenFindNumberOfItem_thenGetCorrectNumberOfLecture() {
+		int expected = 33;
+		
+		int actaul = lectureDao.findNumberOfItem();
+		
+		assertThat(actaul).isEqualTo(expected);
+		
+	}
+
+	@Test
+	public void findAndSortByTime_whenFindAndSortByTime_thenGetCorrectSortedListByTime() {
+		
+		List<Lecture> actual = lectureDao.findAndSortByTime(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortByTime);
+	}
+
+	@Test
+	public void findAndSortByCourse_whenFindAndSortByCourse_thenGetCorrectSortedListByCourse() {
+	
+		List<Lecture> actual = lectureDao.findAndSortByCourse(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortByCourse);
+	}
+
+	@Test
+	public void findAndSortByClassroom_whenFindAndSortByClassroom_thenGetCorrectSortedListByClassroom() {
+	
+		List<Lecture> actual = lectureDao.findAndSortByClassroom(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortByClassroom);
+	}
+
+	@Test
+	public void findAndSortByGroup_whenFindAndSortByGroup_thenGetCorrectSortedListByGroup() {
+	
+		List<Lecture> actual = lectureDao.findAndSortByGroup(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortedByGroup);
+	}
+
+	@Test
+	public void findAndSortByTeacher_whenFindAndSortByTeacher_thenGetCorrectSortedListByTeacher() {
+	
+		List<Lecture> actual = lectureDao.findAndSortByTeacher(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortByTeacher);
+	}
+
+	@Test
+	public void fineAndSortById_whenFineAndSortById_thenGetCorrectSortedList() {
+	
+		List<Lecture> actual = lectureDao.findAndSortById(2, 1);
+
+		assertThat(actual).isEqualTo(lecturesSortById);
 	}
 }

@@ -27,9 +27,9 @@ public class JdbcClassroomDao implements ClassroomDao {
 	private static final String GET_ALL = "SELECT * FROM classrooms";
 	private static final String FIND_CLASSROOM_BY_ID = "SELECT * FROM classrooms WHERE id = ?";
 	private static final String FIND_CLASSROOM_BY_ADDRESS = "SELECT * FROM classrooms WHERE classroom_address = ?";
-	private static final String FIND_AND_SORT_BY_CAPACITY = "SELECT * FROM classrooms ORDER BY classroom_capacity ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_CAPACITY = "SELECT * FROM classrooms ORDER BY classroom_capacity, id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM classrooms ORDER BY id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM classrooms ORDER BY classroom_address ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM classrooms ORDER BY classroom_address, id ASC LIMIT ? OFFSET ?";
 	private static final String UPDATE_CLASSROOM_BY_ID = "UPDATE classrooms SET classroom_address = ?, classroom_capacity = ? WHERE id = ?";
 	private static final String DELETE_CLASSROOM_BY_ID = "DELETE FROM classrooms WHERE id = ?";
 	private static final String FIND_NUMBER_OF_CLASSROOM = "SELECT COUNT(*) FROM classrooms";

@@ -31,18 +31,18 @@ public class StudentController {
 	@GetMapping
 	public String showAllStudents(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		Paginator paginator = new Paginator(studentService.count(), currentPage, sortedParam, itemsPerPage);
-		List<Student> studentsForShow = studentService.getAndSort(paginator);
-		model.addAttribute("studentsForShow", studentsForShow);
+			@RequestParam(defaultValue = "Last_name") String sortBy) {
+		Paginator paginator = new Paginator(studentService.count(), currentPage, sortBy, itemsPerPage);
+		List<Student> students = studentService.getAndSort(paginator);
+		model.addAttribute("students", students);
 		model.addAttribute("paginator", paginator);
 		return "students-page";
 	}
 
 	@GetMapping("{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).get();
-		Group group = groupService.findByStudentId(id).get();
+	public String getStudent(@PathVariable int id, Model model) {
+		Student student = studentService.getById(id).orElse(null);
+		Group group = groupService.findByStudentId(id).orElse(null);
 		model.addAttribute("student", student);
 		model.addAttribute("group", group);
 		return "show-student";

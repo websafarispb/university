@@ -33,18 +33,18 @@ public class TeacherController {
 	@GetMapping
 	public String showAllTeachers(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		List<Teacher> teachersForShow = new ArrayList<>();
-		Paginator paginator = new Paginator(teacherService.count(), currentPage, sortedParam, itemsPerPage);
-		teachersForShow = teacherService.getAndSort(paginator);
-		model.addAttribute("teachersForShow", teachersForShow);
+			@RequestParam(defaultValue = "Last_name") String sortBy) {
+		List<Teacher> teachers = new ArrayList<>();
+		Paginator paginator = new Paginator(teacherService.count(), currentPage, sortBy, itemsPerPage);
+		teachers = teacherService.getAndSort(paginator);
+		model.addAttribute("teachers", teachers);
 		model.addAttribute("paginator", paginator);
 		return "teachers-page";
 	}
 	
 	@GetMapping("{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).get();
+	public String getTeacher(@PathVariable int id, Model model) {
+		Teacher teacher = teacherService.getById(id).orElse(null);
 		List<Course> allCourses = courseService.getAll();
 		model.addAttribute("teacher", teacher);
 		model.addAttribute("allCourses", allCourses);

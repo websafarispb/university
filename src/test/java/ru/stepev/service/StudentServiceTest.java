@@ -20,7 +20,9 @@ import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Lecture;
 import ru.stepev.model.Student;
+import ru.stepev.utils.Paginator;
 
 import static ru.stepev.data.DataTest.*;
 
@@ -76,7 +78,7 @@ public class StudentServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> studentService.update(smartStudent));
 
-		assertThat(exception.getMessage()).isEqualTo("Course with name Geography doesn't exist");
+		assertThat(exception.getMessage()).isEqualTo("Course with name Anatomy doesn't exist");
 		verify(studentDao, never()).update(smartStudent);
 	}
 
@@ -152,5 +154,79 @@ public class StudentServiceTest {
 		List<Student> actual = studentService.getByGroupId(1);
 
 		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void countNumberOfStudents_whenCountNumberOfStudents_thenGetCorrectNumberOfStudents() {
+		int expected = 2;
+		when(studentDao.findNumberOfItems()).thenReturn(expected);
+		
+		int actual = studentService.count();
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByFirstName_thenGetSortedListByFirstName() {
+		when(studentDao.findAndSortByFirstName(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortByFirstName(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByLastName_thenGetSortedListByLastName() {
+		when(studentDao.findAndSortByLastName(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortByLastName(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListByID() {
+		when(studentDao.findAndSortById(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortById(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByEmail_thenGetSortedListByEmail() {
+		when(studentDao.findAndSortByEmail(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortByEmail(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByAddress_thenGetSortedListByAddress() {
+		when(studentDao.findAndSortByAddress(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortByAddress(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListById() {
+		when(studentDao.findAndSortByBirthday(5, 4)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSortByBirthday(5, 4);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
+	}
+
+	@Test
+	public void givenTypeOfSorting_whenGetAndSort_thenGetSortedListOfStudentsBySortingType() {
+		Paginator paginator = new Paginator(1, 1, "Last_name", 5);
+		when(studentDao.findAndSortByLastName(5, 0)).thenReturn(expectedStudents);
+
+		List<Student> actualStudents = studentService.getAndSort(paginator);
+
+		assertThat(actualStudents).isEqualTo(expectedStudents);
 	}
 }

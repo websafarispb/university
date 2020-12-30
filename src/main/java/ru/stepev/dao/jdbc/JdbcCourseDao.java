@@ -34,7 +34,7 @@ public class JdbcCourseDao implements CourseDao {
 	private static final String FIND_ALL_COURSE_BY_STUDENT_ID = "SELECT * FROM "
 			+ "courses INNER JOIN students_courses ON  courses.id = students_courses.course_id WHERE students_courses.student_id = ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM courses ORDER BY id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM courses ORDER BY course_name ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM courses ORDER BY course_name, id ASC LIMIT ? OFFSET ?";
 	private static final String FINF_NUMBER_OF_COURSES = "SELECT COUNT(*) FROM courses";
 
 	private CourseRowMapper courseRowMapper;

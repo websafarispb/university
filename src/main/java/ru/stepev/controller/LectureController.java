@@ -49,28 +49,18 @@ public class LectureController {
 	@GetMapping
 	public String showAllLectures(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		Paginator paginator = new Paginator(lectureService.count(), currentPage, sortedParam, itemsPerPage);
-		List<Lecture> lecturesForShow = lectureService.getAndSort(paginator);
-		model.addAttribute("lecturesForShow", lecturesForShow);
+			 @RequestParam(defaultValue = "Time")String sortBy) {
+		Paginator paginator = new Paginator(lectureService.count(), currentPage, sortBy, itemsPerPage);
+		List<Lecture> lectures = lectureService.getAndSort(paginator);
+		model.addAttribute("lectures", lectures);
 		model.addAttribute("paginator", paginator);
 		return "lectures-page";
 	}
 
 	@GetMapping("{id}")
-	public String showEntity(@PathVariable int id, Model model) {
+	public String getLecture(@PathVariable int id, Model model) {
 		Lecture lecture = lectureService.getById(id).get();
-		DailySchedule dailySchedule = dailyScheduleService.getById(lecture.getDailyScheduleId()).get();
-		List<Course> allCourses = courseService.getAll();
-		List<Classroom> allClassrooms = classroomService.getAll();
-		List<Group> allGroups = groupService.getAll();
-		List<Teacher> allTeachers = teacherService.getAll();
 		model.addAttribute("lecture", lecture);
-		model.addAttribute("dailySchedule", dailySchedule);
-		model.addAttribute("allCourses", allCourses);
-		model.addAttribute("allClassrooms", allClassrooms);
-		model.addAttribute("allGroups", allGroups);
-		model.addAttribute("allTeachers", allTeachers);
 		return "show-lecture";
 	}
 }

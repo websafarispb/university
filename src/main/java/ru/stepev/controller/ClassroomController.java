@@ -26,18 +26,17 @@ public class ClassroomController {
 
 	@GetMapping
 	public String showAllClassrooms(Model model, @Value("${itemsPerPage}") int itemsPerPage,
-			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		Paginator paginator = new Paginator(classroomService.count(), currentPage, sortedParam, itemsPerPage);
-		List<Classroom> classroomsForShow = classroomService.getAndSort(paginator);
-		model.addAttribute("classroomsForShow", classroomsForShow);
+			@RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "Address") String sortBy) {
+		Paginator paginator = new Paginator(classroomService.count(), currentPage, sortBy, itemsPerPage);
+		List<Classroom> classrooms = classroomService.getAndSort(paginator);
+		model.addAttribute("classrooms", classrooms);
 		model.addAttribute("paginator", paginator);
 		return "classrooms-page";
 	}
 
 	@GetMapping("/{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).get();
+	public String getClassroom(@PathVariable int id, Model model) {
+		Classroom classroom = classroomService.getById(id).orElse(null);
 		model.addAttribute("classroom", classroom);
 		return "show-classroom";
 	}

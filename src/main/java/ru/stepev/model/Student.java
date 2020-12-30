@@ -51,10 +51,29 @@ public class Student {
 		this.gender = Gender.valueOf(gender);
 	}
 
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((address == null) ? 0 : address.hashCode());
+		result = prime * result + ((birthday == null) ? 0 : birthday.hashCode());
+		result = prime * result + ((courses == null) ? 0 : courses.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
+		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
+		result = prime * result + id;
+		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
+		result = prime * result + personalNumber;
+		return result;
+	}
+
 	@Override
 	public String toString() {
-		return "Student [id=" + id + ", firstName=" + firstName + ", lastName="
-				+ lastName + "]";
+		return "Student [id=" + id + ", personalNumber=" + personalNumber + ", firstName=" + firstName + ", lastName="
+				+ lastName + "]"  + System.lineSeparator();//, birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
+				//+ address + ", courses=" + courses + "]";
 	}
 
 	@Override
@@ -103,21 +122,5 @@ public class Student {
 		if (personalNumber != other.personalNumber)
 			return false;
 		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((address == null) ? 0 : address.hashCode());
-		result = prime * result + ((birthday == null) ? 0 : birthday.hashCode());
-		result = prime * result + ((courses == null) ? 0 : courses.hashCode());
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
-		result = prime * result + ((gender == null) ? 0 : gender.hashCode());
-		result = prime * result + id;
-		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
-		result = prime * result + personalNumber;
-		return result;
 	}
 }

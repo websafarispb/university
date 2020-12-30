@@ -37,7 +37,7 @@ public class JdbcGroupDao implements GroupDao {
 	private static final String FIND_GROUP_BY_GROUP_ID_AND_COURSE_ID = "SELECT DISTINCT  groups.id, groups.group_name FROM groups,students_groups INNER JOIN  students_courses "
 			+ "ON students_courses.course_id = ?  WHERE students_groups.group_id = ? AND groups.id = ?";
 	private static final String FIND_NUMBER_OF_GROUPS = "SELECT COUNT(*) FROM groups";
-	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM groups ORDER BY group_name ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM groups ORDER BY group_name, id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM groups ORDER BY id ASC LIMIT ? OFFSET ?";
 
 	private GroupRowMapper groupRowMapper;

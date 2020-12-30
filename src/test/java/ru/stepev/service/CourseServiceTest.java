@@ -19,6 +19,7 @@ import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Classroom;
 import ru.stepev.model.Course;
 
 import static ru.stepev.data.DataTest.*;
@@ -88,7 +89,6 @@ public class CourseServiceTest {
 	public void givenCourse_whenDeleteCourseDoesNotExist_thenDoNotDeleteCourse() {
 		when(courseDao.findById(courseForTest.getId())).thenReturn(Optional.empty());
 
-
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> courseService.delete(courseForTest));
 
@@ -123,5 +123,33 @@ public class CourseServiceTest {
 		List<Course> actualCourses = courseService.getByTeacher(teacherForTest);
 
 		assertThat(actualCourses).isEqualTo(expectedCourses);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByName_thenGetSortedListByName() {
+		when(courseDao.findAndSortByName(5, 4)).thenReturn(expectedCourses);
+
+		List<Course> actualCourses = courseService.getAndSortByName(5, 4);
+
+		assertThat(actualCourses).isEqualTo(expectedCourse);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListById() {
+		when(courseDao.findAndSortById(5, 4)).thenReturn(expectedCourses);
+
+		List<Course> actualCourses = courseService.getAndSortById(5, 4);
+
+		assertThat(actualCourses).isEqualTo(expectedCourses);
+	}
+
+	@Test
+	public void countNumberOfCourses_whenCountNumberOfCourses_thenGetCorrectNumberOfCourses() {
+		int expected = 2;
+		when(courseDao.findNumberOfItems()).thenReturn(expected);
+
+		int actual = courseService.count();
+
+		assertThat(actual).isEqualTo(expected);
 	}
 }

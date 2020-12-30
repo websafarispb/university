@@ -27,17 +27,17 @@ public class CourseController {
 	@GetMapping
 	public String showAllCourses(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		Paginator paginator = new Paginator(courseService.count(), currentPage,  sortedParam , itemsPerPage);
-		List<Course>coursesForShow = courseService.getAndSortByName(paginator.getItemsPerPage(), paginator.getOffset());
-		model.addAttribute("coursesForShow", coursesForShow);
+			 @RequestParam(defaultValue = "Name")String sortBy) {
+		Paginator paginator = new Paginator(courseService.count(), currentPage,  sortBy , itemsPerPage);
+		List<Course>courses = courseService.getAndSortByName(paginator.getItemsPerPage(), paginator.getOffset());
+		model.addAttribute("courses", courses);
 		model.addAttribute("paginator", paginator);
 		return "courses-page";
 	}
 	
 	@GetMapping("/{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).get();
+	public String getCourse(@PathVariable int id, Model model) {
+		Course course = courseService.getById(id).orElse(null);
 		model.addAttribute("course", course);
 		return "show-course";
 	}

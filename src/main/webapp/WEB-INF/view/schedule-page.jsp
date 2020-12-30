@@ -51,18 +51,18 @@
 			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
 					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/dailySchedules/(currentPage=*{currentPage} - 1, sortedParam=*{sortedParam})}">&laquo;</a></li>
+						<a class="page-link" th:href="@{/dailySchedules/(currentPage=*{currentPage} - 1, sortBy=*{sortBy})}">&laquo;</a></li>
 					<li class="page-item"  th:classappend="*{(currentPage == currentPage ? 'active' : '' )}">
-						<a class="page-link" th:text="*{currentPage}"  th:href="@{/dailySchedules/(currentPage=*{currentPage}, sortedParam=*{sortedParam})}" ></a></li>
+						<a class="page-link" th:text="*{currentPage}"  th:href="@{/dailySchedules/(currentPage=*{currentPage}, sortBy=*{sortBy})}" ></a></li>
 					<li class="page-item"  th:classappend="*{(currentPage == numberOfPages ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/dailySchedules/(currentPage=*{currentPage} + 1, sortedParam=*{sortedParam})}">&raquo;</a>
+						<a class="page-link" th:href="@{/dailySchedules/(currentPage=*{currentPage} + 1, sortBy=*{sortBy})}">&raquo;</a>
 					</li>
 					 <li class="page-item">
 					 	<form action="#" method="get" th:action="@{/dailySchedules/}"
 							th:object="${paginator}">
 							<div class="input-group">
 								<input class="w-25 p-1" type="text" th:field="*{currentPage}">
-								<input type="hidden" th:field="*{sortedParam}">
+								<input type="hidden" th:field="*{sortBy}">
 								<span class="input-group-text" th:utext="*{numberOfPages}" ></span>
 							</div>
 						</form>

@@ -27,17 +27,17 @@ public class GroupController {
 	@GetMapping
 	public String showAllGroups(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		Paginator paginator = new Paginator(groupService.count(), currentPage, sortedParam, itemsPerPage);
-		List<Group> groupsForShow = groupService.getAndSortByName(paginator.getItemsPerPage(), paginator.getOffset());
-		model.addAttribute("groupsForShow", groupsForShow);
+			 @RequestParam(defaultValue = "Name")String sortBy) {
+		Paginator paginator = new Paginator(groupService.count(), currentPage, sortBy, itemsPerPage);
+		List<Group> groups = groupService.getAndSortByName(paginator.getItemsPerPage(), paginator.getOffset());
+		model.addAttribute("groups", groups);
 		model.addAttribute("paginator", paginator);
 		return "groups-page";
 	}
 	
 	@GetMapping("{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).get();
+	public String getGroup(@PathVariable int id, Model model) {
+		Group group = groupService.getById(id).orElse(null);
 		model.addAttribute("group", group);
 		return "show-group";
 	}

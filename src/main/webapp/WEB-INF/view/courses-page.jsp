@@ -27,7 +27,7 @@
 
 	Welcome to "Courses" page.
 	<div id="container">
-		<div th:if="${not #lists.isEmpty(coursesForShow)}">
+		<div th:if="${not #lists.isEmpty(courses)}">
 		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 					Menu</a>
 			<table class="table table-striped">
@@ -39,7 +39,7 @@
 					<th>Action</th>
 				</tr>
 				</thead>
-				<tr th:each="course: ${coursesForShow}">
+				<tr th:each="course: ${courses}">
 					<td th:text="${course.id}" />
 					<td th:text="${course.name}" />
 					<td th:text="${course.description}" />
@@ -51,18 +51,18 @@
 			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
 					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/courses/(currentPage=*{currentPage} - 1, sortedParam=*{sortedParam})}">&laquo;</a></li>
+						<a class="page-link" th:href="@{/courses/(currentPage=*{currentPage} - 1, sortBy=*{sortBy})}">&laquo;</a></li>
 					<li class="page-item"  th:classappend="*{(currentPage == currentPage ? 'active' : '' )}">
-						<a class="page-link" th:text="*{currentPage}"  th:href="@{/courses/(currentPage=*{currentPage}, sortedParam=*{sortedParam})}" ></a></li>
+						<a class="page-link" th:text="*{currentPage}"  th:href="@{/courses/(currentPage=*{currentPage}, sortBy=*{sortBy})}" ></a></li>
 					<li class="page-item"  th:classappend="*{(currentPage == numberOfPages ? 'disabled' : '' )}">
-						<a class="page-link" th:href="@{/courses/(currentPage=*{currentPage} + 1, sortedParam=*{sortedParam})}">&raquo;</a>
+						<a class="page-link" th:href="@{/courses/(currentPage=*{currentPage} + 1, sortBy=*{sortBy})}">&raquo;</a>
 					</li>
 					 <li class="page-item">
 					 	<form action="#" method="get" th:action="@{/courses/}"
 							th:object="${paginator}">
 							<div class="input-group">
 								<input class="w-25 p-1" type="text" th:field="*{currentPage}">
-								<input type="hidden" th:field="*{sortedParam}">
+								<input type="hidden" th:field="*{sortBy}">
 								<span class="input-group-text" th:utext="*{numberOfPages}" ></span>
 							</div>
 						</form>

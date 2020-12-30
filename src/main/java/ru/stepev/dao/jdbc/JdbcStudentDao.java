@@ -34,12 +34,12 @@ public class JdbcStudentDao implements StudentDao {
 	private static final String UPDATE_BY_STUDENT_ID = "UPDATE students SET first_name = ?, last_name = ?, birthday = ?, email = ?, gender= ?, address = ? WHERE id = ?";
 	private static final String GET_STUDENT_BY_GROUP_ID = "SELECT * FROM students INNER JOIN students_groups ON  students.id = students_groups.student_id WHERE students_groups.group_id = ?";
 	private static final String FIND_NUMBER_OF_STUDENTS = "SELECT COUNT(*) FROM students";
-	private static final String FIND_AND_SORT_BY_FIRST_NAME = "SELECT * FROM students ORDER BY first_name ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_LAST_NAME = "SELECT * FROM students ORDER BY last_name ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_FIRST_NAME = "SELECT * FROM students ORDER BY first_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_LAST_NAME = "SELECT * FROM students ORDER BY last_name, id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM students ORDER BY id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_BIRTHDAY = "SELECT * FROM students ORDER BY birthday ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_EMAIL = "SELECT * FROM students ORDER BY email ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM students ORDER BY address ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_BIRTHDAY = "SELECT * FROM students ORDER BY birthday, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_EMAIL = "SELECT * FROM students ORDER BY email, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM students ORDER BY address, id ASC LIMIT ? OFFSET ?";
 
 	private StudentRowMapper studentRowMapper;
 	private JdbcTemplate jdbcTemplate;

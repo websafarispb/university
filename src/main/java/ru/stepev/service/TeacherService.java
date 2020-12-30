@@ -91,7 +91,7 @@ public class TeacherService {
 	}
 
 	public List<Teacher> getAndSort(Paginator paginator) {
-		switch(paginator.getSortedParam()) {
+		switch(paginator.getSortBy()) {
 			case ("First_name") : return getAndSortByFirstName(paginator.getItemsPerPage(), paginator.getOffset());
 			case ("Last_name")  : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
 			case ("Birthday")  : return getAndSortByBirthday(paginator.getItemsPerPage(), paginator.getOffset()); 

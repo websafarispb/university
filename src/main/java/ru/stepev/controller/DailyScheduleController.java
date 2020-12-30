@@ -38,18 +38,18 @@ public class DailyScheduleController {
 	@GetMapping
 	public String showAllDailySchedules(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
-		List<DailySchedule> dailySchedulesForShow = new ArrayList<>();
-		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortedParam , itemsPerPage);
-		dailySchedulesForShow = dailyScheduleService.getAndSortByDate(paginator.getItemsPerPage(),paginator.getOffset());
-		model.addAttribute("dailySchedulesForShow", dailySchedulesForShow);
+			 @RequestParam(defaultValue = "Date") String sortBy) {
+		List<DailySchedule> dailySchedules = new ArrayList<>();
+		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortBy , itemsPerPage);
+		dailySchedules = dailyScheduleService.getAndSortByDate(paginator.getItemsPerPage(),paginator.getOffset());
+		model.addAttribute("dailySchedules", dailySchedules);
 		model.addAttribute("paginator", paginator);
 		return "schedule-page";
 	}
 	
 	@GetMapping("/{id}")
-	public String showEntity(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).get();
+	public String getSchedule(@PathVariable int id, Model model) {
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(null);
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "show-dailyschedule";
 	}
@@ -72,17 +72,17 @@ public class DailyScheduleController {
 		return "scheduleForStudentForm";
 	}
 	
-	@GetMapping("showScheduleForTeacher")
+	@GetMapping("/showScheduleForTeacher")
 	public String showScheduleForTeacher(@RequestParam("teacherId") String teacherId,
 			@RequestParam("firstDate") String firstDate, @RequestParam("lastDate") String lastDate, Model model,
 			@Value("${itemsPerPage}") int itemsPerPage, @RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
+			 @RequestParam(defaultValue = "Date") String sortBy) {
 		LocalDate firstDay = LocalDate.parse(firstDate);	
 		LocalDate lastDay  = LocalDate.parse(lastDate);
-		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortedParam , itemsPerPage);
-		//List<DailySchedule> dailySchedulesForShow = dailyScheduleService.getScheduleForTeacher(Integer.parseInt(teacherId), firstDay, lastDay);
-		List<DailySchedule> dailySchedulesForShow = dailyScheduleService.getSortedScheduleForTeacher(Integer.parseInt(teacherId), firstDay, lastDay, paginator);
-		model.addAttribute("dailySchedulesForShow", dailySchedulesForShow);
+		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortBy , itemsPerPage);
+		List<DailySchedule> dailySchedules = dailyScheduleService.getSortedScheduleForTeacher(Integer.parseInt(teacherId), firstDay, lastDay, paginator);
+		paginator = new Paginator(dailySchedules.size(), currentPage, sortBy , itemsPerPage);
+		model.addAttribute("dailySchedulesForShow", dailySchedules);
 		model.addAttribute("paginator", paginator);
 		return "schedule-page";
 	}
@@ -91,13 +91,13 @@ public class DailyScheduleController {
 	public String showScheduleForStudent(@RequestParam("studentId") String studentId,
 			@RequestParam("firstDate") String firstDate, @RequestParam("lastDate") String lastDate, Model model,
 			@Value("${itemsPerPage}") int itemsPerPage, @RequestParam(defaultValue = "1") int currentPage,
-			@RequestParam(defaultValue = "default") String sortedParam) {
+			 @RequestParam(defaultValue = "Date")String sortBy) {
 		LocalDate firstDay = LocalDate.parse(firstDate);	
 		LocalDate lastDay  = LocalDate.parse(lastDate);
-		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortedParam , itemsPerPage);
-		//List<DailySchedule> dailySchedulesForShow = dailyScheduleService.getScheduleForStudent(Integer.parseInt(studentId), firstDay, lastDay);
-		List<DailySchedule> dailySchedulesForShow = dailyScheduleService.getSortedScheduleForStudent(Integer.parseInt(studentId), firstDay, lastDay, paginator);
-		model.addAttribute("dailySchedulesForShow", dailySchedulesForShow);
+		Paginator paginator = new Paginator(dailyScheduleService.count(), currentPage, sortBy , itemsPerPage);
+		List<DailySchedule> dailySchedules = dailyScheduleService.getSortedScheduleForStudent(Integer.parseInt(studentId), firstDay, lastDay, paginator);
+		paginator = new Paginator(dailySchedules.size(), currentPage, sortBy , itemsPerPage);
+		model.addAttribute("dailySchedulesForShow", dailySchedules);
 		model.addAttribute("paginator", paginator);
 		return "schedule-page";
 	}

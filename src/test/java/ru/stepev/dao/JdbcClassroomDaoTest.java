@@ -2,6 +2,7 @@ package ru.stepev.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.model.Classroom;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcClassroomDaoTest {
 
 	@Autowired
@@ -29,8 +32,8 @@ public class JdbcClassroomDaoTest {
 	@Test
 	public void givenCreateNewClassroom_whenCreate_thenCreated() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "CLASSROOMS") + 1;
-		Classroom expectedClassroom = new Classroom(5, "105", 10);
-		Classroom actualClassroom = new Classroom("105", 10);
+		Classroom expectedClassroom = new Classroom(21, "705", 10);
+		Classroom actualClassroom = new Classroom("705", 10);
 
 		classroomDao.create(actualClassroom);
 
@@ -57,28 +60,59 @@ public class JdbcClassroomDaoTest {
 
 	@Test
 	public void givenFindAllClassrooms_whenFindAllClassrooms_thenFindAllClassroom() {
-		List<Classroom> expectedClassrooms = new ArrayList<>();
-		expectedClassrooms.add(new Classroom(1, "101", 50));
-		expectedClassrooms.add(new Classroom(2, "102", 40));
-		expectedClassrooms.add(new Classroom(4, "104", 20));
-		expectedClassrooms.add(new Classroom(5, "105", 10));
-
 		List<Classroom> actualClassrooms = classroomDao.findAll();
 
 		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
 	}
 	
 	@Test
-	public void givenFindAndSortByCapacity_whenFindAndSortByCapacity_thenFindAllClassroom() {
+	public void findNumberOfItems_whenFindNumberOfItem_thenGetCorrectNumberOfItems() {
+		int expectedNumber = 20;
+		
+		int actualNumber = classroomDao.findNumberOfItems();
+		
+		assertThat(expectedNumber).isEqualTo(actualNumber);
+	}
+	
+	@Test
+	public void givenFindAndSortByCapacity_whenFindAndSortByCapacity_thenGetSortedListClassroomByCapacity() {
 		List<Classroom> expectedClassrooms = new ArrayList<>();
-		expectedClassrooms.add(new Classroom(3, "103", 30));
 		expectedClassrooms.add(new Classroom(7, "203", 30));
 		expectedClassrooms.add(new Classroom(11, "303", 30));
 		expectedClassrooms.add(new Classroom(15, "403", 30));
 		expectedClassrooms.add(new Classroom(19, "703", 30));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
 
 		List<Classroom> actualClassrooms = classroomDao.findAndSortByCapacity(5, 4);
 
+		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
+	}
+	
+	@Test
+	public void givenFindAndSortById_whenFindAndSortById_thenGetSortedListClassroomById() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(6, "106", 40));
+		expectedClassrooms.add(new Classroom(7, "203", 30));
+		expectedClassrooms.add(new Classroom(8, "204", 23));
+		expectedClassrooms.add(new Classroom(9, "201", 50));
+		expectedClassrooms.add(new Classroom(10, "202", 40));
+		
+		List<Classroom> actualClassrooms = classroomDao.findAndSortById(5, 4);
+		
+		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
+	}
+	
+	@Test
+	public void givenFindAndSortByAddress_whenFindAndSortByAddress_thenGetSortedListClassroomByAddress() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(1, "101", 50));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		expectedClassrooms.add(new Classroom(5, "105", 50));
+		expectedClassrooms.add(new Classroom(6, "106", 40));
+		expectedClassrooms.add(new Classroom(9, "201", 50));
+		
+		List<Classroom> actualClassrooms = classroomDao.findAndSortByAddress(5, 0);
+		
 		assertThat(expectedClassrooms).isEqualTo(actualClassrooms);
 	}
 

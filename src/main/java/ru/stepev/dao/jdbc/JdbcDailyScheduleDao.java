@@ -41,7 +41,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	private static final String UPDATE_BY_LECTURE_ID = "UPDATE dailyschedule SET dailyschedule_date = ? WHERE id = ?";
 	private static final String FIND_NUMBER_OF_DAILYSCHEDULE = "SELECT COUNT(*) FROM dailyschedule";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM dailyschedule ORDER BY id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_DATE = "SELECT * FROM dailyschedule ORDER BY dailyschedule_date ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_DATE = "SELECT * FROM dailyschedule ORDER BY dailyschedule_date, id ASC LIMIT ? OFFSET ?";
 
 	private LectureDao lectureDao;
 	private DailyScheduleRowMapper dailyScheduleRowMapper;
@@ -161,14 +161,14 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	}
 
 	@Override
-	public List<DailySchedule> getAndSortById(int numberOfItems, int offset) {
+	public List<DailySchedule> findAndSortById(int numberOfItems, int offset) {
 		log.debug("Finding and sorting dailyschedule by Id ... ");
 		Object[] objects = new Object[] { numberOfItems, offset };
 		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, dailyScheduleRowMapper);
 	}
 
 	@Override
-	public List<DailySchedule> findAndSortedByTeacherIdAndPeriodOfTime(int teacherId, LocalDate firstDay,
+	public List<DailySchedule> findAndSortedByTeacherIdAndPeriodOfDate(int teacherId, LocalDate firstDay,
 			LocalDate lastDay, Paginator paginator) {
 		List<DailySchedule> dailySchedules = findByTeacherIdAndPeriodOfTime(teacherId, firstDay, lastDay).stream()
 		.skip(paginator.getOffset()).limit(paginator.getItemsPerPage()).collect(toList());
@@ -177,7 +177,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	}
 
 	@Override
-	public List<DailySchedule> findAndSortedByGroupAndPeriodOfTime(Group group, LocalDate firstDay, LocalDate lastDay,
+	public List<DailySchedule> findAndSortedByGroupAndPeriodOfDate(Group group, LocalDate firstDay, LocalDate lastDay,
 			Paginator paginator) {
 		List<DailySchedule> dailySchedules = findByGroupAndPeriodOfTime(group, firstDay, lastDay).stream().skip(paginator.getOffset())
 				.limit(paginator.getItemsPerPage()).collect(toList());

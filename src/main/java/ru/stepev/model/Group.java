@@ -30,7 +30,7 @@ public class Group {
 
 	@Override
 	public String toString() {
-		return "Group [id=" + id + "name=" + name + "students" + students + "]";
+		return "Group [id=" + id + "name=" + name + "]";// "students" + students + "]";
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class Group {
 		if (students == null) {
 			if (other.students != null)
 				return false;
-		} else if (!students.equals(other.students))
+		} else if (!students.equals(other.students)) 
 			return false;
 		return true;
 	}

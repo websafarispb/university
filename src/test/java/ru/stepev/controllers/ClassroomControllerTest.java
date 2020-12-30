@@ -21,6 +21,7 @@ import static ru.stepev.data.DataTest.*;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.ClassroomController;
+import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -46,7 +47,7 @@ public class ClassroomControllerTest {
 	
 	@Test
 	public void givenPathShowEntityWithParamClassroomID_whenGetPathShowEntityViewWithParamClassroomId_thenGetViewShowClassroomWithParamCorrectClassroom() throws Exception {
-		mvc.perform(get("/classrooms/showEntity/?classroomId=1"))
+		mvc.perform(get("/classrooms/1"))
 			.andExpect(status().isOk())
 			.andExpect(model().attribute("classroom", expectedClassroom))
 			.andExpect(view().name("show-classroom"));
@@ -54,29 +55,21 @@ public class ClassroomControllerTest {
 	
 	@Test
 	public void givenPathShowAllClassroomsWithDefaltParam_whenGetPathShowAllClassroomsWithDefaltParam_thenGetViewClassroomsPageWithCorrectClassrooms() throws Exception {
-		mvc.perform(get("/classrooms/showAllClassrooms/"))
+		Paginator paginator = new Paginator(20, 1, "Address", 5);
+		mvc.perform(get("/classrooms/"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("classroomsForShow", expectedClassrooms))
-		.andExpect(model().attribute("currentPageNumbers", defaultCurrentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "default"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("currentBeginPagination", 0))
-		.andExpect(model().attribute("currentNumberOfPagesForPagination", 3))
-		.andExpect(model().attribute("numberOfPages", 4))
+		.andExpect(model().attribute("classrooms", expectedClassroomsSortedByAddress))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("classrooms-page"));
 	}
 	
 	@Test
 	public void givenPathShowAllClassroomsWithParams_whenGetPathShowAllClassroomsWithWithParams_thenGetViewClassroomsPageWithCorrectClassrooms() throws Exception {
-		mvc.perform(get("/classrooms/showAllClassrooms/?currentBeginPagination=3&currentPage=4&sortedParam=Capacity"))
+		Paginator paginator = new Paginator(20, 2, "Capacity", 5);
+		mvc.perform(get("/classrooms/?currentPage=2&sortBy=Capacity"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("classroomsForShow", expectedSortedClassroomsByCapacity))
-		.andExpect(model().attribute("currentPageNumbers", currentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "Capacity"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("currentBeginPagination", 3))
-		.andExpect(model().attribute("currentNumberOfPagesForPagination", 3))
-		.andExpect(model().attribute("numberOfPages", 4))
+		.andExpect(model().attribute("classrooms", expectedSortedClassroomsByCapacity))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("classrooms-page"));
 	}
 }

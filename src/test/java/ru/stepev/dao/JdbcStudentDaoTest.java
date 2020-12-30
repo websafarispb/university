@@ -3,11 +3,13 @@ package ru.stepev.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.model.Course;
@@ -23,6 +26,7 @@ import ru.stepev.model.Student;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcStudentDaoTest {
 
 	@Autowired
@@ -37,13 +41,13 @@ public class JdbcStudentDaoTest {
 		coursesForStudent.add(new Course(2, "Biology", "Bio"));
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
-		Student student = new Student(8, 2280, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
+		Student student = new Student(29, 2280, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
 				Gender.FEMALE, "City10", coursesForStudent);
 		String inquryForOneStudent = String.format(
 				"id = %d AND first_name = '%s' AND last_name = '%s' "
 						+ "AND  birthday = '%s' AND email = '%s' AND gender = '%s' AND address = '%s' ",
 				student.getId(), student.getFirstName(), student.getLastName(), student.getBirthday(),
-				student.getEmail(), student.getGender(), student.getAddress());
+				student.getEmail(), student.getGender(), student.getAddress());		
 		String inquryForStudentsCourses = String.format(
 				"student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d OR student_id = %d AND course_id = %d",
 				student.getId(), 1, student.getId(), 2, student.getId(), 3, student.getId(), 4);
@@ -110,6 +114,7 @@ public class JdbcStudentDaoTest {
 		coursesForStudent.add(new Course(2, "Biology", "Bio"));
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
+		coursesForStudent.add((new Course(5, "Informatica", "Info")));
 		Student expected = new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
 				"City18", coursesForStudent);
 
@@ -120,30 +125,12 @@ public class JdbcStudentDaoTest {
 
 	@Test
 	public void givenFindAllStudents_whenFindAllStudents_thenAllStudentsWereFound() {
-		List<Course> coursesForStudent = new ArrayList<>();
-		coursesForStudent.add(new Course(1, "Mathematics", "Math"));
-		coursesForStudent.add(new Course(2, "Biology", "Bio"));
-		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
-		coursesForStudent.add((new Course(4, "Physics", "Phy")));
-		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
-				"City17", coursesForStudent));
-		expected.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
-				"City18", coursesForStudent));
-		expected.add(new Student(3, 125, "Ivan", "Stepanov", LocalDate.of(2020, 9, 1), "Stepanov@mail.ru", Gender.MALE,
-				"City11", coursesForStudent));
-		expected.add(new Student(4, 126, "Peter", "Smirnov", LocalDate.of(2020, 9, 6), "webPS@mail.ru", Gender.MALE,
-				"City17", coursesForStudent));
-		expected.add(new Student(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Ivanov@mail.ru",
-				Gender.FEMALE, "City11", coursesForStudent));
-		expected.add(new Student(6, 527, "Daria", "Ivanova", LocalDate.of(2020, 9, 7), "Ivanova@mail.ru", Gender.FEMALE,
-				"City20", coursesForStudent));
-		expected.add(new Student(7, 528, "Igor", "Stepanov", LocalDate.of(2020, 9, 7), "Stepanov@mail.ru", Gender.MALE,
-				"City20", coursesForStudent));
 
 		List<Student> actual = studentDao.findAll();
+		AtomicInteger count = new AtomicInteger(0);
+		actual.stream().filter(s->!s.equals(expectedStudents.get(count.getAndIncrement()))).forEach(System.out::println);
 
-		assertThat(expected).isEqualTo(actual);
+		assertThat(expectedStudents).isEqualTo(actual);
 	}
 
 	@Test
@@ -153,12 +140,70 @@ public class JdbcStudentDaoTest {
 		coursesForStudent.add(new Course(2, "Biology", "Bio"));
 		coursesForStudent.add((new Course(3, "Chemistry", "Chem")));
 		coursesForStudent.add((new Course(4, "Physics", "Phy")));
+		coursesForStudent.add((new Course(5, "Informatica", "Info")));
 		List<Student> expected = new ArrayList<>();
-		expected.add(new Student(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
-				"City17", coursesForStudent));
+		expected.add(new Student(10, 2125, "Peter", "Zlobin", LocalDate.of(2020, 9, 5), "web2PI@mail.ru", Gender.MALE,
+				"City19", coursesForStudent));
 
-		List<Student> actual = studentDao.findByFirstAndLastNames("Peter", "Petrov");
+		List<Student> actual = studentDao.findByFirstAndLastNames("Peter", "Zlobin");
 
 		assertThat(expected).isEqualTo(actual);
+	}
+	
+	@Test
+	public void findNumberOfItems_whenfindNumberOfItems_thenGetCorrectNumberOfStudents() {
+		int expected = 29;
+		
+		int actual = studentDao.findNumberOfItems();
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void findAndSortByFirstName_whenFindAndSortByFirstName_thenGetCorrectSortedListStudentsByFirstName() {
+		
+		List<Student> actual = studentDao.findAndSortByFirstName(2, 1);
+		
+		assertThat(actual).isEqualTo(studentsSortedByFirstNAme);
+	}
+
+	@Test
+	public void findAndSortByLastName_whenFindAndSortByLastName_thenGetCorrectSortedListStudentsByLastName() {
+		
+		List<Student> actual = studentDao.findAndSortByLastName(2, 1);
+		
+		assertThat(actual).isEqualTo(expectedStudentsSortedByLastName);
+	}
+
+	@Test
+	public void findAndSortById_whenFindAndSortById_thenGetCorrectSortedListStudentsById() {
+		
+		List<Student> actual = studentDao.findAndSortById(2, 0);
+		
+		assertThat(actual).isEqualTo(expectedStudentsSortedById);
+	}
+
+	@Test
+	public void findAndSortByBirthday_whenFindAndSortByBirthday_thenGetCorrectSortedListStudentsByBirthday() {
+		
+		List<Student> actual = studentDao.findAndSortByBirthday(2, 1);
+		
+		assertThat(actual).isEqualTo(expectedStudentsSortedByBirthday);
+	}
+
+	@Test
+	public void findAndSortByEmail_whenFindAndSortByEmail_thenGetCorrectSortedListStudentsByEmail() {
+	
+		List<Student> actual = studentDao.findAndSortByEmail(2, 1);
+		
+		assertThat(actual).isEqualTo(expectedStudentsSortedByMail);
+	}
+
+	@Test
+	public void findAndSortByAddress_whenFindAndSortByAddress_thenGetCorrectSortedListStudentsByAddress() {
+		
+		List<Student> actual = studentDao.findAndSortByAddress(2, 1);
+		
+		assertThat(actual).isEqualTo(expectedStudentsSortedByAddress);
 	}
 }

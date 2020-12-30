@@ -20,6 +20,7 @@ import static ru.stepev.data.DataTest.*;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.GroupController;
+import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
@@ -45,7 +46,7 @@ public class GroupControllerTest {
 	
 	@Test
 	public void givenPathShowEntityWithParamGroupId_whenGetPathShowEntityViewWithParamGroupId_thenGetViewShowGroupWithParamCorrectGroup() throws Exception {
-		mvc.perform(get("/groups/showEntity/?groupId=1"))
+		mvc.perform(get("/groups/1"))
 			.andExpect(status().isOk())
 			.andExpect(model().attribute("group", groupExpected))
 			.andExpect(view().name("show-group"));
@@ -53,29 +54,21 @@ public class GroupControllerTest {
 	
 	@Test
 	public void givenPathShowAllGroupsWithDefaltParam_whenGetPathShowAllGroupsWithDefaltParam_thenGetViewGroupsPageWithCorrectGroups() throws Exception {
-		mvc.perform(get("/groups/showAllGroups/"))
+		Paginator paginator = new Paginator(24, 1, "Name", 5);
+		mvc.perform(get("/groups/"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("groupsForShow", expectedGroupsForDefaultPage))
-		.andExpect(model().attribute("currentPageNumbers", defaultCurrentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "default"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 0))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
-		.andExpect(model().attribute("numberOfPages", 5))
+		.andExpect(model().attribute("groups", expectedGroupsForDefaultPage))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("groups-page"));
 	}
 	
 	@Test
-	public void givenPathShowAllCoursesWithParams_whenGetPathShowAllCoursesWithWithParams_thenGetViewCoursesPageWithCorrectCourses() throws Exception {
-		mvc.perform(get("/groups/showAllGroups/?diapason=0&currentPage=1&sortedParam=Name"))
+	public void givenPathShowAllGroupsWithParams_whenGetPathShowAllGroupsWithWithParams_thenGetViewGroupsPageWithCorrectGroups() throws Exception {
+		Paginator paginator = new Paginator(24, 1, "Name", 5);
+		mvc.perform(get("/groups/?currentPage=1&sortBy=Name"))
 		.andExpect(status().isOk())
-		.andExpect(model().attribute("groupsForShow", expectedSortedGroupsForShowByName))
-		.andExpect(model().attribute("currentPageNumbers", defaultCurrentPageNumbers))
-		.andExpect(model().attribute("sortedParam", "Name"))
-		.andExpect(model().attribute("currentPage", 1))
-		.andExpect(model().attribute("diapason", 0))
-		.andExpect(model().attribute("sizeOfDiapason", 3))
-		.andExpect(model().attribute("numberOfPages", 5))
+		.andExpect(model().attribute("groups", expectedSortedGroupsForShowByName))
+		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("groups-page"));
 	}
 }
