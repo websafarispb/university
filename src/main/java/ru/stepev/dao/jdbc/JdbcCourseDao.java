@@ -33,6 +33,9 @@ public class JdbcCourseDao implements CourseDao {
 			+ "courses INNER JOIN teachers_courses ON  courses.id = teachers_courses.course_id WHERE teachers_courses.teacher_id = ?";
 	private static final String FIND_ALL_COURSE_BY_STUDENT_ID = "SELECT * FROM "
 			+ "courses INNER JOIN students_courses ON  courses.id = students_courses.course_id WHERE students_courses.student_id = ?";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM courses ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM courses ORDER BY course_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FINF_NUMBER_OF_COURSES = "SELECT COUNT(*) FROM courses";
 
 	private CourseRowMapper courseRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -103,5 +106,25 @@ public class JdbcCourseDao implements CourseDao {
 			log.warn("Course with name {} was not found", nameOfCourse);
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public List<Course> findAndSortByName(int numberOfItems, int offset) {
+		log.debug("Finding and sorting courses by name ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_NAME, objects, courseRowMapper);
+	}
+
+	@Override
+	public List<Course> findAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting courses by id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, courseRowMapper);
+	}
+
+	@Override
+	public int findNumberOfItems() {
+		log.debug("Counting number of courses ... ");
+		return this.jdbcTemplate.queryForObject(FINF_NUMBER_OF_COURSES, Integer.class);
 	}
 }

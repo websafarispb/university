@@ -10,6 +10,7 @@ import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Teacher;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -58,6 +59,45 @@ public class TeacherService {
 		if (teacherDao.findById(teacher.getId()).isPresent()) {
 			throw new EntityAlreadyExistException(String.format("Teacher with ID %s already exist",
 					teacher.getId()));
+		}
+	}
+
+	public int count() {
+		return teacherDao.findNumberOfItems() ;
+	}
+
+	public List<Teacher> getAndSortByFirstName(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByFirstName(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByLastName(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByLastName(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortById(int numberOfItems, int offset) {
+		return teacherDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByBirthday(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByBirthday(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByEmail(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByEmail(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSortByAddress(int numberOfItems, int offset) {
+		return teacherDao.findAndSortByAddress(numberOfItems, offset);
+	}
+
+	public List<Teacher> getAndSort(Paginator paginator) {
+		switch(paginator.getSortBy()) {
+			case ("First_name") : return getAndSortByFirstName(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Last_name")  : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Birthday")  : return getAndSortByBirthday(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Email")  : return getAndSortByEmail(paginator.getItemsPerPage(), paginator.getOffset()); 
+			case ("Address")  : return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());
+			default : return getAndSortByLastName(paginator.getItemsPerPage(), paginator.getOffset()); 
 		}
 	}
 }

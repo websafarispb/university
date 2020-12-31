@@ -26,6 +26,7 @@ import ru.stepev.exception.EntityCouldNotBeenDeletedException;
 import ru.stepev.exception.EntityCouldNotBeenUpdatedException;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -38,6 +39,9 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	private static final String FIND_BY_SCHEDULE_ID = "SELECT * FROM dailyschedule WHERE id = ?";
 	private static final String DELETE_DAILYSCHEDUALE_BY_ID = "DELETE FROM dailyschedule WHERE id = ?";
 	private static final String UPDATE_BY_LECTURE_ID = "UPDATE dailyschedule SET dailyschedule_date = ? WHERE id = ?";
+	private static final String FIND_NUMBER_OF_DAILYSCHEDULE = "SELECT COUNT(*) FROM dailyschedule";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM dailyschedule ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_DATE = "SELECT * FROM dailyschedule ORDER BY dailyschedule_date, id ASC LIMIT ? OFFSET ?";
 
 	private LectureDao lectureDao;
 	private DailyScheduleRowMapper dailyScheduleRowMapper;
@@ -63,7 +67,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 					String.format("DailySchedule with getAddress %s could not been created", dailySchedule.getDate()));
 		}
 		dailySchedule.setId((int) keyHolder.getKeys().get("id"));
-		dailySchedule.getLectures().forEach(lectureDao::create);
+	//	dailySchedule.getLectures().forEach(lectureDao::create);
 	}
 
 	@Transactional
@@ -140,6 +144,44 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 			if (!dailySchedule.getLectures().isEmpty())
 				dailySchedules.add(dailySchedule);
 		}
+		return dailySchedules;
+	}
+
+	@Override
+	public int findNumberOfItems() {
+		log.debug("Counting number of dailyschedule ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_DAILYSCHEDULE, Integer.class);
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortByDate(int numberOfItems, int offset) {
+		log.debug("Finding and sorting dailyschedule by date ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_DATE, objects, dailyScheduleRowMapper);
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting dailyschedule by Id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, dailyScheduleRowMapper);
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortedByTeacherIdAndPeriodOfDate(int teacherId, LocalDate firstDay,
+			LocalDate lastDay, Paginator paginator) {
+		List<DailySchedule> dailySchedules = findByTeacherIdAndPeriodOfTime(teacherId, firstDay, lastDay).stream()
+		.skip(paginator.getOffset()).limit(paginator.getItemsPerPage()).collect(toList());
+		paginator.setNumberOfEntities(dailySchedules.size());
+		return dailySchedules;
+	}
+
+	@Override
+	public List<DailySchedule> findAndSortedByGroupAndPeriodOfDate(Group group, LocalDate firstDay, LocalDate lastDay,
+			Paginator paginator) {
+		List<DailySchedule> dailySchedules = findByGroupAndPeriodOfTime(group, firstDay, lastDay).stream().skip(paginator.getOffset())
+				.limit(paginator.getItemsPerPage()).collect(toList());
+		paginator.setNumberOfEntities(dailySchedules.size());
 		return dailySchedules;
 	}
 }

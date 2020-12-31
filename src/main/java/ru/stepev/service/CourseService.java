@@ -1,7 +1,5 @@
 package ru.stepev.service;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +10,6 @@ import ru.stepev.dao.CourseDao;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
-import ru.stepev.exception.TecherIsNotAbleTheachCourseException;
 import ru.stepev.model.Course;
 import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
@@ -54,6 +51,18 @@ public class CourseService {
 
 	public List<Course> getAll() {
 		return courseDao.findAll();
+	}
+	
+	public List<Course> getAndSortByName(int numberOfItems, int offset){
+		return courseDao.findAndSortByName(numberOfItems, offset);
+	}
+	
+	public List<Course> getAndSortById(int numberOfItems, int offset){
+		return courseDao.findAndSortById(numberOfItems, offset);
+	}
+	
+	public int count() {
+		return courseDao.findNumberOfItems();
 	}
 
 	public List<Course> getByTeacher(Teacher teacher) {

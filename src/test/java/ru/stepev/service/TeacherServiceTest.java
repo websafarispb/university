@@ -18,7 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.stepev.dao.TeacherDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
+import ru.stepev.utils.Paginator;
 
 import static ru.stepev.data.DataTest.*;
 
@@ -47,8 +49,7 @@ public class TeacherServiceTest {
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
 				() -> teacherService.add(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s already exist",
-				teacherForTest.getId());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s already exist", teacherForTest.getId());
 		verify(teacherDao, never()).create(teacherForTest);
 	}
 
@@ -68,8 +69,7 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.update(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist",
-				teacherForTest.getId());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist", teacherForTest.getId());
 		verify(teacherDao, never()).update(teacherForTest);
 	}
 
@@ -89,8 +89,7 @@ public class TeacherServiceTest {
 		EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
 				() -> teacherService.delete(teacherForTest));
 
-		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist",
-				teacherForTest.getId());
+		assertThat(exception.getMessage()).isEqualTo("Teacher with ID %s doesn't exist", teacherForTest.getId());
 		verify(teacherDao, never()).delete(teacherForTest.getId());
 	}
 
@@ -111,5 +110,79 @@ public class TeacherServiceTest {
 		Optional<Teacher> actual = teacherService.getById(1);
 
 		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void countNumberOfTeachers_whenCountNumberOfTeachers_thenGetCorrectNumberOfTeachers() {
+		int expected = 2;
+		when(teacherDao.findNumberOfItems()).thenReturn(expected);
+
+		int actual = teacherService.count();
+
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByFirstName_thenGetSortedListByFirstName() {
+		when(teacherDao.findAndSortByFirstName(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortByFirstName(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByLastName_thenGetSortedListByLastName() {
+		when(teacherDao.findAndSortByLastName(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortByLastName(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListByID() {
+		when(teacherDao.findAndSortById(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortById(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByEmail_thenGetSortedListByEmail() {
+		when(teacherDao.findAndSortByEmail(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortByEmail(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByAddress_thenGetSortedListByAddress() {
+		when(teacherDao.findAndSortByAddress(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortByAddress(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListById() {
+		when(teacherDao.findAndSortByBirthday(5, 4)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSortByBirthday(5, 4);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
+	}
+
+	@Test
+	public void givenTypeOfSorting_whenGetAndSort_thenGetSortedListOfStudentsBySortingType() {
+		Paginator paginator = new Paginator(1, 1, "Last_name", 5);
+		when(teacherDao.findAndSortByLastName(5, 0)).thenReturn(expectedTeachers);
+
+		List<Teacher> actualTeachers = teacherService.getAndSort(paginator);
+
+		assertThat(actualTeachers).isEqualTo(expectedTeachers);
 	}
 }

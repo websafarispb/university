@@ -27,6 +27,7 @@ import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
 import ru.stepev.model.Lecture;
 import ru.stepev.model.Teacher;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -172,6 +173,45 @@ public class LectureService {
 		if (!teacher.getCourses().contains(course)) {
 			throw new TecherIsNotAbleTheachCourseException(
 					String.format("Teacher name %s can't teach course %s", teacher.getLastName(), course.getName()));
+		}
+	}
+
+	public int count() {
+		return lectureDao.findNumberOfItem() ;
+	}
+
+	public List<Lecture> getAndSortByTime(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByTime(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByCourse(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByCourse(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByClassroom(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByClassroom(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByGroup(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByGroup(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortByTeacher(int numberOfItems, int offset) {
+		return lectureDao.findAndSortByTeacher(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSortById(int numberOfItems, int offset) {
+		return lectureDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<Lecture> getAndSort(Paginator paginator) {
+		switch(paginator.getSortBy()) {
+			case ("Time") : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Course")  :  return getAndSortByCourse(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Classroom")  :  return getAndSortByClassroom(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Group")  :  return getAndSortByGroup(paginator.getItemsPerPage(), paginator.getOffset());
+			case ("Teacher")  :  return getAndSortByTeacher(paginator.getItemsPerPage(), paginator.getOffset());
+			default : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
 		}
 	}
 }

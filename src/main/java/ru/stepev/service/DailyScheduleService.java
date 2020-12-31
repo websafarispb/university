@@ -13,6 +13,7 @@ import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -81,5 +82,28 @@ public class DailyScheduleService {
 		if (dailyScheduleDao.findByDate(dailySchedule.getDate()).isEmpty()) {
 			throw new EntityNotFoundException(String.format("DailySchedule with date %s doesn't exist", dailySchedule.getDate()));
 		}
+	}
+
+	public int count() {
+		return dailyScheduleDao.findNumberOfItems();
+	}
+
+	public List<DailySchedule> getAndSortByDate(int numberOfItems, int offset) {
+		return dailyScheduleDao.findAndSortByDate( numberOfItems,  offset);
+	}
+
+	public List<DailySchedule> getAndSortById(int numberOfItems, int offset) {
+		return dailyScheduleDao.findAndSortById(numberOfItems, offset);
+	}
+
+	public List<DailySchedule> getSortedScheduleForTeacher(int teacherId, LocalDate firstDay, LocalDate lastDay,
+			Paginator paginator) {
+		return dailyScheduleDao.findAndSortedByTeacherIdAndPeriodOfDate(teacherId, firstDay, lastDay, paginator);
+	}
+
+	public List<DailySchedule> getSortedScheduleForStudent(int studentId, LocalDate firstDay, LocalDate lastDay,
+			Paginator paginator) {
+		Group group = groupDao.findByStudentId(studentId).get();
+		return dailyScheduleDao.findAndSortedByGroupAndPeriodOfDate(group, firstDay, lastDay, paginator);
 	}
 }

@@ -21,7 +21,9 @@ import ru.stepev.dao.DailyScheduleDao;
 import ru.stepev.dao.jdbc.JdbcGroupDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
+import ru.stepev.model.Course;
 import ru.stepev.model.DailySchedule;
+import ru.stepev.utils.Paginator;
 
 import static ru.stepev.data.DataTest.*;
 
@@ -48,8 +50,9 @@ public class DailyScheduleServiceTest {
 
 	@Test
 	public void givenDailySchedule_whenAddDailySchedulesExist_thenDoNotAddDailySchedules() {
-		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
-		
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate()))
+				.thenReturn(Optional.of(dailyScheduleForCreate));
+
 		EntityAlreadyExistException exception = assertThrows(EntityAlreadyExistException.class,
 				() -> dailyScheduleService.add(dailyScheduleForCreate));
 
@@ -60,7 +63,8 @@ public class DailyScheduleServiceTest {
 
 	@Test
 	public void givenDailySchedule_whenUpdateDailySchedulesExist_thenUpdateDailySchedules() {
-		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate()))
+				.thenReturn(Optional.of(dailyScheduleForCreate));
 
 		dailyScheduleService.update(dailyScheduleForCreate);
 
@@ -81,7 +85,8 @@ public class DailyScheduleServiceTest {
 
 	@Test
 	public void givenDailySchedule_whenDeleteDailySchedulesExist_thenDeleteDailySchedules() {
-		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate())).thenReturn(Optional.of(dailyScheduleForCreate));
+		when(dailyScheduleDao.findByDate(dailyScheduleForCreate.getDate()))
+				.thenReturn(Optional.of(dailyScheduleForCreate));
 
 		dailyScheduleService.delete(dailyScheduleForCreate);
 
@@ -176,4 +181,52 @@ public class DailyScheduleServiceTest {
 		verify(dailyScheduleDao, times(1)).findByDate(date);
 	}
 
+	@Test
+	public void countNumberOfDailySchedules_whenCountNumberOfDailySchedules_thenGetCorrectNumberOfDailySchedules() {
+		int expected = 2;
+		when(dailyScheduleDao.findNumberOfItems()).thenReturn(expected);
+
+		int actual = dailyScheduleService.count();
+
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByDate_thenGetSortedListByDate() {
+		when(dailyScheduleDao.findAndSortByDate(5, 4)).thenReturn(expectedDailySchedules);
+
+		List<DailySchedule> actualDailySchedule = dailyScheduleService.getAndSortByDate(5, 4);
+
+		assertThat(actualDailySchedule).isEqualTo(expectedDailySchedules);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListById() {
+		when(dailyScheduleDao.findAndSortById(5, 4)).thenReturn(expectedDailySchedules);
+
+		List<DailySchedule> actualDailySchedule = dailyScheduleService.getAndSortById(5, 4);
+
+		assertThat(actualDailySchedule).isEqualTo(expectedDailySchedules);
+	}
+	
+	@Test
+	public void givenSortedScheduleForTeacher_whenGetSortedScheduleForTeacher_thenGetSortedList() {
+		Paginator paginator = new Paginator(21, 1, "Time" , 2);
+		when(dailyScheduleDao.findAndSortedByTeacherIdAndPeriodOfDate(2, LocalDate.of(2020, 9, 8), LocalDate.of(2020, 9, 9), paginator)).thenReturn(expectedScheduleSortedByDateTimePeriod);
+		
+		List<DailySchedule> actualDailySchedule = dailyScheduleService.getSortedScheduleForTeacher(2, LocalDate.of(2020, 9, 8), LocalDate.of(2020, 9, 9), paginator);
+		
+		assertThat(actualDailySchedule).isEqualTo(expectedScheduleSortedByDateTimePeriod);
+	}
+	
+	@Test
+	public void givenSortedScheduleForStudent_whenGetSortedScheduleForStudent_thenGetSortedList() {
+		Paginator paginator = new Paginator(21, 1, "Time" , 2);
+		when(groupDao.findByStudentId(1)).thenReturn(Optional.of(groupExpectedForSortedTest));
+		when(dailyScheduleDao.findAndSortedByGroupAndPeriodOfDate(groupExpectedForSortedTest, LocalDate.of(2020, 9, 8), LocalDate.of(2020, 9, 9), paginator)).thenReturn(expectedScheduleSortedByDateAndGroup);
+		
+		List<DailySchedule> actualDailySchedule = dailyScheduleService.getSortedScheduleForStudent(1, LocalDate.of(2020, 9, 8), LocalDate.of(2020, 9, 9), paginator);
+		
+		assertThat(actualDailySchedule).isEqualTo(expectedScheduleSortedByDateAndGroup);
+	}
 }

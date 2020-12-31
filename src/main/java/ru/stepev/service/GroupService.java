@@ -83,4 +83,16 @@ public class GroupService {
 			throw new StudentsNotFoundException(String.format("Students %s don't exist", wrongStudents));
 		}
 	}
+
+	public int count() {
+		return groupDao.findNumberOfItem();
+	}
+
+	public List<Group> getAndSortByName(int numberOfItems, int offset) {
+		return groupDao.findAndSortByName( numberOfItems,  offset);
+	}
+
+	public List<Group> getAndSortById(int numberOfItems, int offset) {
+		return groupDao.fineAndSortById( numberOfItems,  offset);
+	}
 }

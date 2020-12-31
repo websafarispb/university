@@ -3,6 +3,7 @@ package ru.stepev.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.model.Course;
@@ -24,6 +26,7 @@ import ru.stepev.model.Student;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcGroupDaoTest {
 
 	@Autowired
@@ -45,7 +48,7 @@ public class JdbcGroupDaoTest {
 				"City20", courses));
 
 		int expectedRows = countRowsInTable(jdbcTemplate, "GROUPS") + 1;
-		Group newGroup = new Group(5, "e2e2", students);
+		Group newGroup = new Group(25, "e3e3", students);
 		String inquryForOneGroup = String.format("id = %d AND group_name = '%s' ", newGroup.getId(),
 				newGroup.getName());
 		String inquryForStudentsGroups = String.format(
@@ -115,24 +118,15 @@ public class JdbcGroupDaoTest {
 
 	@Test
 	public void givenFindGroupById_whenFindGroupById_thenGroupWasFound() {
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add((new Course(3, "Chemistry", "Chem")));
-		courses.add((new Course(4, "Physics", "Phy")));
-		List<Student> students = new ArrayList<>();
-		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
-				"City18", courses));
-		Group expected = new Group(2, "b2b2", students);
-		
+
 		Optional<Group> actual = groupDao.findById(2);
-		
-		assertThat(actual).isPresent().get().isEqualTo(expected);
+
+		assertThat(actual).isPresent().get().isEqualTo(expectedGroups.get(1));
 	}
 
 	@Test
 	public void givenFindAll_whenFindAllGroups_whenAllGroupWasFound() {
-		int expectedRow = 4;
+		int expectedRow = 24;
 
 		int actualRow = groupDao.findAll().size();
 
@@ -141,35 +135,42 @@ public class JdbcGroupDaoTest {
 
 	@Test
 	public void givenFindGroupByStudentId_whenFindGroupByStudentId_thenGroupWasFound() {
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add((new Course(3, "Chemistry", "Chem")));
-		courses.add((new Course(4, "Physics", "Phy")));
-		List<Student> students = new ArrayList<>();
-		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
-				"City18", courses));
-		Group expected = new Group(2, "b2b2", students);
 
-		Optional<Group> actual = groupDao.findByStudentId(2);
+		Optional<Group> actual = groupDao.findByStudentId(4);
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedGroups.get(1));
 	}
-	
+
 	@Test
 	public void givenGroupIdAndCourseId_whenFindGroupByGroupIdAndCourseId_thenGetGroup() {
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add((new Course(3, "Chemistry", "Chem")));
-		courses.add((new Course(4, "Physics", "Phy")));
-		List<Student> students = new ArrayList<>();
-		students.add(new Student(2, 124, "Ivan", "Petrov", LocalDate.of(2020, 9, 4), "webIP@mail.ru", Gender.MALE,
-				"City18", courses));
-		Group expected = new Group(2, "b2b2", students);
-		
+
 		Optional<Group> actual = groupDao.findByGroupIdAndCourseId(2, 1);
 
-		assertThat(actual).get().isEqualTo(expected);
+		assertThat(actual).get().isEqualTo(expectedGroups.get(1));
+	}
+
+	@Test
+	public void findNumberOfItem_whenFindNumberOfItem_thenGetCorrectNumberOfItem() {
+		int expected = 24;
+
+		int actual = groupDao.findNumberOfItem();
+
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void findAndSortByName_whenFindAndSortByName_thenGetCorrectCortedListOfGroup() {
+
+		List<Group> actual = groupDao.findAndSortByName(2, 1);
+
+		assertThat(actual).isEqualTo(expectedSortedGroupsForByName);
+	}
+
+	@Test
+	public void fineAndSortById_whenFindAndSortById_thenGetCorrectCortedListOfGroup() {
+
+		List<Group> actual = groupDao.fineAndSortById(2, 1);
+
+		assertThat(actual).isEqualTo(expectedSortedGroupsForByName);
 	}
 }

@@ -33,6 +33,13 @@ public class JdbcLectureDao implements LectureDao {
 	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_GROUP_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time >=  ? AND local_time < ? AND group_id = ? ";
 	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time >=  ? AND local_time < ? AND classroom_id = ? ";
 	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time>=  ? AND local_time < ? AND teacher_id = ? ";
+	private static final String FIND_NUMBER_OF_LECTURES = "SELECT COUNT(*) FROM lectures";
+	private static final String FIND_AND_SORT_BY_TIME = "SELECT * FROM lectures ORDER BY local_time, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_COURSE = "SELECT * FROM lectures INNER JOIN courses ON courses.id = lectures.course_id ORDER BY course_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_CLASSROOM = "SELECT * FROM lectures INNER JOIN classrooms ON classrooms.id = lectures.classroom_id ORDER BY classroom_address, id  ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_GROUP = "SELECT * FROM lectures INNER JOIN groups ON groups.id = lectures.group_id ORDER BY group_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_TEACHER = "SELECT * FROM lectures INNER JOIN teachers ON teachers.id = lectures.teacher_id ORDER BY last_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM lectures ORDER BY id ASC LIMIT ? OFFSET ?";
 
 	private LectureRowMapper lectureRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -131,5 +138,53 @@ public class JdbcLectureDao implements LectureDao {
 			log.warn(String.format("Lecture with starttime %s was not found", startTime));
 			return Optional.empty();
 		}
+	}
+
+	@Override
+	public int findNumberOfItem() {
+		log.debug("Counting number of lectures ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_LECTURES, Integer.class);
+	}
+
+	@Override
+	public List<Lecture> findAndSortByTime(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by time ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_TIME, objects, lectureRowMapper);
+	}
+
+	@Override
+	public List<Lecture> findAndSortByCourse(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by course ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_COURSE, objects, lectureRowMapper);
+	}
+
+	@Override
+	public List<Lecture> findAndSortByClassroom(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by classroom ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_CLASSROOM, objects, lectureRowMapper);
+	}
+
+	@Override
+	public List<Lecture> findAndSortByGroup(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by group ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_GROUP, objects, lectureRowMapper);
+	}
+
+	@Override
+	public List<Lecture> findAndSortByTeacher(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by teacher ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_TEACHER, objects, lectureRowMapper);
+	}
+
+	@Override
+	public List<Lecture> findAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting lectures by Id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, lectureRowMapper);
 	}
 }

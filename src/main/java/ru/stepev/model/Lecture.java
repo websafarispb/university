@@ -46,25 +46,29 @@ public class Lecture {
 		if (classRoom == null) {
 			if (other.classRoom != null)
 				return false;
-		} else if (!classRoom.equals(other.classRoom))
+		} else if (!classRoom.equals(other.classRoom)) {
 			return false;
+		}
 		if (course == null) {
 			if (other.course != null)
 				return false;
-		} else if (!course.equals(other.course))
+		} else if (!course.equals(other.course)) {
 			return false;
+		}
 		if (group == null) {
 			if (other.group != null)
 				return false;
-		} else if (!group.equals(other.group))
+		} else if (!group.equals(other.group)) {
 			return false;
+		}
 		if (id != other.id)
 			return false;
 		if (teacher == null) {
 			if (other.teacher != null)
 				return false;
-		} else if (!teacher.equals(other.teacher))
+		} else if (!teacher.equals(other.teacher)) {
 			return false;
+		}
 		if (time == null) {
 			if (other.time != null)
 				return false;
@@ -72,4 +76,14 @@ public class Lecture {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Lecture " + id + "[dailyScheduleId=" + dailyScheduleId + ", time=" + time + ", course=" + course + ", classRoom="
+				+ classRoom +  ", teacher=" + teacher + "group " + group + "]" + System.lineSeparator();
+	}
+//	@Override
+//	public String toString() {
+//		return "Lecture " + group.getId() + " " + group.getName()  + System.lineSeparator();
+//	}
 }

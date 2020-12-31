@@ -9,6 +9,7 @@ import ru.stepev.dao.ClassroomDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
+import ru.stepev.utils.Paginator;
 
 @Component
 @Slf4j
@@ -48,6 +49,29 @@ public class ClassroomService {
 	public List<Classroom> getAll() {
 		return classroomDao.findAll();
 	}
+	
+	public List<Classroom> getAndSortByCapacity(int numberOfItems, int offset) {
+		return classroomDao.findAndSortByCapacity(numberOfItems, offset);
+	}
+	
+	public List<Classroom> getAndSortById(int numberOfItems, int offset) {
+		return classroomDao.findAndSortById(numberOfItems, offset);
+	}
+	
+	public List<Classroom> getAndSortByAddress(int numberOfItems, int offset) {
+		return classroomDao.findAndSortByAddress(numberOfItems, offset);
+	}
+	
+	public List<Classroom> getAndSort(Paginator paginator) {
+		switch (paginator.getSortBy()) {
+		case ("Address"):
+			return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());	
+		case ("Capacity"):
+			return getAndSortByCapacity(paginator.getItemsPerPage(), paginator.getOffset());
+		default:
+			return getAndSortByAddress(paginator.getItemsPerPage(), paginator.getOffset());
+		}
+	}
 
 	public void verifyClassroomIsUnique(Classroom classroom) {
 		Optional<Classroom> existingClassroom = classroomDao.findByAddress(classroom.getAddress());
@@ -62,5 +86,9 @@ public class ClassroomService {
 			throw new EntityNotFoundException(
 					String.format("Classroom with address %s doesn't exist", classroom.getAddress()));
 		}
+	}
+	
+	public int count() {
+		return classroomDao.findNumberOfItems();
 	}
 }

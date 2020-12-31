@@ -32,6 +32,13 @@ public class JdbcTeacherDao implements TeacherDao {
 	private static final String UPDATE_BY_TEACHER_ID = "UPDATE teachers SET first_name = ?, last_name = ?, birthday = ?, email = ?, gender= ?, address = ? WHERE id = ?";
 	private static final String ADD_COURSE = "INSERT INTO teachers_courses (teacher_id, course_id) VALUES (?, ?)";
 	private static final String DELETE_COURSE = "DELETE FROM teachers_courses WHERE teacher_id = ? AND course_id = ?";
+	private static final String FIND_NUMBER_OF_TEACHERS = "SELECT COUNT(*) FROM teachers";
+	private static final String FIND_AND_SORT_BY_FIRST_NAME = "SELECT * FROM teachers ORDER BY first_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_LAST_NAME = "SELECT * FROM teachers ORDER BY last_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM teachers ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_BIRTHDAY = "SELECT * FROM teachers ORDER BY birthday, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_EMAIL = "SELECT * FROM teachers ORDER BY email, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_ADDRESS = "SELECT * FROM teachers ORDER BY address, id ASC LIMIT ? OFFSET ?";
 
 	private TeacherRowMapper teacherRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -98,5 +105,53 @@ public class JdbcTeacherDao implements TeacherDao {
 	public List<Teacher> findAll() {
 		log.debug("Finding all teachers ... ");
 		return jdbcTemplate.query(GET_ALL, teacherRowMapper);
+	}
+
+	@Override
+	public int findNumberOfItems() {
+		log.debug("Counting number of teachers ... ");
+		return this.jdbcTemplate.queryForObject(FIND_NUMBER_OF_TEACHERS, Integer.class);
+	}
+
+	@Override
+	public List<Teacher> findAndSortByFirstName(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by name ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_FIRST_NAME, objects, teacherRowMapper);
+	}
+
+	@Override
+	public List<Teacher> findAndSortByLastName(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by name ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_LAST_NAME, objects, teacherRowMapper);
+	}
+
+	@Override
+	public List<Teacher> findAndSortById(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by Id ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ID, objects, teacherRowMapper);
+	}
+
+	@Override
+	public List<Teacher> findAndSortByBirthday(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by birthday ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_BIRTHDAY, objects, teacherRowMapper);
+	}
+
+	@Override
+	public List<Teacher> findAndSortByEmail(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by email ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_EMAIL, objects, teacherRowMapper);
+	}
+
+	@Override
+	public List<Teacher> findAndSortByAddress(int numberOfItems, int offset) {
+		log.debug("Finding and sorting teachers by address ... ");
+		Object[] objects = new Object[] { numberOfItems, offset };
+		return jdbcTemplate.query(FIND_AND_SORT_BY_ADDRESS, objects, teacherRowMapper);
 	}
 }

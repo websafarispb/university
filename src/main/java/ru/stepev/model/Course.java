@@ -15,6 +15,10 @@ public class Course {
 	private String name;
 	private String description;
 	
+	public Course(int id) {
+		this.id = id;
+	}
+	
 	public Course(String name, String description) {
 		this.name = name;
 		this.description = description;
@@ -22,7 +26,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course [id=" + id + " name=" + name + "]";
+		return "Course [id=" + id + " name=" + name + " description " + description + "]";
 	}
 
 	@Override
@@ -58,6 +62,4 @@ public class Course {
 			return false;
 		return true;
 	}
-	
-	
 }

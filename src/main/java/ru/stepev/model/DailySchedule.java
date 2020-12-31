@@ -18,6 +18,10 @@ public class DailySchedule {
 	private LocalDate date;
 	private List<Lecture> lectures;
 
+	public DailySchedule(LocalDate date) {
+		this.date = date;
+	}
+
 	public DailySchedule(LocalDate date, List<Lecture> lectures) {
 		this.date = date;
 		this.lectures = lectures;

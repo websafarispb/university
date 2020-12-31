@@ -3,26 +3,31 @@ package ru.stepev.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.model.Course;
 import ru.stepev.model.Gender;
+import ru.stepev.model.Student;
 import ru.stepev.model.Teacher;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcTeacherDaoTest {
 
 	@Autowired
@@ -37,8 +42,8 @@ public class JdbcTeacherDaoTest {
 		courses.add(new Course(2, "Biology", "Bio"));
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
-		Teacher teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
-				Gender.MALE, "City10", courses);
+		Teacher teacher = new Teacher(12, 428, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
+				Gender.FEMALE, "City10", courses);
 		String inquiry = String.format(
 				"teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d OR teacher_id = %d AND course_id = %d",
 				teacher.getId(), 1, teacher.getId(), 2, teacher.getId(), 3, teacher.getId(), 4);
@@ -51,7 +56,6 @@ public class JdbcTeacherDaoTest {
 		assertEquals(expectedRows, actualRows);
 		int actualRowInTeachersCourses = countRowsInTableWhere(jdbcTemplate, "TEACHERS_COURSES", inquiry);
 		assertEquals(expectedRowInTeachersCourses, actualRowInTeachersCourses);
-
 	}
 
 	@Test
@@ -60,7 +64,7 @@ public class JdbcTeacherDaoTest {
 		coursesForTeacher.add((new Course(3, "Chemistry", "Chem")));
 		coursesForTeacher.add((new Course(4, "Physics", "Phy")));
 		Teacher teacher = new Teacher(2, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru",
-				Gender.MALE, "City10", coursesForTeacher);
+				Gender.FEMALE, "City10", coursesForTeacher);
 		String inquiry = String.format(
 				"id = %d AND first_name = '%s' AND last_name = '%s' AND birthday = '%s' AND "
 						+ "email = '%s' AND gender = '%s' AND address = '%s'",
@@ -108,7 +112,7 @@ public class JdbcTeacherDaoTest {
 		courses.add(new Course(3, "Chemistry", "Chem"));
 		courses.add(new Course(4, "Physics", "Phy"));
 		Teacher expected = new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru",
-				Gender.FEMALE, "City19", courses);
+				Gender.MALE, "City19", courses);
 
 		Optional<Teacher> actual = teacherDao.findById(3);
 
@@ -117,34 +121,70 @@ public class JdbcTeacherDaoTest {
 
 	@Test
 	public void givenFindAllTeachers_whenFindAllTeachers_thenAllTeachersWereFound() {
-		List<Course> courses = new ArrayList<>();
-		courses.add(new Course(1, "Mathematics", "Math"));
-		courses.add(new Course(2, "Biology", "Bio"));
-		courses.add(new Course(3, "Chemistry", "Chem"));
-		courses.add(new Course(4, "Physics", "Phy"));
-		List<Course> coursesForUpdatedTeacher = new ArrayList<>();
-		coursesForUpdatedTeacher.add(new Course(3, "Chemistry", "Chem"));
-		coursesForUpdatedTeacher.add(new Course(4, "Physics", "Phy"));
 
 		List<Teacher> actual = teacherDao.findAll();
+		
+		AtomicInteger count = new AtomicInteger(0);
+		
+		actual.stream().filter(t->!t.equals(expectedTeachers.get(count.getAndIncrement()))).forEach(System.out::println);
 
-		List<Teacher> expected = new ArrayList<>();
-		Teacher teacher = new Teacher(1, 123, "Peter", "Petrov", LocalDate.of(2020, 9, 3), "webPP@mail.ru", Gender.MALE,
-				"City17", courses);
-		expected.add(teacher);
+		assertThat(expectedTeachers).isEqualTo(actual);
+	}
 
-		teacher = new Teacher(2, 124, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru", Gender.MALE,
-				"City10", coursesForUpdatedTeacher);
-		expected.add(teacher);
-		teacher = new Teacher(3, 125, "Peter", "Ivanov", LocalDate.of(2020, 9, 5), "webPI@mail.ru", Gender.FEMALE,
-				"City19", courses);
-		expected.add(teacher);
-		teacher = new Teacher(5, 227, "Irina", "Stepanova", LocalDate.of(2020, 9, 7), "Stepanova@mail.ru",
-				Gender.FEMALE, "City11", courses);
-		expected.add(teacher);
-		teacher = new Teacher(6, 228, "Victoria", "Semenova", LocalDate.of(2020, 9, 1), "Semenova@mail.ru", Gender.MALE,
-				"City10", courses);
-		expected.add(teacher);
-		assertThat(expected).isEqualTo(actual);
+	@Test
+	public void findNumberOfItems_whenfindNumberOfItems_thenGetCorrectNumberOfTeachers() {
+		int expected = 12;
+
+		int actual = teacherDao.findNumberOfItems();
+
+		assertThat(actual).isEqualTo(expected);
+	}
+
+	@Test
+	public void findAndSortByFirstName_whenFindAndSortByFirstName_thenGetCorrectSortedListTeachersByFirstName() {
+
+		List<Teacher> actual = teacherDao.findAndSortByFirstName(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedByFirstName);
+	}
+
+	@Test
+	public void findAndSortByLastName_whenFindAndSortByLastName_thenGetCorrectSortedListTeachersByLastName() {
+
+		List<Teacher> actual = teacherDao.findAndSortByLastName(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedByLastName);
+	}
+
+	@Test
+	public void findAndSortById_whenFindAndSortById_thenGetCorrectSortedListTeachersById() {
+
+		List<Teacher> actual = teacherDao.findAndSortById(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedById);
+	}
+
+	@Test
+	public void findAndSortByBirthday_whenFindAndSortByBirthday_thenGetCorrectSortedListTeachersByBirthday() {
+
+		List<Teacher> actual = teacherDao.findAndSortByBirthday(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedByBirthday);
+	}
+
+	@Test
+	public void findAndSortByEmail_whenFindAndSortByEmail_thenGetCorrectSortedListTeachersByEmail() {
+
+		List<Teacher> actual = teacherDao.findAndSortByEmail(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedByEmail);
+	}
+
+	@Test
+	public void findAndSortByAddress_whenFindAndSortByAddress_thenGetCorrectSortedListTeachersByAddress() {
+
+		List<Teacher> actual = teacherDao.findAndSortByAddress(2, 1);
+
+		assertThat(actual).isEqualTo(expectedTeachersSortedByAddress);
 	}
 }

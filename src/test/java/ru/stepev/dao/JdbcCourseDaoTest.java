@@ -3,10 +3,12 @@ package ru.stepev.dao;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.*;
+import static ru.stepev.data.DataTest.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.model.Course;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@WebAppConfiguration
 public class JdbcCourseDaoTest {
 
 	@Autowired
@@ -30,7 +34,7 @@ public class JdbcCourseDaoTest {
 	@Test
 	public void givenCreateCourse_whenCreateCourse_thenCourseWillBeCreated() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "COURSES") + 1;
-		Course expectedCourse = new Course(5, "Geography", "Geo");
+		Course expectedCourse = new Course(17, "Geography", "Geo");
 		Course actualCourse = new Course("Geography", "Geo");
 
 		courseDao.create(actualCourse);
@@ -59,17 +63,12 @@ public class JdbcCourseDaoTest {
 	@Test
 	public void givenDelete_whenDeleteCourseById_thenCourseWillBeDeleted() {
 		int expectedRows = countRowsInTable(jdbcTemplate, "COURSES") - 1;
-		List<Course> expected = new ArrayList<>();
-		expected.add(new Course(1, "Mathematics", "Math"));
-		expected.add(new Course(2, "Biology", "Bio"));
-		expected.add(new Course(4, "History", "History description"));
-		expected.add(new Course(5, "Geography", "Geo"));
 
 		courseDao.delete(3);
 
-		List<Course> actual = courseDao.findAll();
-		int actualRows = countRowsInTable(jdbcTemplate, "COURSES");
-		assertEquals(expected, actual);
+		List<Course> actualCourses = courseDao.findAll();
+		int actualRows = countRowsInTable(jdbcTemplate, "COURSES");	
+		assertThat(actualCourses).isEqualTo(expectedCoursesAfterDeleteOne);
 		assertEquals(expectedRows, actualRows);
 	}
 
@@ -91,17 +90,36 @@ public class JdbcCourseDaoTest {
 
 	@Test
 	public void findAllCourses_shouldFindAllCourses_whenTableHaveMoreThenOne() {
-		List<Course> actual = courseDao.findAll();
+		
+		List<Course> actualCourses = courseDao.findAll();
 
-		int expectedRows = actual.size();
+		int expectedRows = actualCourses.size();
 		int actualRows = countRowsInTable(jdbcTemplate, "COURSES");
-		List<Course> expected = new ArrayList<>();
-		expected.add(new Course(1, "Mathematics", "Math"));
-		expected.add(new Course(2, "Biology", "Bio"));
-		expected.add(new Course(3, "Chemistry", "Chem"));
-		expected.add(new Course(4, "Physics", "Phy"));
-		expected.add(new Course(5, "Geography", "Geo"));
 		assertEquals(expectedRows, actualRows);
-		assertThat(expected).isEqualTo(actual);
+		assertThat(expectedCourses).isEqualTo(actualCourses);
+	}
+	
+	@Test
+	public void findAndSortByName_whenfindAndSortByName_thenGetCorrectSortedByNameListOfCourses() {
+		
+		List<Course> actualCourses = courseDao.findAndSortByName(5, 0);
+	
+		assertThat(expectedSortedByNameCourses).isEqualTo(actualCourses);
+	}
+	@Test
+	public void findAndSortById_whenfindAndSortById_thenGetCorrectSortedByIdListOfCourses() {
+		
+		List<Course> actualCourses = courseDao.findAndSortById(5, 0);
+		
+		assertThat(expectedSortedByIdCourses).isEqualTo(actualCourses);
+	}
+	
+	@Test
+	public void findNumberOfItems_whenFindNumberOfItem_thenGetCorrectNumberOfItems() {
+		int expectedNumber = 16;
+		
+		int actualNumber  = courseDao.findNumberOfItems();
+		
+		assertThat(expectedNumber).isEqualTo(actualNumber);
 	}
 }

@@ -21,6 +21,8 @@ import ru.stepev.dao.StudentDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.exception.StudentsNotFoundException;
+import ru.stepev.model.Course;
+import ru.stepev.model.DailySchedule;
 import ru.stepev.model.Group;
 
 import static ru.stepev.data.DataTest.*;
@@ -154,5 +156,33 @@ public class GroupServiceTest {
 
 		assertThat(actual).isEqualTo(expected);
 		verify(groupDao, times(1)).findByStudentId(1);
+	}
+	
+	@Test
+	public void countNumberOfGroups_whenCountNumberOfGroups_thenGetCorrectNumberOfGroups() {
+		int expected = 2;
+		when(groupDao.findNumberOfItem()).thenReturn(expected);
+		
+		int actual = groupService.count();
+		
+		assertThat(actual).isEqualTo(expected);
+	}
+	
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByName_thenGetSortedListByName() {
+		when(groupDao.findAndSortByName(5, 4)).thenReturn(expectedGroups);
+
+		List<Group> actualGroups = groupService.getAndSortByName(5, 4);
+
+		assertThat(actualGroups).isEqualTo(expectedGroups);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListById() {
+		when(groupDao.fineAndSortById(5, 4)).thenReturn(expectedGroups);
+
+		List<Group> actualGroups = groupService.getAndSortById(5, 4);
+
+		assertThat(actualGroups).isEqualTo(expectedGroups);
 	}
 }

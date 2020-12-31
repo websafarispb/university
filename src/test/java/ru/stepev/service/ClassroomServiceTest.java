@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import ru.stepev.dao.ClassroomDao;
 import ru.stepev.exception.EntityAlreadyExistException;
 import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
+import ru.stepev.utils.Paginator;
 
 import static ru.stepev.data.DataTest.*;
 
@@ -38,6 +40,21 @@ public class ClassroomServiceTest {
 		List<Classroom> actualClassrooms = classroomService.getAll();
 
 		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+
+	@Test
+	public void findAllClassrooms_whenGetAllClassrooms_thenGetAllClassroom2() {
+		List<Classroom> expectedClassrooms2 = new ArrayList<>();
+		expectedClassrooms2.add(new Classroom(3, "103", 30));
+		expectedClassrooms2.add(new Classroom(7, "203", 30));
+		expectedClassrooms2.add(new Classroom(11, "303", 30));
+		expectedClassrooms2.add(new Classroom(15, "403", 30));
+		expectedClassrooms2.add(new Classroom(19, "703", 30));
+		when(classroomDao.findAndSortByCapacity(5, 4)).thenReturn(expectedClassrooms2);
+
+		List<Classroom> actualClassrooms = classroomService.getAndSortByCapacity(5, 4);
+
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms2);
 	}
 
 	@Test
@@ -112,5 +129,75 @@ public class ClassroomServiceTest {
 				classroomForUpdate.getAddress());
 
 		verify(classroomDao, never()).update(classroomForUpdate);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByCapacity_thenGetSortedListOfClassroomByCapacity() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(7, "203", 30));
+		expectedClassrooms.add(new Classroom(11, "303", 30));
+		expectedClassrooms.add(new Classroom(15, "403", 30));
+		expectedClassrooms.add(new Classroom(19, "703", 30));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		when(classroomDao.findAndSortByCapacity(5, 4)).thenReturn(expectedClassrooms);
+
+		List<Classroom> actualClassrooms = classroomService.getAndSortByCapacity(5, 4);
+
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortById_thenGetSortedListOfClassroomById() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(6, "106", 40));
+		expectedClassrooms.add(new Classroom(7, "203", 30));
+		expectedClassrooms.add(new Classroom(8, "204", 23));
+		expectedClassrooms.add(new Classroom(9, "201", 50));
+		expectedClassrooms.add(new Classroom(10, "202", 40));
+		when(classroomDao.findAndSortById(5, 4)).thenReturn(expectedClassrooms);
+
+		List<Classroom> actualClassrooms = classroomService.getAndSortById(5, 4);
+
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+
+	@Test
+	public void givenDiapasonOfEntities_whenGetAndSortByAddress_thenGetSortedListOfClassroomByAddress() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(1, "101", 50));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		expectedClassrooms.add(new Classroom(5, "105", 50));
+		expectedClassrooms.add(new Classroom(6, "106", 40));
+		expectedClassrooms.add(new Classroom(9, "201", 50));
+		when(classroomDao.findAndSortByAddress(5, 4)).thenReturn(expectedClassrooms);
+
+		List<Classroom> actualClassrooms = classroomService.getAndSortByAddress(5, 4);
+
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+
+	@Test
+	public void givenTypeOfSorting_whenGetAndSort_thenGetSortedListOfClassroomBySortingType() {
+		List<Classroom> expectedClassrooms = new ArrayList<>();
+		expectedClassrooms.add(new Classroom(7, "203", 30));
+		expectedClassrooms.add(new Classroom(11, "303", 30));
+		expectedClassrooms.add(new Classroom(15, "403", 30));
+		expectedClassrooms.add(new Classroom(19, "703", 30));
+		expectedClassrooms.add(new Classroom(2, "102", 40));
+		Paginator paginator = new Paginator(1, 1, "Capacity", 5);
+		when(classroomDao.findAndSortByCapacity(5, 0)).thenReturn(expectedClassrooms);
+		
+		List<Classroom> actualClassrooms = classroomService.getAndSort(paginator);
+		assertThat(actualClassrooms).isEqualTo(expectedClassrooms);
+	}
+
+	@Test
+	public void countNumberOfClassrooms_whenCountNumberOfClassrooms_thenGetCorrectNumberOfClassrooms() {
+		int expected = 2;
+		when(classroomDao.findNumberOfItems()).thenReturn(expected);
+		
+		int actual = classroomService.count();
+		
+		assertThat(actual).isEqualTo(expected);
 	}
 }
