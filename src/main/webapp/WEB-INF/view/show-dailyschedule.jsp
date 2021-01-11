@@ -50,7 +50,7 @@
 						<td th:text="${lecture.course.name}"></td>
 						<td th:text="${lecture.classRoom.address}"></td>
 						<td th:text="${lecture.group.name}"></td>
-						<td th:text="${lecture.teacher.lastName}"></td>
+						<td th:text="${lecture.teacher.firstName}+' ' +${lecture.teacher.lastName}"></td>
 					</tr>
 				</table>
 			</form>

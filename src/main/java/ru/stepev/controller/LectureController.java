@@ -1,12 +1,15 @@
 package ru.stepev.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -48,8 +51,7 @@ public class LectureController {
 
 	@GetMapping
 	public String showAllLectures(Model model, @Value("${itemsPerPage}") int itemsPerPage,
-			@RequestParam(defaultValue = "1") int currentPage,
-			 @RequestParam(defaultValue = "Time")String sortBy) {
+			@RequestParam(defaultValue = "1") int currentPage, @RequestParam(defaultValue = "Time") String sortBy) {
 		Paginator paginator = new Paginator(lectureService.count(), currentPage, sortBy, itemsPerPage);
 		List<Lecture> lectures = lectureService.getAndSort(paginator);
 		model.addAttribute("lectures", lectures);
@@ -63,4 +65,113 @@ public class LectureController {
 		model.addAttribute("lecture", lecture);
 		return "show-lecture";
 	}
+
+	@GetMapping("/add")
+	public String add(Model model) {
+		Lecture lecture = new Lecture();
+		List<Course> allCourses = courseService.getAll();
+		List<Classroom> allClassrooms = classroomService.getAll();
+		List<Group> allGroups = groupService.getAll();
+		List<Teacher> allTeachers = teacherService.getAll();
+		model.addAttribute("lecture", lecture);
+		model.addAttribute("allCourses", allCourses);
+		model.addAttribute("allClassrooms", allClassrooms);
+		model.addAttribute("allGroups", allGroups);
+		model.addAttribute("allTeachers", allTeachers);
+		return "add-lecture";
+	}
+
+	@GetMapping("/update/{id}")
+	public String update(@PathVariable int id, Model model) {
+		Lecture lecture = lectureService.getById(id).get();
+		DailySchedule dailySchedule = dailyScheduleService.getById(lecture.getDailyScheduleId()).get();
+		List<Course> allCourses = courseService.getAll();
+		List<Classroom> allClassrooms = classroomService.getAll();
+		List<Group> allGroups = groupService.getAll();
+		List<Teacher> allTeachers = teacherService.getAll();
+		model.addAttribute("lecture", lecture);
+		model.addAttribute("dailySchedule", dailySchedule);
+		model.addAttribute("allCourses", allCourses);
+		model.addAttribute("allClassrooms", allClassrooms);
+		model.addAttribute("allGroups", allGroups);
+		model.addAttribute("allTeachers", allTeachers);
+		return "update-lecture";
+	}
+
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable int id, Model model) {
+		Lecture lecture = lectureService.getById(id).get();
+		try {
+			lectureService.delete(lecture);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "lectures-page";
+		}
+		return "redirect:/lectures";
+	}
+
+	@PostMapping("/create")
+	public String create(@ModelAttribute("lecture") Lecture lecture, @ModelAttribute("date") LocalDate date,
+			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
+			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
+		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
+		Course course = courseService.getById(courseId).get();
+		Classroom classroom = classroomService.getById(classroomId).get();
+		Group group = groupService.getById(groupId).get();
+		Teacher teacher = teacherService.getById(teacherId).get();
+		if (dailySchedule != null) {
+			lecture.setDailyScheduleId(dailySchedule.getId());
+			lecture.setCourse(course);
+			lecture.setClassRoom(classroom);
+			lecture.setGroup(group);
+			lecture.setTeacher(teacher);
+		} else {
+			dailyScheduleService.add(new DailySchedule(date));
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).get().getId());
+			lecture.setCourse(course);
+			lecture.setClassRoom(classroom);
+			lecture.setGroup(group);
+			lecture.setTeacher(teacher);
+		}
+		try {
+			lectureService.add(lecture);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "lectures-page";
+		}
+		return "redirect:/lectures";
+	}
+
+	@PostMapping("/save")
+	public String save(@ModelAttribute("lecture") Lecture lecture, @ModelAttribute("date") LocalDate date,
+			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
+			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
+		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);	
+		Course course = courseService.getById(courseId).get();	
+		Classroom classroom = classroomService.getById(classroomId).get();
+		Group group = groupService.getById(groupId).get();	
+		Teacher teacher = teacherService.getById(teacherId).get();	
+		if (dailySchedule != null) {
+			lecture.setDailyScheduleId(dailySchedule.getId());
+			lecture.setCourse(course);
+			lecture.setClassRoom(classroom);
+			lecture.setGroup(group);
+			lecture.setTeacher(teacher);
+		} else {
+			dailyScheduleService.add(new DailySchedule(date));
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).get().getId());
+			lecture.setCourse(course);
+			lecture.setClassRoom(classroom);
+			lecture.setGroup(group);
+			lecture.setTeacher(teacher);
+		}
+		try {
+			lectureService.update(lecture);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "lectures-page";
+		}
+		return "redirect:/lectures";
+	}
+
 }

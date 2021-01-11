@@ -26,9 +26,16 @@
 	<div id="container">
 	<h1>Classrooms</h1>
 	<hr>
+		<div class="alert alert-danger" role="alert"  th:if="${message != null}" >
+			<span th:text="${message}"></span>
+			<br>
+			<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+					Menu</a> 
+		</div>
 		<div th:if="${not #lists.isEmpty(classrooms)}">
 		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 					Menu</a> 
+		<a th:href="@{/classrooms/add}" class="btn btn-info btn-sm mb-3">New classroom</a> 
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
@@ -44,7 +51,13 @@
 					<td th:text="${classroom.capacity}" />
 					<td><a
 						th:href="@{/classrooms/{classroomId}(classroomId=${classroom.id})}"
-						class="btn btn-info">Show</a></td>
+						class="btn btn-info">Show</a>
+					<a
+						th:href="@{/classrooms/update/{classroomId}(classroomId=${classroom.id})}"
+						class="btn btn-warning">Update</a>
+					<a
+						th:href="@{/classrooms/delete/{classroomId}(classroomId=${classroom.id})}"
+						class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this classroom?'))) return false">Delete</a></td>
 
 				</tr>
 			</table>

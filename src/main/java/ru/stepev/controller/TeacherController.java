@@ -1,6 +1,5 @@
 package ru.stepev.controller;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -21,7 +22,7 @@ import ru.stepev.utils.Paginator;
 @Controller
 @RequestMapping("/teachers")
 public class TeacherController {
-	
+
 	private TeacherService teacherService;
 	private CourseService courseService;
 
@@ -29,7 +30,7 @@ public class TeacherController {
 		this.teacherService = teacherService;
 		this.courseService = courseService;
 	}
-	
+
 	@GetMapping
 	public String showAllTeachers(Model model, @Value("${itemsPerPage}") int itemsPerPage,
 			@RequestParam(defaultValue = "1") int currentPage,
@@ -41,7 +42,7 @@ public class TeacherController {
 		model.addAttribute("paginator", paginator);
 		return "teachers-page";
 	}
-	
+
 	@GetMapping("{id}")
 	public String getTeacher(@PathVariable int id, Model model) {
 		Teacher teacher = teacherService.getById(id).orElse(null);
@@ -50,4 +51,67 @@ public class TeacherController {
 		model.addAttribute("allCourses", allCourses);
 		return "show-teacher";
 	}
+
+	@GetMapping("/add")
+	public String add(Model model) {
+		Teacher teacher = new Teacher();
+		List<Course> allCourses = courseService.getAll();
+		model.addAttribute("teacher", teacher);
+		model.addAttribute("allCourses", allCourses);
+		return "add-teacher";
+	}
+
+	@PostMapping("/create")
+	public String create(@ModelAttribute("teacher") Teacher teacher, Model model) {
+		for (Course course : teacher.getCourses()) {
+			Course tempCourse = courseService.getById(course.getId()).get();
+			course.setName(tempCourse.getName());
+			course.setDescription(tempCourse.getDescription());
+		}
+		try {
+			teacherService.add(teacher);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "teachers-page";
+		}
+		return "redirect:/teachers";
+	}
+
+	@GetMapping("/delete/{id}")
+	public String delete(@PathVariable int id, Model model) {
+		Teacher teacher = teacherService.getById(id).get();
+		try {
+			teacherService.delete(teacher);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "teachers-page";
+		}
+		return "redirect:/teachers";
+	}
+
+	@GetMapping("/update/{id}")
+	public String update(@PathVariable int id, Model model) {
+		Teacher teacher = teacherService.getById(id).get();
+		List<Course> allCourses = courseService.getAll();
+		model.addAttribute("teacher", teacher);
+		model.addAttribute("allCourses", allCourses);
+		return "update-teacher";
+	}
+
+	@PostMapping("/save")
+	public String save(@ModelAttribute("teacher") Teacher teacher, Model model) {
+		for (Course course : teacher.getCourses()) {
+			Course tempCourse = courseService.getById(course.getId()).get();
+			course.setName(tempCourse.getName());
+			course.setDescription(tempCourse.getDescription());
+		}
+		try {
+			teacherService.update(teacher);
+		} catch (Exception e) {
+			model.addAttribute("message", e.getMessage());
+			return "teachers-page";
+		}
+		return "redirect:/teachers";
+	}
+
 }

@@ -34,11 +34,11 @@ public class JdbcLectureDao implements LectureDao {
 	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_CLASSROOM_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time >=  ? AND local_time < ? AND classroom_id = ? ";
 	private static final String FIND_LECTURE_BY_DAILYSCHDULE_ID_AND_TIME_AND_TEACHER_ID = "SELECT * FROM lectures  WHERE dailyschedule_id = ? AND local_time>=  ? AND local_time < ? AND teacher_id = ? ";
 	private static final String FIND_NUMBER_OF_LECTURES = "SELECT COUNT(*) FROM lectures";
-	private static final String FIND_AND_SORT_BY_TIME = "SELECT * FROM lectures ORDER BY local_time, id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_COURSE = "SELECT * FROM lectures INNER JOIN courses ON courses.id = lectures.course_id ORDER BY course_name, id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_CLASSROOM = "SELECT * FROM lectures INNER JOIN classrooms ON classrooms.id = lectures.classroom_id ORDER BY classroom_address, id  ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_GROUP = "SELECT * FROM lectures INNER JOIN groups ON groups.id = lectures.group_id ORDER BY group_name, id ASC LIMIT ? OFFSET ?";
-	private static final String FIND_AND_SORT_BY_TEACHER = "SELECT * FROM lectures INNER JOIN teachers ON teachers.id = lectures.teacher_id ORDER BY last_name, id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_TIME = "SELECT * FROM lectures ORDER BY local_time, lectures.id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_COURSE = "SELECT * FROM lectures INNER JOIN courses ON courses.id = lectures.course_id ORDER BY course_name, lectures.id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_CLASSROOM = "SELECT * FROM lectures INNER JOIN classrooms ON classrooms.id = lectures.classroom_id ORDER BY classroom_address, lectures.id  ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_GROUP = "SELECT * FROM lectures INNER JOIN groups ON groups.id = lectures.group_id ORDER BY group_name, lectures.id ASC LIMIT ? OFFSET ?";
+	private static final String FIND_AND_SORT_BY_TEACHER = "SELECT * FROM lectures INNER JOIN teachers ON teachers.id = lectures.teacher_id ORDER BY last_name, lectures.id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM lectures ORDER BY id ASC LIMIT ? OFFSET ?";
 
 	private LectureRowMapper lectureRowMapper;

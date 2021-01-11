@@ -82,8 +82,8 @@ public class Lecture {
 		return "Lecture " + id + "[dailyScheduleId=" + dailyScheduleId + ", time=" + time + ", course=" + course + ", classRoom="
 				+ classRoom +  ", teacher=" + teacher + "group " + group + "]" + System.lineSeparator();
 	}
-//	@Override
-//	public String toString() {
-//		return "Lecture " + group.getId() + " " + group.getName()  + System.lineSeparator();
-//	}
+
+	public Lecture(int id) {
+		this.id = id;
+	}
 }

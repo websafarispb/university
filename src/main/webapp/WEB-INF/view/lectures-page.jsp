@@ -27,14 +27,21 @@
 
 	Welcome to "Lecture" page.
 	<div id="container">
+		<div class="alert alert-danger" role="alert"
+			th:if="${message != null}">
+			<span th:text="${message}"></span> <br> <a th:href="@{/}"
+				class="btn btn-info btn-sm mb-3">Back to Menu</a>
+		</div>
 		<div th:if="${not #lists.isEmpty(lectures)}">
 		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 				menu</a>
+		<a th:href="@{/lectures/add}" class="btn btn-info btn-sm mb-3">New lecture</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
 						<th>Id</th>
 						<th><a class="btn btn-secondary" th:href="@{/lectures/(sortBy=${'Time'})}" >Time</a></th>
+						<th>Date</th>
 						<th><a class="btn btn-secondary" th:href="@{/lectures/(sortBy=${'Course'})}" >Course</a></th>
 						<th><a class="btn btn-secondary" th:href="@{/lectures/(sortBy=${'Classroom'})}" >Classroom</a></th>
 						<th><a class="btn btn-secondary" th:href="@{/lectures/(sortBy=${'Group'})}" >Group</a></th>
@@ -45,12 +52,17 @@
 				<tr th:each="lecture : ${lectures}">
 					<td th:text="${lecture.id}"></td>
 					<td th:text="${lecture.time}"></td>
+					<td th:text="${lecture.dailyScheduleId}"></td>
 					<td th:text="${lecture.course.name}"></td>
 					<td th:text="${lecture.classRoom.address}"></td>
 					<td th:text="${lecture.group.name}"></td>
-					<td th:text="${lecture.teacher.lastName}"></td>
+					<td th:text="${lecture.teacher.firstName +' '+ lecture.teacher.lastName}"></td>
 					<td><a th:href="@{/lectures/{lectureId}/(lectureId=${lecture.id})}"
 							class="btn btn-info">Show</a>
+					<a th:href="@{/lectures/update/{lectureId}/(lectureId=${lecture.id})}"
+							class="btn btn-warning">Update</a>
+					<a th:href="@{/lectures/delete/{lectureId}/(lectureId=${lecture.id})}"
+							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this lecture?'))) return false">Delete</a>
 					</td>
 				</tr>
 			</table>

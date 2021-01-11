@@ -27,9 +27,15 @@
 
 	Welcome to "Teachers" page.
 	<div id="container">
+		<div class="alert alert-danger" role="alert"
+			th:if="${message != null}">
+			<span th:text="${message}"></span> <br> <a th:href="@{/}"
+				class="btn btn-info btn-sm mb-3">Back to Menu</a>
+		</div>
 		<div th:if="${not #lists.isEmpty(teachers)}">
 			<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 				Menu</a>
+			<a th:href="@{/teachers/add}" class="btn btn-info btn-sm mb-3">New teacher</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
@@ -51,6 +57,10 @@
 					<td th:text="${teacher.address}" />
 					<td><a th:href="@{/teachers/{teacherId}/(teacherId=${teacher.id})}"
 							class="btn btn-info">Show</a>
+						<a th:href="@{/teachers/update/{teacherId}/(teacherId=${teacher.id})}"
+							class="btn btn-warning">Update</a>
+						<a th:href="@{/teachers/delete/{teacherId}/(teacherId=${teacher.id})}"
+							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this teacher?'))) return false">Delete</a>
 					</td>
 				</tr>
 			</table>

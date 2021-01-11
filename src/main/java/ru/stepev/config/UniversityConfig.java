@@ -26,6 +26,10 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import ru.stepev.converters.CourseConverter;
+import ru.stepev.converters.DailyScheduleConverter;
+import ru.stepev.converters.GroupConverter;
+import ru.stepev.converters.LectureConverter;
+import ru.stepev.converters.StudentConverter;
 
 @Configuration
 @EnableWebMvc
@@ -115,5 +119,9 @@ public class UniversityConfig implements WebMvcConfigurer {
 	@Override
 	public void addFormatters(FormatterRegistry registry) {
 		registry.addConverter(new CourseConverter());
+		registry.addConverter(new StudentConverter());
+		registry.addConverter(new LectureConverter());
+		registry.addConverter(new DailyScheduleConverter());
+		registry.addConverter(new GroupConverter());
 	}
 }

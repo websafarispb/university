@@ -66,4 +66,8 @@ public class DailySchedule {
 			return false;
 		return true;
 	}
+
+	public DailySchedule(int id) {
+		this.id = id;
+	}
 }
