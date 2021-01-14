@@ -43,7 +43,7 @@ public class GroupController {
 
 	@GetMapping("{id}")
 	public String getGroup(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).orElse(null);
+		Group group = groupService.getById(id).orElse(new Group());
 		model.addAttribute("group", group);
 		return "show-group";
 	}
@@ -57,13 +57,8 @@ public class GroupController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).get();
-		try {
-			groupService.delete(group);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "groups-page";
-		}
+		Group group = groupService.getById(id).orElse(new Group());
+		groupService.delete(group);
 		return "redirect:/groups";
 	}
 
@@ -79,12 +74,7 @@ public class GroupController {
 	@PostMapping("/create")
 	public String createGroup(@ModelAttribute Group group, Model model) {
 		group.setStudents(new ArrayList<>());
-		try {
-			groupService.add(group);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "groups-page";
-		}
+		groupService.add(group);
 		return "redirect:/groups";
 	}
 
@@ -92,15 +82,10 @@ public class GroupController {
 	public String saveGroup(@ModelAttribute Group group, Model model) {
 		List<Student> students = new ArrayList<>();
 		for (Student student : group.getStudents()) {
-			students.add(studentService.getById(student.getId()).orElse(null));
+			students.add(studentService.getById(student.getId()).orElse(new Student()));
 		}
 		group.setStudents(students);
-		try {
-			groupService.update(group);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "groups-page";
-		}
+		groupService.update(group);
 		return "redirect:/groups";
 	}
 

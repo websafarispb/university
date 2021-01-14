@@ -150,6 +150,6 @@ public class DailyScheduleControllerTest {
 		mvc.perform(post("/dailySchedules/create").flashAttr("dailySchedule", new DailySchedule(LocalDate.of(2020, 9, 7))))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "DailySchedule with date 2020-09-07 already exist"))
-		.andExpect(view().name("schedule-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

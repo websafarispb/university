@@ -11,7 +11,6 @@ public class TeacherConverter implements Converter <String, Teacher>{
 
 	@Override
 	public Teacher convert(String id) {
-		System.out.println("Trying to convert id-" + id + "to student");	
 		return new Teacher(Integer.parseInt(id));
 	}
 }

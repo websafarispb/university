@@ -10,7 +10,6 @@ public class StudentConverter implements Converter <String, Student>{
 
 	@Override
 	public Student convert(String id) {
-		System.out.println("Trying to convert id-" + id + "to student");	
 		return new Student(Integer.parseInt(id));
 	}
 }

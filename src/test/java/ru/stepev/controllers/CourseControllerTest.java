@@ -117,6 +117,6 @@ public class CourseControllerTest {
 		mvc.perform(post("/courses/create").flashAttr("course", new Course("Mathematics","All about new course")))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Course with name Mathematics already exist"))
-		.andExpect(view().name("courses-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

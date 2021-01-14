@@ -117,6 +117,6 @@ public class GroupControllerTest {
 		mvc.perform(post("/groups/create").flashAttr("group", bigGroup))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Group with name c2c2 already exist"))
-		.andExpect(view().name("groups-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

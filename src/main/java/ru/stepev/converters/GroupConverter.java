@@ -11,7 +11,6 @@ public class GroupConverter implements Converter<String, Group>{
 	
 	@Override
 	public Group convert(String id) {
-		System.out.println("Trying to convert id-" + id + "to Group");	
 		return new Group(Integer.parseInt(id));
 	}
 }

@@ -61,7 +61,7 @@ public class LectureController {
 
 	@GetMapping("{id}")
 	public String getLecture(@PathVariable int id, Model model) {
-		Lecture lecture = lectureService.getById(id).get();
+		Lecture lecture = lectureService.getById(id).orElse(new Lecture());
 		model.addAttribute("lecture", lecture);
 		return "show-lecture";
 	}
@@ -100,13 +100,8 @@ public class LectureController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Lecture lecture = lectureService.getById(id).get();
-		try {
-			lectureService.delete(lecture);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "lectures-page";
-		}
+		Lecture lecture = lectureService.getById(id).orElse(new Lecture());
+		lectureService.delete(lecture);
 		return "redirect:/lectures";
 	}
 
@@ -115,10 +110,10 @@ public class LectureController {
 			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
 			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
 		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
-		Course course = courseService.getById(courseId).get();
-		Classroom classroom = classroomService.getById(classroomId).get();
-		Group group = groupService.getById(groupId).get();
-		Teacher teacher = teacherService.getById(teacherId).get();
+		Course course = courseService.getById(courseId).orElse(null);
+		Classroom classroom = classroomService.getById(classroomId).orElse(null);
+		Group group = groupService.getById(groupId).orElse(null);
+		Teacher teacher = teacherService.getById(teacherId).orElse(null);
 		if (dailySchedule != null) {
 			lecture.setDailyScheduleId(dailySchedule.getId());
 			lecture.setCourse(course);
@@ -127,18 +122,13 @@ public class LectureController {
 			lecture.setTeacher(teacher);
 		} else {
 			dailyScheduleService.add(new DailySchedule(date));
-			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).get().getId());
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElse(null).getId());
 			lecture.setCourse(course);
 			lecture.setClassRoom(classroom);
 			lecture.setGroup(group);
 			lecture.setTeacher(teacher);
 		}
-		try {
-			lectureService.add(lecture);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "lectures-page";
-		}
+		lectureService.add(lecture);
 		return "redirect:/lectures";
 	}
 
@@ -146,11 +136,11 @@ public class LectureController {
 	public String save(@ModelAttribute("lecture") Lecture lecture, @ModelAttribute("date") LocalDate date,
 			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
 			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);	
-		Course course = courseService.getById(courseId).get();	
-		Classroom classroom = classroomService.getById(classroomId).get();
-		Group group = groupService.getById(groupId).get();	
-		Teacher teacher = teacherService.getById(teacherId).get();	
+		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
+		Course course = courseService.getById(courseId).orElse(null);
+		Classroom classroom = classroomService.getById(classroomId).orElse(null);
+		Group group = groupService.getById(groupId).orElse(null);
+		Teacher teacher = teacherService.getById(teacherId).orElse(null);
 		if (dailySchedule != null) {
 			lecture.setDailyScheduleId(dailySchedule.getId());
 			lecture.setCourse(course);
@@ -159,18 +149,13 @@ public class LectureController {
 			lecture.setTeacher(teacher);
 		} else {
 			dailyScheduleService.add(new DailySchedule(date));
-			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).get().getId());
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElse(null).getId());
 			lecture.setCourse(course);
 			lecture.setClassRoom(classroom);
 			lecture.setGroup(group);
 			lecture.setTeacher(teacher);
 		}
-		try {
-			lectureService.update(lecture);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "lectures-page";
-		}
+		lectureService.update(lecture);
 		return "redirect:/lectures";
 	}
 

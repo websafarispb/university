@@ -10,7 +10,6 @@ public class LectureConverter implements Converter<String, Lecture>{
 	
 	@Override
 	public Lecture convert(String id) {
-		System.out.println("Trying to convert id-" + id + "to Lecture");	
 		return new Lecture(Integer.parseInt(id));
 	}
 }

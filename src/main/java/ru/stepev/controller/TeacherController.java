@@ -45,7 +45,7 @@ public class TeacherController {
 
 	@GetMapping("{id}")
 	public String getTeacher(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).orElse(null);
+		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
 		List<Course> allCourses = courseService.getAll();
 		model.addAttribute("teacher", teacher);
 		model.addAttribute("allCourses", allCourses);
@@ -64,34 +64,24 @@ public class TeacherController {
 	@PostMapping("/create")
 	public String create(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		for (Course course : teacher.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
+			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
-		try {
-			teacherService.add(teacher);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "teachers-page";
-		}
+		teacherService.add(teacher);
 		return "redirect:/teachers";
 	}
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).get();
-		try {
-			teacherService.delete(teacher);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "teachers-page";
-		}
+		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
+		teacherService.delete(teacher);
 		return "redirect:/teachers";
 	}
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).get();
+		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
 		List<Course> allCourses = courseService.getAll();
 		model.addAttribute("teacher", teacher);
 		model.addAttribute("allCourses", allCourses);
@@ -101,16 +91,11 @@ public class TeacherController {
 	@PostMapping("/save")
 	public String save(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		for (Course course : teacher.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
+			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
-		try {
-			teacherService.update(teacher);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "teachers-page";
-		}
+		teacherService.update(teacher);
 		return "redirect:/teachers";
 	}
 

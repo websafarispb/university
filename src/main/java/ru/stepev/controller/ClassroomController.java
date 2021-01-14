@@ -38,26 +38,21 @@ public class ClassroomController {
 
 	@GetMapping("/{id}")
 	public String getClassroom(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).orElse(null);
+		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
 		model.addAttribute("classroom", classroom);
 		return "show-classroom";
 	}
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).orElse(null);
-		try {
-			classroomService.delete(classroom);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "classrooms-page";
-		}
+		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
+		classroomService.delete(classroom);
 		return "redirect:/classrooms";
 	}
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).get();
+		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
 		model.addAttribute("classroom", classroom);
 		return "update-classroom";
 	}
@@ -70,23 +65,13 @@ public class ClassroomController {
 
 	@PostMapping("/save")
 	public String save(@ModelAttribute Classroom classroom, Model model) {
-		try {
-			classroomService.update(classroom);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "classrooms-page";
-		}
+		classroomService.update(classroom);
 		return "redirect:/classrooms";
 	}
 
 	@PostMapping("/create")
 	public String create(@ModelAttribute Classroom classroom, Model model) {
-		try {
-			classroomService.add(classroom);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "classrooms-page";
-		}
+		classroomService.add(classroom);
 		return "redirect:/classrooms";
 	}
 }

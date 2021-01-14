@@ -54,20 +54,15 @@ public class DailyScheduleController {
 
 	@GetMapping("/{id}")
 	public String getSchedule(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(null);
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "show-dailyschedule";
 	}
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(null);
-		try {
-			dailyScheduleService.delete(dailySchedule);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "schedule-page";
-		}
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
+		dailyScheduleService.delete(dailySchedule);
 		return "redirect:/dailySchedules";
 	}
 
@@ -130,7 +125,7 @@ public class DailyScheduleController {
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(null);
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
 		System.out.println(dailySchedule);
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "update-dailySchedule";
@@ -139,12 +134,7 @@ public class DailyScheduleController {
 	@PostMapping("/create")
 	public String create(@ModelAttribute DailySchedule dailySchedule, Model model) {
 		dailySchedule.setLectures(new ArrayList<Lecture>());
-		try {
-			dailyScheduleService.add(dailySchedule);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "schedule-page";
-		}
+		dailyScheduleService.add(dailySchedule);
 		return "redirect:/dailySchedules";
 	}
 
@@ -153,15 +143,10 @@ public class DailyScheduleController {
 		System.out.println(dailySchedule);
 		List<Lecture> lectures = new ArrayList<>();
 		for (Lecture lecture : dailySchedule.getLectures()) {
-			lectures.add(lectureService.getById(lecture.getId()).orElse(null));
+			lectures.add(lectureService.getById(lecture.getId()).orElse(new Lecture()));
 		}
 		dailySchedule.setLectures(lectures);
-		try {
-			dailyScheduleService.update(dailySchedule);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "schedule-page";
-		}
+		dailyScheduleService.update(dailySchedule);
 		return "redirect:/dailySchedules";
 	}
 }

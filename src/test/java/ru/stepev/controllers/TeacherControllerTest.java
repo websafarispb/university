@@ -120,6 +120,6 @@ public class TeacherControllerTest {
 		mvc.perform(post("/teachers/create").flashAttr("teacher", expectedAllNotApdatedTeachers.get(2)))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Teacher with ID 3 already exist"))
-		.andExpect(view().name("teachers-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

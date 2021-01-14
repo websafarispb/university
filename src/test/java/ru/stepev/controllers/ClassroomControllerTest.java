@@ -116,6 +116,6 @@ public class ClassroomControllerTest {
 		mvc.perform(post("/classrooms/create").flashAttr("classroom", new Classroom("101",80)))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Classroom with address 101 already exist"))
-		.andExpect(view().name("classrooms-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

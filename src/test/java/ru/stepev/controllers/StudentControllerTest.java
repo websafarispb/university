@@ -124,6 +124,6 @@ public class StudentControllerTest {
 		mvc.perform(post("/students/create?groupId=1").flashAttr("student", expectedStudents.get(0)))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Student with ID 1 already exist"))
-		.andExpect(view().name("students-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

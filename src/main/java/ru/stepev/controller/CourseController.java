@@ -38,7 +38,7 @@ public class CourseController {
 
 	@GetMapping("/{id}")
 	public String getCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).orElse(null);
+		Course course = courseService.getById(id).orElse(new Course());
 		model.addAttribute("course", course);
 		return "show-course";
 	}
@@ -51,42 +51,27 @@ public class CourseController {
 
 	@GetMapping("/delete/{id}")
 	public String deleteCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).get();
-		try {
-			courseService.delete(course);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "courses-page";
-		}
+		Course course = courseService.getById(id).orElse(new Course());
+		courseService.delete(course);
 		return "redirect:/courses";
 	}
 
 	@GetMapping("/update/{id}")
 	public String updateCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).get();
+		Course course = courseService.getById(id).orElse(new Course());
 		model.addAttribute("course", course);
 		return "update-course";
 	}
 
 	@PostMapping("/create")
 	public String createCourse(@ModelAttribute Course course, Model model) {
-		try {
-			courseService.add(course);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "courses-page";
-		}
+		courseService.add(course);
 		return "redirect:/courses";
 	}
 
 	@PostMapping("/save")
 	public String saveCourse(@ModelAttribute Course course, Model model) {
-		try {
-			courseService.update(course);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "courses-page";
-		}
+		courseService.update(course);
 		return "redirect:/courses";
 	}
 

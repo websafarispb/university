@@ -132,13 +132,6 @@ public class LectureService {
 		return lectureDao.findAll();
 	}
 
-//	private void checkGroupFree(Lecture lecture) {
-//		if (lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-//				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isPresent()) {
-//			throw new GroupIsNotFreeException(String.format("Group name %s is not free", lecture.getGroup().getName()));
-//		}
-//	}
-
 	private void checkGroupFree(Lecture lecture) {
 		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
 				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),
@@ -150,13 +143,6 @@ public class LectureService {
 		}
 	}
 
-//	private void checkClassroomFree(Lecture lecture) {
-//		if (lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-//				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isPresent()) {
-//			throw new ClassroomIsNotFreeException(
-//					String.format("Classroom with address %s is not free", lecture.getClassRoom().getAddress()));
-//		}
-//	}
 	private void checkClassroomFree(Lecture lecture) {
 		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
 				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),
@@ -167,13 +153,6 @@ public class LectureService {
 		}
 	}
 
-//	private void checkTeacherFree(Lecture lecture) {
-//		if (lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-//				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isPresent()) {
-//			throw new TeacherIsNotFreeException(
-//					String.format("Teacher name %s is not free", lecture.getTeacher().getLastName()));
-//		}
-//	}
 	private void checkTeacherFree(Lecture lecture) {
 		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
 				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),

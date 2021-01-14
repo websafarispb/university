@@ -132,6 +132,6 @@ public class LectureControllerTest {
 		mvc.perform(post("/lectures/create?courseId=2&classroomId=1&groupId=3&teacherId=3").flashAttrs(flashAttributes))
 		.andExpect(status().isOk())
 		.andExpect(model().attribute("message", "Lecture with ID 7 already exist"))
-		.andExpect(view().name("lectures-page"));
+		.andExpect(view().name("error/general"));
 	}
 }

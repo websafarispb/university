@@ -48,8 +48,8 @@ public class StudentController {
 
 	@GetMapping("{id}")
 	public String getStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).orElse(null);
-		Group group = groupService.findByStudentId(id).orElse(null);
+		Student student = studentService.getById(id).orElse(new Student());
+		Group group = groupService.findByStudentId(id).orElse(new Group());
 		model.addAttribute("student", student);
 		model.addAttribute("group", group);
 		return "show-student";
@@ -58,7 +58,6 @@ public class StudentController {
 	@GetMapping("/add")
 	public String add(Model model) {
 		Student student = new Student();
-		System.out.println(student);
 		List<Course> allCourses = courseService.getAll();
 		List<Group> allGroups = groupService.getAll();
 		model.addAttribute("student", student);
@@ -70,60 +69,49 @@ public class StudentController {
 	@PostMapping("/create")
 	public String create(@ModelAttribute("student") Student student, @RequestParam("groupId") String groupId,
 			Model model) {
-		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).get();
+		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).orElse(new Group());
 		List<Student> students = chosenGroup.getStudents().stream().filter(s -> s.getId() != student.getId())
 				.collect(toList());
 		students.add(student);
 		chosenGroup.setStudents(students);
 
 		for (Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
+			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
-		try {
-			studentService.add(student);
-			groupService.update(chosenGroup);
-		} catch (Exception e) {
-			System.out.println("get student page with exception" + e.getMessage());
-			model.addAttribute("message", e.getMessage());
-			return "students-page";
-		}
 
+		studentService.add(student);
+		groupService.update(chosenGroup);
 		return "redirect:/students";
 	}
 
 	@PostMapping("/save")
 	public String save(@ModelAttribute("student") Student student, @RequestParam("groupId") String groupId,
 			Model model) {
-		Group currentGroup = groupService.findByStudentId(student.getId()).get();
+		Group currentGroup = groupService.findByStudentId(student.getId()).orElse(new Group());
 		List<Student> students = currentGroup.getStudents().stream().filter(s -> s.getId() != student.getId())
 				.collect(toList());
 		currentGroup.setStudents(students);
 		groupService.update(currentGroup);
-		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).get();
+		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).orElse(new Group());
 		students = chosenGroup.getStudents().stream().filter(s -> s.getId() != student.getId()).collect(toList());
 		students.add(student);
 		chosenGroup.setStudents(students);
 		groupService.update(chosenGroup);
 
 		for (Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).get();
+			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
-		try {
-			studentService.update(student);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "students-page";
-		}
+		studentService.update(student);
 		return "redirect:/students";
 	}
 
 	@GetMapping("/update/{id}")
 	public String updateStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).get();
+		Student student = studentService.getById(id).orElse(new Student());
 		List<Course> allCourses = courseService.getAll();
 		List<Group> allGroups = groupService.getAll();
 		model.addAttribute("student", student);
@@ -134,13 +122,8 @@ public class StudentController {
 
 	@GetMapping("/delete/{id}")
 	public String deleteStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).get();
-		try {
-			studentService.delete(student);
-		} catch (Exception e) {
-			model.addAttribute("message", e.getMessage());
-			return "students-page";
-		}
+		Student student = studentService.getById(id).orElse(new Student());
+		studentService.delete(student);
 		return "redirect:/students";
 	}
 
