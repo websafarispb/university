@@ -43,7 +43,7 @@ public class GroupController {
 
 	@GetMapping("{id}")
 	public String getGroup(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).orElse(new Group());
+		Group group = groupService.getById(id).orElseThrow();
 		model.addAttribute("group", group);
 		return "show-group";
 	}
@@ -57,14 +57,14 @@ public class GroupController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).orElse(new Group());
+		Group group = groupService.getById(id).orElseThrow();
 		groupService.delete(group);
 		return "redirect:/groups";
 	}
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		Group group = groupService.getById(id).get();
+		Group group = groupService.getById(id).orElseThrow();
 		List<Student> students = studentService.getAll();
 		model.addAttribute("group", group);
 		model.addAttribute("allStudents", students);
@@ -82,7 +82,7 @@ public class GroupController {
 	public String saveGroup(@ModelAttribute Group group, Model model) {
 		List<Student> students = new ArrayList<>();
 		for (Student student : group.getStudents()) {
-			students.add(studentService.getById(student.getId()).orElse(new Student()));
+			students.add(studentService.getById(student.getId()).orElseThrow());
 		}
 		group.setStudents(students);
 		groupService.update(group);

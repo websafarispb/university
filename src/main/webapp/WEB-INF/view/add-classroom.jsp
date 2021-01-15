@@ -43,7 +43,7 @@
 			</div>
 		</form>
 		<hr>
-		<a th:href="@{/classrooms}">Back to courses list</a>
+		<a th:href="@{/classrooms}">Back to classrooms list</a>
 	</div>
 
 </body>

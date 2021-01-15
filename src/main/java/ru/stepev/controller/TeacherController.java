@@ -45,7 +45,7 @@ public class TeacherController {
 
 	@GetMapping("{id}")
 	public String getTeacher(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
+		Teacher teacher = teacherService.getById(id).orElseThrow();
 		List<Course> allCourses = courseService.getAll();
 		model.addAttribute("teacher", teacher);
 		model.addAttribute("allCourses", allCourses);
@@ -64,7 +64,7 @@ public class TeacherController {
 	@PostMapping("/create")
 	public String create(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		for (Course course : teacher.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
+			Course tempCourse = courseService.getById(course.getId()).orElseThrow();
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
@@ -74,14 +74,14 @@ public class TeacherController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
+		Teacher teacher = teacherService.getById(id).orElseThrow();
 		teacherService.delete(teacher);
 		return "redirect:/teachers";
 	}
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		Teacher teacher = teacherService.getById(id).orElse(new Teacher());
+		Teacher teacher = teacherService.getById(id).orElseThrow();
 		List<Course> allCourses = courseService.getAll();
 		model.addAttribute("teacher", teacher);
 		model.addAttribute("allCourses", allCourses);
@@ -91,7 +91,7 @@ public class TeacherController {
 	@PostMapping("/save")
 	public String save(@ModelAttribute("teacher") Teacher teacher, Model model) {
 		for (Course course : teacher.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
+			Course tempCourse = courseService.getById(course.getId()).orElseThrow();
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}

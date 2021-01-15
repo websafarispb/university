@@ -48,8 +48,8 @@ public class StudentController {
 
 	@GetMapping("{id}")
 	public String getStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).orElse(new Student());
-		Group group = groupService.findByStudentId(id).orElse(new Group());
+		Student student = studentService.getById(id).orElseThrow();
+		Group group = groupService.findByStudentId(id).orElseThrow();
 		model.addAttribute("student", student);
 		model.addAttribute("group", group);
 		return "show-student";
@@ -76,7 +76,7 @@ public class StudentController {
 		chosenGroup.setStudents(students);
 
 		for (Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
+			Course tempCourse = courseService.getById(course.getId()).orElseThrow();
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
@@ -89,19 +89,19 @@ public class StudentController {
 	@PostMapping("/save")
 	public String save(@ModelAttribute("student") Student student, @RequestParam("groupId") String groupId,
 			Model model) {
-		Group currentGroup = groupService.findByStudentId(student.getId()).orElse(new Group());
+		Group currentGroup = groupService.findByStudentId(student.getId()).orElseThrow();
 		List<Student> students = currentGroup.getStudents().stream().filter(s -> s.getId() != student.getId())
 				.collect(toList());
 		currentGroup.setStudents(students);
 		groupService.update(currentGroup);
-		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).orElse(new Group());
+		Group chosenGroup = groupService.getById(Integer.parseInt(groupId)).orElseThrow();
 		students = chosenGroup.getStudents().stream().filter(s -> s.getId() != student.getId()).collect(toList());
 		students.add(student);
 		chosenGroup.setStudents(students);
 		groupService.update(chosenGroup);
 
 		for (Course course : student.getCourses()) {
-			Course tempCourse = courseService.getById(course.getId()).orElse(new Course());
+			Course tempCourse = courseService.getById(course.getId()).orElseThrow();
 			course.setName(tempCourse.getName());
 			course.setDescription(tempCourse.getDescription());
 		}
@@ -111,7 +111,7 @@ public class StudentController {
 
 	@GetMapping("/update/{id}")
 	public String updateStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).orElse(new Student());
+		Student student = studentService.getById(id).orElseThrow();
 		List<Course> allCourses = courseService.getAll();
 		List<Group> allGroups = groupService.getAll();
 		model.addAttribute("student", student);
@@ -122,7 +122,7 @@ public class StudentController {
 
 	@GetMapping("/delete/{id}")
 	public String deleteStudent(@PathVariable int id, Model model) {
-		Student student = studentService.getById(id).orElse(new Student());
+		Student student = studentService.getById(id).orElseThrow();
 		studentService.delete(student);
 		return "redirect:/students";
 	}

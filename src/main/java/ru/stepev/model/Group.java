@@ -16,6 +16,10 @@ public class Group {
 	private int id;
 	private String name;
 	private List<Student> students;
+	
+	public Group(int id) {
+		this.id = id;
+	}
 
 	public Group(String name) {
 		this.name = name;
@@ -65,9 +69,5 @@ public class Group {
 		} else if (!students.equals(other.students)) 
 			return false;
 		return true;
-	}
-
-	public Group(int id) {
-		this.id = id;
 	}
 }

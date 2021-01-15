@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import ru.stepev.exception.EntityNotFoundException;
 import ru.stepev.model.Classroom;
 import ru.stepev.service.ClassroomService;
 import ru.stepev.utils.Paginator;
@@ -38,21 +39,21 @@ public class ClassroomController {
 
 	@GetMapping("/{id}")
 	public String getClassroom(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
+		Classroom classroom = classroomService.getById(id).orElseThrow();
 		model.addAttribute("classroom", classroom);
 		return "show-classroom";
 	}
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
+		Classroom classroom = classroomService.getById(id).orElseThrow();
 		classroomService.delete(classroom);
 		return "redirect:/classrooms";
 	}
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		Classroom classroom = classroomService.getById(id).orElse(new Classroom());
+		Classroom classroom = classroomService.getById(id).orElseThrow();
 		model.addAttribute("classroom", classroom);
 		return "update-classroom";
 	}

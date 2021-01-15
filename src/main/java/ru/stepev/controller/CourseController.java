@@ -38,7 +38,7 @@ public class CourseController {
 
 	@GetMapping("/{id}")
 	public String getCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).orElse(new Course());
+		Course course = courseService.getById(id).orElseThrow();
 		model.addAttribute("course", course);
 		return "show-course";
 	}
@@ -51,14 +51,14 @@ public class CourseController {
 
 	@GetMapping("/delete/{id}")
 	public String deleteCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).orElse(new Course());
+		Course course = courseService.getById(id).orElseThrow();
 		courseService.delete(course);
 		return "redirect:/courses";
 	}
 
 	@GetMapping("/update/{id}")
 	public String updateCourse(@PathVariable int id, Model model) {
-		Course course = courseService.getById(id).orElse(new Course());
+		Course course = courseService.getById(id).orElseThrow();
 		model.addAttribute("course", course);
 		return "update-course";
 	}

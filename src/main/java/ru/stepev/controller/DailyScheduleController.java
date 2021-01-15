@@ -54,14 +54,14 @@ public class DailyScheduleController {
 
 	@GetMapping("/{id}")
 	public String getSchedule(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElseThrow();
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "show-dailyschedule";
 	}
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElseThrow();
 		dailyScheduleService.delete(dailySchedule);
 		return "redirect:/dailySchedules";
 	}
@@ -125,7 +125,7 @@ public class DailyScheduleController {
 
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
-		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElse(new DailySchedule());
+		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElseThrow();
 		System.out.println(dailySchedule);
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "update-dailySchedule";
@@ -143,7 +143,7 @@ public class DailyScheduleController {
 		System.out.println(dailySchedule);
 		List<Lecture> lectures = new ArrayList<>();
 		for (Lecture lecture : dailySchedule.getLectures()) {
-			lectures.add(lectureService.getById(lecture.getId()).orElse(new Lecture()));
+			lectures.add(lectureService.getById(lecture.getId()).orElseThrow());
 		}
 		dailySchedule.setLectures(lectures);
 		dailyScheduleService.update(dailySchedule);

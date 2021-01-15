@@ -67,7 +67,6 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 					String.format("DailySchedule with getAddress %s could not been created", dailySchedule.getDate()));
 		}
 		dailySchedule.setId((int) keyHolder.getKeys().get("id"));
-	//	dailySchedule.getLectures().forEach(lectureDao::create);
 	}
 
 	@Transactional
@@ -87,7 +86,7 @@ public class JdbcDailyScheduleDao implements DailyScheduleDao {
 	public void delete(int dailyScheduleId) {
 		if (jdbcTemplate.update(DELETE_DAILYSCHEDUALE_BY_ID, dailyScheduleId) == 0) {
 			throw new EntityCouldNotBeenDeletedException(
-					String.format("DailySchedule with date %s could not been deleted", dailyScheduleId));
+					String.format("DailySchedule with ID %s could not been deleted", dailyScheduleId));
 		}
 
 	}

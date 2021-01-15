@@ -61,7 +61,7 @@ public class LectureController {
 
 	@GetMapping("{id}")
 	public String getLecture(@PathVariable int id, Model model) {
-		Lecture lecture = lectureService.getById(id).orElse(new Lecture());
+		Lecture lecture = lectureService.getById(id).orElseThrow();
 		model.addAttribute("lecture", lecture);
 		return "show-lecture";
 	}
@@ -84,7 +84,7 @@ public class LectureController {
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
 		Lecture lecture = lectureService.getById(id).get();
-		DailySchedule dailySchedule = dailyScheduleService.getById(lecture.getDailyScheduleId()).get();
+		DailySchedule dailySchedule = dailyScheduleService.getById(lecture.getDailyScheduleId()).orElseThrow();
 		List<Course> allCourses = courseService.getAll();
 		List<Classroom> allClassrooms = classroomService.getAll();
 		List<Group> allGroups = groupService.getAll();
@@ -100,7 +100,7 @@ public class LectureController {
 
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable int id, Model model) {
-		Lecture lecture = lectureService.getById(id).orElse(new Lecture());
+		Lecture lecture = lectureService.getById(id).orElseThrow();
 		lectureService.delete(lecture);
 		return "redirect:/lectures";
 	}
@@ -110,10 +110,10 @@ public class LectureController {
 			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
 			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
 		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
-		Course course = courseService.getById(courseId).orElse(null);
-		Classroom classroom = classroomService.getById(classroomId).orElse(null);
-		Group group = groupService.getById(groupId).orElse(null);
-		Teacher teacher = teacherService.getById(teacherId).orElse(null);
+		Course course = courseService.getById(courseId).orElseThrow();
+		Classroom classroom = classroomService.getById(classroomId).orElseThrow();
+		Group group = groupService.getById(groupId).orElseThrow();
+		Teacher teacher = teacherService.getById(teacherId).orElseThrow();
 		if (dailySchedule != null) {
 			lecture.setDailyScheduleId(dailySchedule.getId());
 			lecture.setCourse(course);
@@ -122,7 +122,7 @@ public class LectureController {
 			lecture.setTeacher(teacher);
 		} else {
 			dailyScheduleService.add(new DailySchedule(date));
-			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElse(null).getId());
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElseThrow().getId());
 			lecture.setCourse(course);
 			lecture.setClassRoom(classroom);
 			lecture.setGroup(group);
@@ -137,10 +137,10 @@ public class LectureController {
 			@RequestParam("courseId") int courseId, @RequestParam("classroomId") int classroomId,
 			@RequestParam("groupId") int groupId, @RequestParam("teacherId") int teacherId, Model model) {
 		DailySchedule dailySchedule = dailyScheduleService.getByDate(date).orElse(null);
-		Course course = courseService.getById(courseId).orElse(null);
-		Classroom classroom = classroomService.getById(classroomId).orElse(null);
-		Group group = groupService.getById(groupId).orElse(null);
-		Teacher teacher = teacherService.getById(teacherId).orElse(null);
+		Course course = courseService.getById(courseId).orElseThrow();
+		Classroom classroom = classroomService.getById(classroomId).orElseThrow();
+		Group group = groupService.getById(groupId).orElseThrow();
+		Teacher teacher = teacherService.getById(teacherId).orElseThrow();
 		if (dailySchedule != null) {
 			lecture.setDailyScheduleId(dailySchedule.getId());
 			lecture.setCourse(course);
@@ -149,7 +149,7 @@ public class LectureController {
 			lecture.setTeacher(teacher);
 		} else {
 			dailyScheduleService.add(new DailySchedule(date));
-			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElse(null).getId());
+			lecture.setDailyScheduleId(dailyScheduleService.getByDate(date).orElseThrow().getId());
 			lecture.setCourse(course);
 			lecture.setClassRoom(classroom);
 			lecture.setGroup(group);
