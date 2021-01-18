@@ -126,7 +126,6 @@ public class DailyScheduleController {
 	@GetMapping("/update/{id}")
 	public String update(@PathVariable int id, Model model) {
 		DailySchedule dailySchedule = dailyScheduleService.getById(id).orElseThrow();
-		System.out.println(dailySchedule);
 		model.addAttribute("dailySchedule", dailySchedule);
 		return "update-dailySchedule";
 	}
