@@ -60,9 +60,9 @@
 					<td>Address</td>
 					<td  th:text="*{address}"></td>
 				</tr>
-				<tr>
+				<tr >
 					<td>Group</td>
-					<td  th:text="${group.name}"></td>
+					<td th:text="${group == null ? '' : group.name}"></td>
 				</tr>
 					<tr>
 						<td>Courses</td>

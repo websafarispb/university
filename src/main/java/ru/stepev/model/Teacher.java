@@ -54,8 +54,8 @@ public class Teacher {
 	@Override
 	public String toString() {
 		return "Teacher [id=" + id + ", personalNumber=" + personalNumber + ", firstName=" + firstName + ", lastName="
-				+ lastName + "]" + System.lineSeparator();//, birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
-			//	+ address + ", courses=" + courses + "]";
+				+ lastName + "] birthday=" + birthday + ", email=" + email + ", gender=" + gender + ", address="
+				+ address + ", courses=" + courses + "]"+ System.lineSeparator();
 	}
 
 	@Override

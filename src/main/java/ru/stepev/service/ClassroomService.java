@@ -84,7 +84,7 @@ public class ClassroomService {
 	public void verifyClassroomIsExist(Classroom classroom) {
 		if (classroomDao.findById(classroom.getId()).isEmpty()) {
 			throw new EntityNotFoundException(
-					String.format("Classroom with address %s doesn't exist", classroom.getAddress()));
+					String.format("Classroom with ID %s doesn't exist", classroom.getId()));
 		}
 	}
 	

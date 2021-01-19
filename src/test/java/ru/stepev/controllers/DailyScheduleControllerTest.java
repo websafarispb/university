@@ -2,11 +2,14 @@ package ru.stepev.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static ru.stepev.data.DataTest.*;
 
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.DailyScheduleController;
+import ru.stepev.model.Course;
+import ru.stepev.model.DailySchedule;
 import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
@@ -101,5 +106,50 @@ public class DailyScheduleControllerTest {
 		mvc.perform(get("/dailySchedules/showScheduleForStudent?studentId=3&firstDate=2020-09-07&lastDate=2020-09-09")).andExpect(status().isOk())
 				.andExpect(model().attribute("dailySchedulesForShow", expectedDailyScheduleForStudent))
 				.andExpect(model().attribute("paginator", paginator)).andExpect(view().name("schedule-page"));
+	}
+
+	@Test
+	public void givenPathDeleteDailyScheduleWithId_whenDeleteDailyScheduleById_thenDeleteDailySchedule() throws Exception {
+		mvc.perform(get("/dailySchedules/delete/2"))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/dailySchedules"));
+	}
+	
+	@Test
+	public void givenPathUpdateDailyScheduleId_whenGetPathUpdateWithDailyScheduleId_thenGetViewUpdateDailySchedule() throws Exception {	
+		mvc.perform(get("/dailySchedules/update/3"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("dailySchedule", expectedAllSchedules.get(2)))
+		.andExpect(view().name("update-dailySchedule"));
+	}
+	
+	@Test
+	public void givenPathAddDailySchedule_whenGetPathAddDailySchedule_thenGetViewAddDailyScheduleWithNewDailySchedule() throws Exception {	
+		mvc.perform(get("/dailySchedules/add"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("dailySchedule", new DailySchedule()))
+		.andExpect(view().name("add-dailySchedule"));
+	}
+	
+	@Test
+	public void givenPathSaveAndDailyScheduleModelAttribute_whenSaveDailySchedule_thenUpdateDailyScheduleAndRedirect() throws Exception {	
+		mvc.perform(post("/dailySchedules/save").flashAttr("dailySchedule", expectedAllSchedules.get(2)))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/dailySchedules"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateNewDailySchedule_thenDailyScheduleWasCreatedAndRedirect() throws Exception {	
+		mvc.perform(post("/dailySchedules/create").flashAttr("dailySchedule",new DailySchedule(LocalDate.of(2030, 9, 7))))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/dailySchedules"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateDailyScheduleWichExist_thenDailyScheduleWasNotCreatedAndGetMessage() throws Exception {	
+		mvc.perform(post("/dailySchedules/create").flashAttr("dailySchedule", new DailySchedule(LocalDate.of(2020, 9, 7))))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("message", "DailySchedule with date 2020-09-07 already exist"))
+		.andExpect(view().name("error/general"));
 	}
 }

@@ -39,6 +39,7 @@ public class JdbcGroupDao implements GroupDao {
 	private static final String FIND_NUMBER_OF_GROUPS = "SELECT COUNT(*) FROM groups";
 	private static final String FIND_AND_SORT_BY_NAME = "SELECT * FROM groups ORDER BY group_name, id ASC LIMIT ? OFFSET ?";
 	private static final String FIND_AND_SORT_BY_ID = "SELECT * FROM groups ORDER BY id ASC LIMIT ? OFFSET ?";
+	private static final String DELETE_STUDENT_FROM_ALL_GROUP =  "DELETE FROM students_groups WHERE student_id = ?";
 
 	private GroupRowMapper groupRowMapper;
 	private JdbcTemplate jdbcTemplate;
@@ -66,8 +67,12 @@ public class JdbcGroupDao implements GroupDao {
 	public void update(Group group) {
 		if (jdbcTemplate.update(UPDATE_BY_GROUP_ID, group.getName(), group.getId()) != 0) {
 			Optional<Group> updatedGroup = findById(group.getId());
+			
 			updatedGroup.get().getStudents().stream().filter(s -> !group.getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(DELETE_STUDENT_FROM_GROUP, s.getId(), group.getId()));
+			
+			group.getStudents().stream().filter(s -> !updatedGroup.get().getStudents().contains(s))
+			.forEach(s -> jdbcTemplate.update(DELETE_STUDENT_FROM_ALL_GROUP, s.getId()));
 
 			group.getStudents().stream().filter(s -> !updatedGroup.get().getStudents().contains(s))
 					.forEach(s -> jdbcTemplate.update(ASSIGN_STUDENT, s.getId(), group.getId()));

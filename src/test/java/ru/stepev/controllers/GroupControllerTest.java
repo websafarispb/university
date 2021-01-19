@@ -3,6 +3,7 @@ package ru.stepev.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,8 @@ import static ru.stepev.data.DataTest.*;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.GroupController;
+import ru.stepev.model.Course;
+import ru.stepev.model.Group;
 import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
@@ -70,5 +73,50 @@ public class GroupControllerTest {
 		.andExpect(model().attribute("groups", expectedSortedGroupsForShowByName))
 		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("groups-page"));
+	}
+	//////
+	@Test
+	public void givenPathDeleteGroupWithGroupId_whenDeleteGroupById_thenDeleteGroup() throws Exception {
+		mvc.perform(get("/groups/delete/2"))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/groups"));
+	}
+	
+	@Test
+	public void givenPathUpdateGroupWithGroupId_whenGetPathUpdateWithGroupId_thenGetViewUpdateGroup() throws Exception {	
+		mvc.perform(get("/groups/update/3"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("group", groupExpected))
+		.andExpect(view().name("update-group"));
+	}
+	
+	@Test
+	public void givenPathAddGroup_whenGetPathAddGroup_thenGetViewAddGroupWithNewGroup() throws Exception {	
+		mvc.perform(get("/groups/add"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("group", new Group()))
+		.andExpect(view().name("add-group"));
+	}
+	
+	@Test
+	public void givenPathSaveAndGroupModelAttribute_whenSaveGroup_thenUpdateGroupAndRedirect() throws Exception {	
+		mvc.perform(post("/groups/save").flashAttr("group", groupExpected))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/groups"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateNewGroup_thenGroupWasCreatedAndRedirect() throws Exception {	
+		mvc.perform(post("/groups/create").flashAttr("group",groupExpected))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/groups"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateGroupWichExist_thenGroupWasNotCreatedAndGetMessage() throws Exception {	
+		mvc.perform(post("/groups/create").flashAttr("group", bigGroup))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("message", "Group with name c2c2 already exist"))
+		.andExpect(view().name("error/general"));
 	}
 }

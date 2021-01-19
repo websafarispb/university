@@ -27,14 +27,20 @@
 
 	Welcome to "Groups" page.
 	<div id="container">
+		<div class="alert alert-danger" role="alert"
+			th:if="${message != null}">
+			<span th:text="${message}"></span> <br> <a th:href="@{/}"
+				class="btn btn-info btn-sm mb-3">Back to Menu</a>
+		</div>
 		<div th:if="${not #lists.isEmpty(groups)}">
 			<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 				Menu</a>
+			<a th:href="@{/groups/add}" class="btn btn-info btn-sm mb-3">New group</a>
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
-						<th><a class="btn btn-secondary" th:href="@{/groups/(sortBy=${'Id'})}" >Id</a></th>
-						<th><a class="btn btn-secondary" th:href="@{/groups/(sortBy=${'Name'})}" >Name</a></th>
+						<th>Id</th>
+						<th>Name</th>
 						<th>Action</th>
 					</tr>
 				</thead>
@@ -43,6 +49,10 @@
 					<td th:text="${group.name}" />
 					<td><a th:href="@{/groups/{groupId}/(groupId=${group.id})}"
 						class="btn btn-info">Show</a>
+					<a th:href="@{/groups/update/{groupId}/(groupId=${group.id})}"
+						class="btn btn-warning">Update</a>
+					<a th:href="@{/groups/delete/{groupId}/(groupId=${group.id})}"
+						class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this classroom?'))) return false">Delete</a>
 					</td>
 				</tr>
 			</table>

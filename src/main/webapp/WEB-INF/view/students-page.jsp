@@ -26,11 +26,15 @@
 		crossorigin="anonymous"></script>
 
 	<div id="container">
-		<div class="card">
+			<div class="alert alert-danger" role="alert"
+				th:if="${message != null}">
+				<span th:text="${message}"></span> <br> <a th:href="@{/}"
+					class="btn btn-info btn-sm mb-3">Back to Menu</a>
+			</div>
 			<div th:if="${not #lists.isEmpty(students)}">
-
 				<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 					Menu</a> 
+				<a th:href="@{/students/add}" class="btn btn-info btn-sm mb-3">New student</a> 
 
 				<table id="selectedColumn" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
 					<thead class="thead-dark">
@@ -53,10 +57,13 @@
 						<td th:text="${student.address}" />
 						<td><a th:href="@{/students/{studentId}/(studentId=${student.id})}"
 							class="btn btn-info">Show</a>
+							<a th:href="@{/students/update/{studentId}/(studentId=${student.id})}"
+							class="btn btn-warning">Update</a>
+							<a th:href="@{/students/delete/{studentId}/(studentId=${student.id})}"
+							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this student?'))) return false">Delete</a>
 					   </td>
 					</tr>
 				</table>
-			</div>
 			<nav aria-label="..." th:object="${paginator}">
 				<ul class="pagination  justify-content-center">
 					<li class="page-item" th:classappend="*{(currentPage <=1 ? 'disabled' : '' )}">

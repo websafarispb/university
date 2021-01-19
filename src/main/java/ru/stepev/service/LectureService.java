@@ -133,23 +133,31 @@ public class LectureService {
 	}
 
 	private void checkGroupFree(Lecture lecture) {
-		if (lectureDao.findByDailyScheduleIdAndTimeAndGroupId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getGroup().getId()).isPresent()) {
+		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
+				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),
+				lecture.getTeacher().getId());
+		if (updatedLecture.isPresent() && (updatedLecture.get().getId() != lecture.getId())) {
+			System.out.println(updatedLecture);
+			System.out.println(lecture);
 			throw new GroupIsNotFreeException(String.format("Group name %s is not free", lecture.getGroup().getName()));
 		}
 	}
 
 	private void checkClassroomFree(Lecture lecture) {
-		if (lectureDao.findByDailyScheduleIdAndTimeAndClassroomId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getClassRoom().getId()).isPresent()) {
+		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
+				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),
+				lecture.getTeacher().getId());
+		if (updatedLecture.isPresent() && (updatedLecture.get().getId() != lecture.getId())) {
 			throw new ClassroomIsNotFreeException(
 					String.format("Classroom with address %s is not free", lecture.getClassRoom().getAddress()));
 		}
 	}
 
 	private void checkTeacherFree(Lecture lecture) {
-		if (lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(lecture.getDailyScheduleId(), lecture.getTime(),
-				lecture.getTime().plusMinutes(durationOfLecture), lecture.getTeacher().getId()).isPresent()) {
+		Optional<Lecture> updatedLecture = lectureDao.findByDailyScheduleIdAndTimeAndTeacherId(
+				lecture.getDailyScheduleId(), lecture.getTime(), lecture.getTime().plusMinutes(durationOfLecture),
+				lecture.getTeacher().getId());
+		if (updatedLecture.isPresent() && (updatedLecture.get().getId() != lecture.getId())) {
 			throw new TeacherIsNotFreeException(
 					String.format("Teacher name %s is not free", lecture.getTeacher().getLastName()));
 		}
@@ -177,7 +185,7 @@ public class LectureService {
 	}
 
 	public int count() {
-		return lectureDao.findNumberOfItem() ;
+		return lectureDao.findNumberOfItem();
 	}
 
 	public List<Lecture> getAndSortByTime(int numberOfItems, int offset) {
@@ -205,13 +213,19 @@ public class LectureService {
 	}
 
 	public List<Lecture> getAndSort(Paginator paginator) {
-		switch(paginator.getSortBy()) {
-			case ("Time") : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
-			case ("Course")  :  return getAndSortByCourse(paginator.getItemsPerPage(), paginator.getOffset());
-			case ("Classroom")  :  return getAndSortByClassroom(paginator.getItemsPerPage(), paginator.getOffset());
-			case ("Group")  :  return getAndSortByGroup(paginator.getItemsPerPage(), paginator.getOffset());
-			case ("Teacher")  :  return getAndSortByTeacher(paginator.getItemsPerPage(), paginator.getOffset());
-			default : return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
+		switch (paginator.getSortBy()) {
+		case ("Time"):
+			return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
+		case ("Course"):
+			return getAndSortByCourse(paginator.getItemsPerPage(), paginator.getOffset());
+		case ("Classroom"):
+			return getAndSortByClassroom(paginator.getItemsPerPage(), paginator.getOffset());
+		case ("Group"):
+			return getAndSortByGroup(paginator.getItemsPerPage(), paginator.getOffset());
+		case ("Teacher"):
+			return getAndSortByTeacher(paginator.getItemsPerPage(), paginator.getOffset());
+		default:
+			return getAndSortByTime(paginator.getItemsPerPage(), paginator.getOffset());
 		}
 	}
 }

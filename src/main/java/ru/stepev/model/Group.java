@@ -16,6 +16,10 @@ public class Group {
 	private int id;
 	private String name;
 	private List<Student> students;
+	
+	public Group(int id) {
+		this.id = id;
+	}
 
 	public Group(String name) {
 		this.name = name;
@@ -30,7 +34,7 @@ public class Group {
 
 	@Override
 	public String toString() {
-		return "Group [id=" + id + "name=" + name + "]";// "students" + students + "]";
+		return "Group [id=" + id + "name=" + name +  "students" + students + "]";
 	}
 
 	@Override

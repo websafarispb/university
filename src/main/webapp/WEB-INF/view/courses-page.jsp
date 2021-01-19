@@ -27,9 +27,16 @@
 
 	Welcome to "Courses" page.
 	<div id="container">
+	<div class="alert alert-danger" role="alert"  th:if="${message != null}" >
+			<span th:text="${message}"></span>
+			<br>
+			<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
+					Menu</a> 
+		</div>
 		<div th:if="${not #lists.isEmpty(courses)}">
 		<a th:href="@{/}" class="btn btn-info btn-sm mb-3">Back to
 					Menu</a>
+		<a th:href="@{/courses/add}" class="btn btn-info btn-sm mb-3">New course</a> 
 			<table class="table table-striped">
 			<thead class="thead-dark">
 				<tr>
@@ -45,6 +52,10 @@
 					<td th:text="${course.description}" />
 					<td><a th:href="@{/courses/{courseId}/(courseId=${course.id})}"
 							class="btn btn-info">Show</a>
+					<a th:href="@{/courses/update/{courseId}/(courseId=${course.id})}"
+							class="btn btn-warning">Update</a>
+					<a th:href="@{/courses/delete/{courseId}/(courseId=${course.id})}"
+							class="btn btn-danger" onclick="if (!(confirm('Are you sure you want to delete this course?'))) return false">Delete</a>
 					   </td>
 				</tr>
 			</table>

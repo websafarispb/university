@@ -20,6 +20,10 @@ public class Lecture {
 	private Classroom classRoom;
 	private Group group;
 	private Teacher teacher;
+	
+	public Lecture(int id) {
+		this.id = id;
+	}
 
 	@Override
 	public int hashCode() {
@@ -82,8 +86,4 @@ public class Lecture {
 		return "Lecture " + id + "[dailyScheduleId=" + dailyScheduleId + ", time=" + time + ", course=" + course + ", classRoom="
 				+ classRoom +  ", teacher=" + teacher + "group " + group + "]" + System.lineSeparator();
 	}
-//	@Override
-//	public String toString() {
-//		return "Lecture " + group.getId() + " " + group.getName()  + System.lineSeparator();
-//	}
 }

@@ -51,6 +51,7 @@
 							class="btn btn-info">Show</a>
 					   </td>
 				</tr>
+				
 			</table>					
 		</form>
 	</div>

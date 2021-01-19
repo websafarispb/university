@@ -10,7 +10,6 @@ public class ClassroomConverter implements Converter<String, Classroom>{
 	
 	@Override
 	public Classroom convert(String id) {
-		System.out.println("Trying to convert id-" + id + "to Course");	
 		return new Classroom(Integer.parseInt(id));
 	}
 }

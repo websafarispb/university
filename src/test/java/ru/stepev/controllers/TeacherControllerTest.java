@@ -2,7 +2,9 @@ package ru.stepev.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static ru.stepev.data.DataTest.*;
@@ -20,6 +22,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ru.stepev.config.TestConfig;
 import ru.stepev.controller.TeacherController;
+import ru.stepev.model.Course;
+import ru.stepev.model.Teacher;
 import ru.stepev.utils.Paginator;
 
 @ExtendWith(SpringExtension.class)
@@ -70,5 +74,52 @@ public class TeacherControllerTest {
 		.andExpect(model().attribute("teachers", expectedAllTeachersSortedByLastName))
 		.andExpect(model().attribute("paginator", paginator))
 		.andExpect(view().name("teachers-page"));
+	}
+
+	@Test
+	public void givenPathDeleteTeacherWithTeacherId_whenDeleteTeacherById_thenDeleteTeacher() throws Exception {
+		mvc.perform(get("/teachers/delete/2"))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/teachers"));
+	}
+	
+	@Test
+	public void givenPathUpdateTeacherWithTeacherId_whenGetPathUpdateWithTeacherId_thenGetViewUpdateTeacher() throws Exception {	
+		mvc.perform(get("/teachers/update/3"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("teacher", expectedAllNotApdatedTeachers.get(2)))
+		.andExpect(view().name("update-teacher"));
+	}
+	
+	@Test
+	public void givenPathAddTeacher_whenGetPathAddTeacher_thenGetViewAddTeacherWithNewTeacher() throws Exception {	
+		Teacher teacher = new Teacher();
+		teacher.setGender("MALE");
+		mvc.perform(get("/teachers/add"))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("teacher", teacher))
+		.andExpect(view().name("add-teacher"));
+	}
+	
+	@Test
+	public void givenPathSaveAndTeacherModelAttribute_whenSaveTeacher_thenUpdateTeacherAndRedirect() throws Exception {	
+		mvc.perform(post("/teachers/save").flashAttr("teacher", expectedAllNotApdatedTeachers.get(2)))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/teachers"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateNewTeacher_thenTeacherWasCreatedAndRedirect() throws Exception {	
+		mvc.perform(post("/teachers/create").flashAttr("teacher", teacherForCreate))
+		.andExpect(status().isFound())
+		.andExpect(redirectedUrl("/teachers"));
+	}
+	
+	@Test
+	public void givenPathCreateAndPostMethod_whenCreateTeacherWichExist_thenTeacherWasNotCreatedAndGetMessage() throws Exception {	
+		mvc.perform(post("/teachers/create").flashAttr("teacher", expectedAllNotApdatedTeachers.get(2)))
+		.andExpect(status().isOk())
+		.andExpect(model().attribute("message", "Teacher with ID 3 already exist"))
+		.andExpect(view().name("error/general"));
 	}
 }

@@ -72,6 +72,12 @@ public interface DataTest {
 			Classroom.builder().id(3).address("103").capacity(30).build(),
 			Classroom.builder().id(4).address("104").capacity(20).build(),
 			Classroom.builder().id(5).address("105").capacity(50).build());
+	List<Classroom> expectedClassroomsSortedByAddressForController = Arrays.asList(
+			Classroom.builder().id(21).address("1000000").capacity(80).build(),
+			Classroom.builder().id(1).address("101").capacity(50).build(),
+			Classroom.builder().id(2).address("102").capacity(40).build(),
+			Classroom.builder().id(3).address("103").capacity(30).build(),
+			Classroom.builder().id(4).address("104").capacity(20).build());
 
 	Classroom classroomForCreate = Classroom.builder().id(0).address("105").capacity(10).build();
 	Classroom classroomForTest = Classroom.builder().id(5).address("105").capacity(10).build();
@@ -164,6 +170,16 @@ public interface DataTest {
 			Course.builder().id(3).name("Chemistry").description("Chem").build(),
 			Course.builder().id(13).name("Computer architecture and organisation")
 					.description("All about computer architecture and organisation").build());
+	List<Course> expectedSortedCoursesByNameForControllerTest = Arrays.asList(
+			Course.builder().id(17).name("New Course").description("All about new course")
+			.build(),
+			Course.builder().id(12).name("Artificial intelligence").description("All about Artificial intelligence")
+			.build(),
+			Course.builder().id(7).name("Astronomy").description("All about astronomy").build(),
+			Course.builder().id(2).name("Biology").description("Bio").build(),
+			Course.builder().id(3).name("Chemistry").description("Chem").build(),
+			Course.builder().id(13).name("Computer architecture and organisation")
+			.description("All about computer architecture and organisation").build());
 
 	List<Course> coursesForTeacher = Arrays.asList(
 			Course.builder().id(1).name("Mathematics").description("Math").build(),
@@ -315,6 +331,9 @@ public interface DataTest {
 			.courses(coursesForTeacher).build();
 	Teacher specialTeacher = Teacher.builder().id(5).personalNumber(227).firstName("Irina").lastName("Stepanova")
 			.birthday(LocalDate.of(2020, 9, 7)).email("Stepanova@mail.ru").gender(Gender.FEMALE).address("City11")
+			.courses(expectedCourses.subList(0, 1)).build();
+	Teacher teacherForCreate = Teacher.builder().id(500).personalNumber(2270).firstName("Irina").lastName("Stepanova")
+			.birthday(LocalDate.of(2020, 9, 7)).email("Stepanova123@mail.ru").gender(Gender.FEMALE).address("City11")
 			.courses(expectedCourses.subList(0, 1)).build();
 	List<Student> expectedStudentsSortedByAddress = Arrays.asList(
 			Student.builder().id(3).personalNumber(125).firstName("Ivan").lastName("Stepanov")
@@ -598,6 +617,9 @@ public interface DataTest {
 	Student smartStudent = Student.builder().id(1).personalNumber(123).firstName("Peter").lastName("Petrov")
 			.birthday(LocalDate.of(2020, 9, 3)).email("webPP@mail.ru").gender(Gender.MALE).address("City17")
 			.courses(notExistedCourses).build();
+	Student studentForCreate = Student.builder().id(0).personalNumber(1230).firstName("Peter").lastName("Petrov")
+			.birthday(LocalDate.of(2020, 9, 3)).email("webPPp@mail.ru").gender(Gender.MALE).address("City17")
+			.courses(coursesForTeacher).build();
 
 	List<Group> expectedGroups = Arrays.asList(
 			Group.builder().id(1).name("a2a2").students(expectedStudentsForGroupA2A2Name).build(),
@@ -831,6 +853,9 @@ public interface DataTest {
 			.teacher(expectedTeachers.get(3)).build();
 	Lecture lectureWithSmallClassroom = Lecture.builder().id(9).dailyScheduleId(5).time(LocalTime.of(9, 59, 59))
 			.course(expectedCourses.get(3)).classRoom(classroomSmall).group(bigGroup).teacher(expectedTeachers.get(3))
+			.build();
+	Lecture lectureForCreateClassroom = Lecture.builder().id(0).dailyScheduleId(0).time(LocalTime.of(19, 0, 0)).course(expectedCourses.get(1))
+			.classRoom(expectedClassrooms.get(0)).group(expectedGroups.get(2)).teacher(expectedTeachers.get(2))
 			.build();
 
 	List<DailySchedule> expectedDailySchedules = Arrays.asList(
