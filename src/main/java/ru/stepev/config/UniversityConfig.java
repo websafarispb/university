@@ -1,5 +1,6 @@
 package ru.stepev.config;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +12,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.jndi.JndiTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.ViewResolver;
@@ -60,16 +61,11 @@ public class UniversityConfig implements WebMvcConfigurer {
 	public JdbcTemplate jdbcTamplate(DataSource dateSourse) {
 		return new JdbcTemplate(dateSourse);
 	}
-
+	
 	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName(driver);
-		dataSource.setUrl(url);
-		dataSource.setUsername(user);
-		dataSource.setPassword(pass);
-		return dataSource;
-	}
+    public DataSource dataSource() throws NamingException {
+        return (DataSource) new JndiTemplate().lookup(url);
+    }
 
 	@Bean
 	public PlatformTransactionManager transactionManager(DataSource dataSource) {
