@@ -42,8 +42,8 @@ public class UniversityConfig implements WebMvcConfigurer {
 	@Value("${driver}")
 	private String driver;
 
-	@Value("${url}")
-	private String url;
+	@Value("${jndiUrl}")
+	private String jndiUrl;
 
 	@Value("${user}")
 	private String user;
@@ -58,14 +58,14 @@ public class UniversityConfig implements WebMvcConfigurer {
 	private Resource data;
 
 	@Bean
-	public JdbcTemplate jdbcTamplate(DataSource dateSourse) {
-		return new JdbcTemplate(dateSourse);
+	public JdbcTemplate jdbcTamplate(DataSource dateSource) {
+		return new JdbcTemplate(dateSource);
 	}
-	
+
 	@Bean
-    public DataSource dataSource() throws NamingException {
-        return (DataSource) new JndiTemplate().lookup(url);
-    }
+	public DataSource dataSource() throws NamingException {
+		return (DataSource) new JndiTemplate().lookup(jndiUrl);
+	}
 
 	@Bean
 	public PlatformTransactionManager transactionManager(DataSource dataSource) {
